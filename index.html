@@ -174,6 +174,7 @@
             right: -20px;
             bottom: -40px;
             transform: rotate(15deg);
+            pointer-events: none; /* CORREÇÃO: Impede que o emoji bloqueie o clique no botão */
         }
         
         .store-header::after {
@@ -184,6 +185,7 @@
             left: -20px;
             top: -30px;
             transform: rotate(-15deg);
+            pointer-events: none; /* CORREÇÃO: Impede que o emoji bloqueie o clique no botão */
         }
         
         /* Botão flutuante do carrinho */
@@ -404,6 +406,7 @@
             border: 1px solid rgba(255,255,255,0.3);
             cursor: pointer;
             transition: all 0.2s;
+            text-decoration: none; /* Garante que pareça um botão */
         }
         
         .admin-btn:hover {
@@ -464,10 +467,11 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="window.open('admin.html', '_blank')" class="admin-btn">
+                    <!-- BOTÃO ADMIN CORRIGIDO COM LINK DIRETO -->
+                    <a href="admin.html" class="admin-btn">
                         <i class="fas fa-lock text-sm"></i>
                         <span>Admin</span>
-                    </button>
+                    </a>
                 </div>
             </div>
             
