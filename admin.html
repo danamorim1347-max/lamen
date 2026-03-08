@@ -205,13 +205,6 @@
             border-left-color: #EF4444;
         }
         
-        /* Print styles */
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white; }
-        }
-        
         /* Capture location button */
         .capture-location-btn {
             background: #3B82F6;
@@ -258,6 +251,17 @@
         .menu-item-card:hover {
             background: #ede9fe;
         }
+
+        /* Mensagem de boas-vindas */
+        .welcome-message {
+            background: linear-gradient(135deg, #4C1D95, #6D28D9);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="flex justify-center">
@@ -277,13 +281,13 @@
     <!-- Audio -->
     <audio id="notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
-    <!-- Login Modal -->
+    <!-- Login Modal (sempre visível inicialmente) -->
     <div id="login-modal" class="fixed inset-0 modal-overlay z-[200] flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-3xl p-6">
             <div class="text-center mb-5">
                 <div class="text-5xl mb-3">🍜</div>
                 <h2 class="text-2xl font-black text-purple-600">Login Admin</h2>
-                <p class="text-sm text-gray-500 mt-2">Acesse o painel administrativo</p>
+                <p class="text-sm text-gray-500 mt-2">Área restrita - Apenas administradores</p>
             </div>
             
             <input type="email" id="login-email" placeholder="E-mail" 
@@ -297,10 +301,16 @@
             </button>
             
             <div id="login-error" class="text-red-500 text-xs text-center mt-3 hidden"></div>
+            
+            <div class="mt-4 text-center">
+                <a href="index.html" class="text-gray-400 text-xs hover:text-gray-600">
+                    ← Voltar ao cardápio
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Admin Panel (visible after login) -->
+    <!-- Admin Panel (inicialmente oculto) -->
     <div id="admin-panel" class="hidden w-full max-w-6xl mx-auto">
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
             <!-- Admin Header -->
@@ -494,10 +504,13 @@
         window.onload = function() {
             console.log("🚀 Iniciando painel admin...");
             
+            // Mostrar loading
+            document.getElementById('loading').style.opacity = '1';
+            
             // Verificar se já está logado
             checkAuthState();
             
-            // Esconder loading após 1 segundo
+            // Esconder loading após 1 segundo (ou quando auth carregar)
             setTimeout(() => {
                 document.getElementById('loading').style.opacity = '0';
                 setTimeout(() => {
@@ -521,13 +534,20 @@
 
         // ==================== AUTH ====================
         function checkAuthState() {
+            console.log("🔄 Verificando estado de autenticação...");
+            
             onAuthStateChanged(window.auth, (user) => {
                 if (user) {
-                    console.log("👤 Usuário já logado:", user.email);
+                    console.log("👤 Usuário autenticado:", user.email);
                     currentUser = user;
                     document.getElementById('admin-email').textContent = user.email;
+                    
+                    // Esconder modal de login e mostrar painel
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('admin-panel').classList.remove('hidden');
+                    
+                    // Mostrar mensagem de boas-vindas
+                    showToast(`Bem-vindo, ${user.email}!`, 'success');
                     
                     // Carregar dados
                     loadConfig();
@@ -536,9 +556,14 @@
                     // Iniciar listener de pedidos
                     listenToOrders();
                     
+                    // Abrir aba de pedidos por padrão
                     switchAdminTab('orders');
+                    
                 } else {
-                    console.log("👤 Nenhum usuário logado");
+                    console.log("👤 Nenhum usuário autenticado");
+                    currentUser = null;
+                    
+                    // Mostrar modal de login e esconder painel
                     document.getElementById('login-modal').classList.remove('hidden');
                     document.getElementById('admin-panel').classList.add('hidden');
                 }
@@ -549,6 +574,7 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const errorDiv = document.getElementById('login-error');
+            const btn = document.getElementById('login-btn');
             
             if (!email || !password) {
                 errorDiv.textContent = "Preencha email e senha!";
@@ -557,8 +583,14 @@
             }
             
             try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Entrando...';
+                
                 await signInWithEmailAndPassword(window.auth, email, password);
-                showToast('Login realizado com sucesso!');
+                
+                // O onAuthStateChanged vai cuidar do resto
+                errorDiv.classList.add('hidden');
+                
             } catch (error) {
                 console.error("Erro no login:", error);
                 
@@ -566,17 +598,26 @@
                 if (error.code === 'auth/user-not-found') mensagem = "Usuário não encontrado!";
                 if (error.code === 'auth/wrong-password') mensagem = "Senha incorreta!";
                 if (error.code === 'auth/invalid-email') mensagem = "Email inválido!";
+                if (error.code === 'auth/too-many-requests') mensagem = "Muitas tentativas. Tente mais tarde!";
                 
                 errorDiv.textContent = mensagem;
                 errorDiv.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Entrar';
             }
         }
 
         async function handleLogout() {
             try {
                 await signOut(window.auth);
-                currentUser = null;
-                showToast('Logout realizado!');
+                showToast('Logout realizado com sucesso!');
+                
+                // Limpar campos de login
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+                document.getElementById('login-error').classList.add('hidden');
+                
             } catch (error) {
                 console.error("Erro no logout:", error);
                 showToast('Erro ao fazer logout!', 'error');
@@ -777,18 +818,16 @@
             showToast('Status atualizado!');
         }
 
-        // ==================== FUNÇÃO DE IMPRESSÃO CORRIGIDA ====================
+        // ==================== FUNÇÃO DE IMPRESSÃO ====================
         function printOrder(id, order) {
             console.log("🖨️ Imprimindo pedido:", id, order);
             
-            // Criar conteúdo para impressão
             const itemsText = Object.entries(order.items)
                 .map(([item, qty]) => `${qty}x ${item}`)
                 .join('\n');
             
             const date = new Date(order.timestamp).toLocaleString('pt-BR');
             
-            // Criar uma nova janela para impressão
             const printWindow = window.open('', '_blank');
             
             if (!printWindow) {
@@ -796,7 +835,6 @@
                 return;
             }
             
-            // Escrever o conteúdo na nova janela
             printWindow.document.write(`
                 <html>
                 <head>
@@ -983,7 +1021,6 @@
                 html += `</div>`;
                 
                 if (category === 'refrigerantes') {
-                    // Tratamento especial para refrigerantes
                     html += `<div class="bg-purple-50 p-4 rounded-xl mb-3">`;
                     html += `<div class="font-black text-lg mb-2">Refrigerantes</div>`;
                     html += `<div class="grid grid-cols-3 gap-3 mb-3">`;
@@ -1002,7 +1039,6 @@
                     html += `</div>`;
                     
                 } else {
-                    // Items normais
                     for (const [id, item] of Object.entries(items)) {
                         html += `
                             <div class="bg-purple-50 p-4 rounded-xl mb-3 flex justify-between items-center">
@@ -1082,7 +1118,6 @@
             document.getElementById('edit-item-modal').classList.add('hidden');
         }
 
-        // Preview da imagem ao digitar URL
         document.getElementById('edit-item-image')?.addEventListener('input', function(e) {
             document.getElementById('edit-item-image-preview').src = e.target.value || 'https://via.placeholder.com/100';
         });
@@ -1114,7 +1149,6 @@
             
             delete menu[category][id];
             
-            // Reorganizar IDs
             const newItems = {};
             let index = 1;
             for (const [_, item] of Object.entries(menu[category])) {
