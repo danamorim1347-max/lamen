@@ -62,44 +62,38 @@
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 10px;
-        }
-        
-        /* Container principal */
-        .admin-container {
-            max-width: 1200px;
-            margin: 0 auto;
+            padding: 20px;
         }
         
         /* Status dos pedidos */
         .status-Novo { 
-            border-left: 4px solid #8B5CF6; 
+            border-left: 6px solid #8B5CF6; 
             background: linear-gradient(to right, #f5f3ff, white);
         }
         .status-Preparando { 
-            border-left: 4px solid #F59E0B; 
+            border-left: 6px solid #F59E0B; 
             background: linear-gradient(to right, #fffbeb, white);
         }
         .status-Pronto { 
-            border-left: 4px solid #10B981; 
+            border-left: 6px solid #10B981; 
             background: linear-gradient(to right, #ecfdf5, white);
         }
         .status-Entregue { 
-            border-left: 4px solid #3B82F6; 
+            border-left: 6px solid #3B82F6; 
             background: linear-gradient(to right, #eff6ff, white);
         }
         .status-Cancelado { 
-            border-left: 4px solid #EF4444; 
+            border-left: 6px solid #EF4444; 
             background: linear-gradient(to right, #fef2f2, white);
             opacity: 0.8;
         }
         
         /* Loading */
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(139, 92, 246, 0.3);
-            border-top: 3px solid #8B5CF6;
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(139, 92, 246, 0.3);
+            border-top: 4px solid #8B5CF6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -117,7 +111,7 @@
         
         .modal-content {
             background: white;
-            border-radius: 20px;
+            border-radius: 30px;
             max-height: 85vh;
             overflow-y: auto;
         }
@@ -125,13 +119,13 @@
         /* Inputs */
         .custom-input {
             width: 100%;
-            padding: 10px 12px;
+            padding: 14px 16px;
             background: #f5f3ff;
             border: 2px solid transparent;
-            border-radius: 12px;
-            font-size: 0.9rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
             transition: all 0.3s;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         
         .custom-input:focus {
@@ -144,8 +138,8 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 44px;
-            height: 22px;
+            width: 50px;
+            height: 24px;
         }
         
         .switch input {
@@ -163,14 +157,14 @@
             bottom: 0;
             background-color: #ccc;
             transition: .3s;
-            border-radius: 22px;
+            border-radius: 24px;
         }
         
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 20px;
+            width: 20px;
             left: 2px;
             bottom: 2px;
             background-color: white;
@@ -183,61 +177,57 @@
         }
         
         input:checked + .slider:before {
-            transform: translateX(22px);
+            transform: translateX(26px);
         }
         
         /* Toast */
         .toast-container {
             position: fixed;
-            top: 15px;
-            right: 15px;
+            top: 20px;
+            right: 20px;
             z-index: 9999;
         }
         
         .toast {
             background: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            border-left: 4px solid #10B981;
-            margin-bottom: 8px;
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-left: 5px solid #10B981;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-weight: 500;
-            font-size: 0.9rem;
         }
         
         .toast.error {
             border-left-color: #EF4444;
         }
         
-        /* Cards de pedido */
-        .order-card {
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid #f0f0f0;
+        /* Print styles */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; }
         }
         
         /* Capture location button */
         .capture-location-btn {
             background: #3B82F6;
             color: white;
-            padding: 10px 16px;
-            border-radius: 12px;
+            padding: 12px 20px;
+            border-radius: 14px;
             font-weight: 700;
-            font-size: 0.85rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
             border: none;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
         }
         
         .capture-location-btn:hover {
@@ -246,19 +236,19 @@
         
         /* Image preview */
         .image-preview {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
             object-fit: cover;
             border: 2px solid #8B5CF6;
         }
         
-        /* Menu item card */
+        /* Cardápio items */
         .menu-item-card {
             background: #f5f3ff;
-            border-radius: 14px;
-            padding: 12px;
-            margin-bottom: 8px;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -268,38 +258,15 @@
         .menu-item-card:hover {
             background: #ede9fe;
         }
-
-        /* Botão de imagem */
-        .image-btn {
-            background: #8B5CF6;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        
-        /* Desktop styles */
-        @media (min-width: 768px) {
-            .admin-container {
-                padding: 20px;
-            }
-            
-            .order-card {
-                padding: 20px;
-            }
-        }
     </style>
 </head>
 <body class="flex justify-center">
     <!-- Loading -->
     <div id="loading" class="fixed inset-0 bg-gradient-to-br from-purple-900 to-purple-700 flex items-center justify-center z-[9999]">
         <div class="text-center text-white">
-            <div class="text-5xl mb-3 animate-bounce">🍜</div>
-            <h2 class="text-xl font-black mb-2">Painel Admin</h2>
-            <div class="text-sm mb-4">Carregando...</div>
+            <div class="text-6xl mb-4 animate-bounce">🍜</div>
+            <h2 class="text-2xl font-black mb-3">Painel Admin</h2>
+            <div class="text-base mb-5">Carregando...</div>
             <div class="loading-spinner mx-auto"></div>
         </div>
     </div>
@@ -312,15 +279,15 @@
 
     <!-- Login Modal -->
     <div id="login-modal" class="fixed inset-0 modal-overlay z-[200] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-5">
-            <div class="text-center mb-4">
-                <div class="text-4xl mb-2">🍜</div>
-                <h2 class="text-xl font-black text-purple-600">Login Admin</h2>
-                <p class="text-xs text-gray-500 mt-1">Área restrita - Apenas administradores</p>
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6">
+            <div class="text-center mb-5">
+                <div class="text-5xl mb-3">🍜</div>
+                <h2 class="text-2xl font-black text-purple-600">Login Admin</h2>
+                <p class="text-sm text-gray-500 mt-2">Acesse o painel administrativo</p>
             </div>
             
             <input type="email" id="login-email" placeholder="E-mail" 
-                   class="w-full p-3 bg-purple-50 rounded-xl mb-2 text-sm">
+                   class="w-full p-3 bg-purple-50 rounded-xl mb-3 text-sm">
             <input type="password" id="login-password" placeholder="Senha" 
                    class="w-full p-3 bg-purple-50 rounded-xl mb-3 text-sm">
             
@@ -330,25 +297,19 @@
             </button>
             
             <div id="login-error" class="text-red-500 text-xs text-center mt-3 hidden"></div>
-            
-            <div class="mt-3 text-center">
-                <a href="index.html" class="text-gray-400 text-xs hover:text-gray-600">
-                    ← Voltar ao cardápio
-                </a>
-            </div>
         </div>
     </div>
 
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="hidden w-full admin-container">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+    <!-- Admin Panel (visible after login) -->
+    <div id="admin-panel" class="hidden w-full max-w-6xl mx-auto">
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
             <!-- Admin Header -->
-            <div class="bg-gradient-to-r from-purple-900 to-purple-800 text-white p-4">
+            <div class="bg-gradient-to-r from-purple-900 to-purple-800 text-white p-5">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-lg md:text-xl font-black">PAINEL ADMIN</h2>
-                    <div class="flex items-center gap-3">
-                        <span id="admin-email" class="text-xs opacity-80"></span>
-                        <button onclick="handleLogout()" class="bg-red-500 px-3 py-1.5 rounded-lg text-xs font-black hover:bg-red-600">
+                    <h2 class="text-xl md:text-2xl font-black">PAINEL ADMIN</h2>
+                    <div class="flex items-center gap-4">
+                        <span id="admin-email" class="text-sm"></span>
+                        <button onclick="handleLogout()" class="bg-red-500 px-4 py-2 rounded-xl text-sm font-black hover:bg-red-600">
                             Sair
                         </button>
                     </div>
@@ -357,30 +318,30 @@
             
             <!-- Admin Tabs -->
             <div class="flex border-b overflow-x-auto no-scrollbar">
-                <button onclick="switchAdminTab('orders')" id="tab-orders" class="flex-1 p-3 font-black text-xs bg-purple-600 text-white">📋 Pedidos</button>
-                <button onclick="switchAdminTab('menu')" id="tab-menu" class="flex-1 p-3 font-black text-xs text-gray-500 hover:bg-gray-100">🍜 Cardápio</button>
-                <button onclick="switchAdminTab('location')" id="tab-location" class="flex-1 p-3 font-black text-xs text-gray-500 hover:bg-gray-100">📍 Localização</button>
-                <button onclick="switchAdminTab('config')" id="tab-config" class="flex-1 p-3 font-black text-xs text-gray-500 hover:bg-gray-100">⚙️ Config</button>
+                <button onclick="switchAdminTab('orders')" id="tab-orders" class="flex-1 p-4 font-black text-sm bg-purple-600 text-white">📋 Pedidos</button>
+                <button onclick="switchAdminTab('menu')" id="tab-menu" class="flex-1 p-4 font-black text-sm text-gray-500 hover:bg-gray-100">🍜 Cardápio</button>
+                <button onclick="switchAdminTab('location')" id="tab-location" class="flex-1 p-4 font-black text-sm text-gray-500 hover:bg-gray-100">📍 Localização</button>
+                <button onclick="switchAdminTab('config')" id="tab-config" class="flex-1 p-4 font-black text-sm text-gray-500 hover:bg-gray-100">⚙️ Config</button>
             </div>
             
             <!-- Admin Content -->
-            <div class="p-4 max-h-[70vh] overflow-y-auto">
+            <div class="p-5 max-h-[70vh] overflow-y-auto">
                 <!-- Orders Section -->
-                <div id="orders-section" class="space-y-3">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-xl font-black text-purple-900">Pedidos</h3>
-                        <span class="bg-purple-100 px-3 py-1 rounded-full text-purple-600 font-black text-xs" id="orders-count">0</span>
+                <div id="orders-section" class="space-y-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-black text-purple-900">Pedidos</h3>
+                        <span class="bg-purple-100 px-4 py-2 rounded-full text-purple-600 font-black" id="orders-count">0</span>
                     </div>
-                    <div id="orders-list" class="space-y-3">
+                    <div id="orders-list" class="space-y-4">
                         <!-- Pedidos serão carregados aqui -->
                     </div>
                 </div>
                 
                 <!-- Menu Admin Section -->
-                <div id="menu-section" class="hidden space-y-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-xl font-black text-purple-900">Gerenciar Cardápio</h3>
-                        <button onclick="addCategory()" class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-black hover:bg-green-700">
+                <div id="menu-section" class="hidden space-y-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-black text-purple-900">Gerenciar Cardápio</h3>
+                        <button onclick="addCategory()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-black hover:bg-green-700">
                             + Nova Categoria
                         </button>
                     </div>
@@ -391,37 +352,37 @@
                 
                 <!-- Location Section -->
                 <div id="location-section" class="hidden">
-                    <div class="bg-blue-50 p-4 rounded-xl">
-                        <h3 class="text-xl font-black text-blue-800 mb-3">📍 Localização da Loja</h3>
+                    <div class="bg-blue-50 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-black text-blue-800 mb-4">📍 Localização da Loja</h3>
                         
                         <button onclick="captureCurrentLocation()" class="capture-location-btn">
                             <i class="fas fa-location-dot"></i>
                             <span>CAPTURAR LOCALIZAÇÃO ATUAL</span>
                         </button>
                         
-                        <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label class="text-xs font-bold text-gray-600">Latitude</label>
-                                <input type="number" id="store-lat" step="any" class="w-full p-2 bg-white rounded-lg text-xs mt-1">
+                                <label class="text-sm font-bold text-gray-600">Latitude</label>
+                                <input type="number" id="store-lat" step="any" class="w-full p-3 bg-white rounded-xl text-sm mt-1">
                             </div>
                             <div>
-                                <label class="text-xs font-bold text-gray-600">Longitude</label>
-                                <input type="number" id="store-lng" step="any" class="w-full p-2 bg-white rounded-lg text-xs mt-1">
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-2 mb-3">
-                            <div>
-                                <label class="text-xs font-bold text-gray-600">Taxa Base (R$)</label>
-                                <input type="number" id="base-fee" step="0.01" value="5.00" class="w-full p-2 bg-white rounded-lg text-xs mt-1">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-600">Preço/KM (R$)</label>
-                                <input type="number" id="price-per-km" step="0.01" value="2.50" class="w-full p-2 bg-white rounded-lg text-xs mt-1">
+                                <label class="text-sm font-bold text-gray-600">Longitude</label>
+                                <input type="number" id="store-lng" step="any" class="w-full p-3 bg-white rounded-xl text-sm mt-1">
                             </div>
                         </div>
                         
-                        <button onclick="saveStoreLocation()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-black text-sm">
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="text-sm font-bold text-gray-600">Taxa Base (R$)</label>
+                                <input type="number" id="base-fee" step="0.01" value="5.00" class="w-full p-3 bg-white rounded-xl text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-sm font-bold text-gray-600">Preço/KM (R$)</label>
+                                <input type="number" id="price-per-km" step="0.01" value="2.50" class="w-full p-3 bg-white rounded-xl text-sm mt-1">
+                            </div>
+                        </div>
+                        
+                        <button onclick="saveStoreLocation()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black text-base">
                             💾 Salvar Localização
                         </button>
                     </div>
@@ -429,24 +390,24 @@
                 
                 <!-- Config Section -->
                 <div id="config-section" class="hidden">
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         <input type="text" id="config-name" placeholder="Nome da Loja" class="custom-input">
                         <input type="text" id="config-whatsapp" placeholder="WhatsApp" class="custom-input">
                         
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid md:grid-cols-2 gap-4">
                             <input type="number" id="config-delivery-fee" placeholder="Taxa fixa R$" class="custom-input">
                             <input type="number" id="config-avg-time" placeholder="Tempo médio (min)" class="custom-input">
                         </div>
                         
-                        <div class="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
-                            <span class="font-black text-sm">Loja Aberta</span>
+                        <div class="flex items-center justify-between p-4 bg-purple-50 rounded-xl">
+                            <span class="font-black">Loja Aberta</span>
                             <label class="switch">
                                 <input type="checkbox" id="config-store-open" checked>
                                 <span class="slider"></span>
                             </label>
                         </div>
                         
-                        <button onclick="saveConfig()" class="w-full bg-purple-600 text-white p-3 rounded-xl font-black text-sm">
+                        <button onclick="saveConfig()" class="w-full bg-purple-600 text-white p-4 rounded-xl font-black text-base">
                             💾 Salvar Configurações
                         </button>
                     </div>
@@ -457,69 +418,27 @@
 
     <!-- Edit Item Modal -->
     <div id="edit-item-modal" class="hidden fixed inset-0 modal-overlay z-[250] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-5">
-            <h3 class="text-xl font-black text-purple-600 mb-4">Editar Item</h3>
+        <div class="bg-white w-full max-w-md rounded-3xl p-6">
+            <h3 class="text-2xl font-black text-purple-600 mb-5">Editar Item</h3>
             
             <input type="text" id="edit-item-name" placeholder="Nome" class="custom-input">
             <input type="number" id="edit-item-price" placeholder="Preço" class="custom-input">
             
-            <div class="flex items-center gap-2 mb-3">
+            <div class="flex items-center gap-3 mb-4">
                 <input type="url" id="edit-item-image" placeholder="URL da imagem" class="flex-1 custom-input mb-0">
                 <img id="edit-item-image-preview" src="" class="image-preview">
             </div>
             
-            <textarea id="edit-item-description" placeholder="Descrição" rows="2" class="custom-input"></textarea>
+            <textarea id="edit-item-description" placeholder="Descrição" rows="3" class="custom-input"></textarea>
             
             <input type="hidden" id="edit-item-category">
             <input type="hidden" id="edit-item-id">
             
-            <div class="grid grid-cols-2 gap-2 mt-4">
-                <button onclick="closeEditItemModal()" class="bg-gray-200 p-3 rounded-xl font-black text-sm">
+            <div class="grid grid-cols-2 gap-3 mt-5">
+                <button onclick="closeEditItemModal()" class="bg-gray-200 p-4 rounded-xl font-black text-sm">
                     Cancelar
                 </button>
-                <button onclick="saveEditedItem()" class="bg-green-600 text-white p-3 rounded-xl font-black text-sm">
-                    Salvar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal específico para editar refrigerante -->
-    <div id="edit-soda-modal" class="hidden fixed inset-0 modal-overlay z-[260] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-5">
-            <h3 class="text-xl font-black text-purple-600 mb-4">Editar Refrigerante</h3>
-            
-            <div class="mb-3">
-                <label class="text-xs font-bold text-gray-600 mb-1 block">Tamanho</label>
-                <input type="text" id="edit-soda-size" readonly class="w-full p-3 bg-gray-100 rounded-xl text-sm">
-            </div>
-            
-            <div class="mb-3">
-                <label class="text-xs font-bold text-gray-600 mb-1 block">Preço (R$)</label>
-                <input type="number" id="edit-soda-price" step="0.01" class="w-full p-3 bg-purple-50 rounded-xl text-sm">
-            </div>
-            
-            <div class="mb-3">
-                <label class="text-xs font-bold text-gray-600 mb-1 block">URL da Imagem</label>
-                <div class="flex items-center gap-2">
-                    <input type="url" id="edit-soda-image" placeholder="https://..." class="flex-1 p-3 bg-purple-50 rounded-xl text-sm">
-                    <img id="edit-soda-image-preview" src="" class="w-12 h-12 rounded-lg object-cover border-2 border-purple-600">
-                </div>
-                <p class="text-[10px] text-gray-500 mt-1">Cole o link direto da imagem</p>
-            </div>
-            
-            <div class="mb-3">
-                <label class="text-xs font-bold text-gray-600 mb-1 block">Sabores (separados por vírgula)</label>
-                <input type="text" id="edit-soda-flavors" class="w-full p-3 bg-purple-50 rounded-xl text-sm">
-            </div>
-            
-            <input type="hidden" id="edit-soda-key">
-            
-            <div class="grid grid-cols-2 gap-2 mt-4">
-                <button onclick="closeEditSodaModal()" class="bg-gray-200 p-3 rounded-xl font-black text-sm">
-                    Cancelar
-                </button>
-                <button onclick="saveEditedSoda()" class="bg-green-600 text-white p-3 rounded-xl font-black text-sm">
+                <button onclick="saveEditedItem()" class="bg-green-600 text-white p-4 rounded-xl font-black text-sm">
                     Salvar
                 </button>
             </div>
@@ -542,21 +461,21 @@
         };
         let currentUser = null;
 
-        // ==================== CARDÁPIO PADRÃO ATUALIZADO ====================
+        // ==================== CARDÁPIO PADRÃO ====================
         const DEFAULT_MENU = {
             lamen: {
-                1: { name: "Panceta de Porco", price: 27.99, image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400", description: "Lamen com panceta" },
-                2: { name: "Lamen Carne", price: 27.99, image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400", description: "Tradicional com carne" },
-                3: { name: "Lamen Frango", price: 27.99, image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400", description: "Com frango desfiado" },
-                4: { name: "Lamen Camarão", price: 27.99, image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400", description: "Com camarões frescos" }
+                1: { name: "Panceta de Porco", price: 27.99, image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400", description: "Lamen com panceta suculenta" },
+                2: { name: "Lamen Carne", price: 27.99, image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400", description: "Lamen tradicional com carne" },
+                3: { name: "Lamen Frango", price: 27.99, image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400", description: "Lamen com frango desfiado" },
+                4: { name: "Lamen Camarão", price: 27.99, image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400", description: "Lamen com camarões frescos" }
             },
             onigiri: {
-                1: { name: "Frango com queijo", price: 4.99, image: "https://images.unsplash.com/photo-1623341214825-9f4e96345b28?w=400" },
-                2: { name: "Carne com queijo", price: 4.99, image: "https://images.unsplash.com/photo-1623341214825-9f4e96345b28?w=400" },
-                3: { name: "Atum", price: 4.99, image: "https://images.unsplash.com/photo-1623341214825-9f4e96345b28?w=400" }
+                1: { name: "Frango com queijo", price: 4.99, image: "https://images.unsplash.com/photo-1623341214825-9f4e96345b28?w=400", description: "Onigiri recheado com frango e queijo" },
+                2: { name: "Carne com queijo", price: 4.99, image: "https://images.unsplash.com/photo-1623341214825-9f4e96345b28?w=400", description: "Onigiri recheado com carne e queijo" },
+                3: { name: "Atum", price: 4.99, image: "https://images.unsplash.com/photo-1623341214825-9f4e96345b28?w=400", description: "Onigiri de atum" }
             },
             baozi: {
-                1: { name: "Baozi", price: 4.99, image: "https://images.unsplash.com/photo-1626804475299-6c8b5e1d9268?w=400" }
+                1: { name: "Baozi", price: 4.99, image: "https://images.unsplash.com/photo-1626804475299-6c8b5e1d9268?w=400", description: "Pão chinês recheado" }
             },
             sucos: {
                 1: { name: "Acerola", price300: 4.99, price500: 7.99, image: "https://images.unsplash.com/photo-1613478225618-7f0c8dab2e2c?w=400" },
@@ -565,21 +484,9 @@
                 4: { name: "Abacaxi com hortelã", price300: 4.99, price500: 7.99, image: "https://images.unsplash.com/photo-1613478225618-7f0c8dab2e2c?w=400" }
             },
             refrigerantes: {
-                lata: { 
-                    price: 5.99, 
-                    flavors: ["coca", "coca zero", "guaraná", "jesus", "uva", "laranja"], 
-                    image: "https://images.unsplash.com/photo-1629203851122-3726ecdfc7e3?w=400" 
-                },
-                "1l": { 
-                    price: 9.99, 
-                    flavors: ["coca", "coca zero", "guaraná", "jesus"], 
-                    image: "https://images.unsplash.com/photo-1625772299848-391b6a87d7a3?w=400" 
-                },
-                "2l": { 
-                    price: 11.99, 
-                    flavors: ["coca", "coca zero", "guaraná", "jesus"], 
-                    image: "https://images.unsplash.com/photo-1596803244618-8d3b467b8a5c?w=400" 
-                }
+                lata: { price: 5.99, flavors: ["coca", "coca zero", "guaraná", "jesus", "uva", "laranja"], image: "https://images.unsplash.com/photo-1629203851122-3726ecdfc7e3?w=400" },
+                "1l": { price: 9.99, flavors: ["coca", "coca zero", "guaraná", "jesus"], image: "https://images.unsplash.com/photo-1629203851122-3726ecdfc7e3?w=400" },
+                "2l": { price: 11.99, flavors: ["coca", "coca zero", "guaraná", "jesus"], image: "https://images.unsplash.com/photo-1629203851122-3726ecdfc7e3?w=400" }
             }
         };
 
@@ -587,14 +494,16 @@
         window.onload = function() {
             console.log("🚀 Iniciando painel admin...");
             
+            // Verificar se já está logado
             checkAuthState();
             
+            // Esconder loading após 1 segundo
             setTimeout(() => {
                 document.getElementById('loading').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('loading').classList.add('hidden');
-                }, 300);
-            }, 800);
+                }, 500);
+            }, 1000);
         };
 
         // ==================== TOAST FUNCTIONS ====================
@@ -603,7 +512,7 @@
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} text-sm"></i>
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} text-xl"></i>
                 <span>${message}</span>
             `;
             container.appendChild(toast);
@@ -614,24 +523,22 @@
         function checkAuthState() {
             onAuthStateChanged(window.auth, (user) => {
                 if (user) {
-                    console.log("👤 Usuário autenticado:", user.email);
+                    console.log("👤 Usuário já logado:", user.email);
                     currentUser = user;
                     document.getElementById('admin-email').textContent = user.email;
-                    
                     document.getElementById('login-modal').classList.add('hidden');
                     document.getElementById('admin-panel').classList.remove('hidden');
                     
-                    showToast(`Bem-vindo, ${user.email}!`, 'success');
-                    
+                    // Carregar dados
                     loadConfig();
                     loadMenu();
+                    
+                    // Iniciar listener de pedidos
                     listenToOrders();
+                    
                     switchAdminTab('orders');
-                    
                 } else {
-                    console.log("👤 Nenhum usuário autenticado");
-                    currentUser = null;
-                    
+                    console.log("👤 Nenhum usuário logado");
                     document.getElementById('login-modal').classList.remove('hidden');
                     document.getElementById('admin-panel').classList.add('hidden');
                 }
@@ -642,7 +549,6 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const errorDiv = document.getElementById('login-error');
-            const btn = document.getElementById('login-btn');
             
             if (!email || !password) {
                 errorDiv.textContent = "Preencha email e senha!";
@@ -651,36 +557,26 @@
             }
             
             try {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Entrando...';
-                
                 await signInWithEmailAndPassword(window.auth, email, password);
-                errorDiv.classList.add('hidden');
-                
+                showToast('Login realizado com sucesso!');
             } catch (error) {
                 console.error("Erro no login:", error);
                 
                 let mensagem = "Erro ao fazer login!";
                 if (error.code === 'auth/user-not-found') mensagem = "Usuário não encontrado!";
                 if (error.code === 'auth/wrong-password') mensagem = "Senha incorreta!";
+                if (error.code === 'auth/invalid-email') mensagem = "Email inválido!";
                 
                 errorDiv.textContent = mensagem;
                 errorDiv.classList.remove('hidden');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Entrar';
             }
         }
 
         async function handleLogout() {
             try {
                 await signOut(window.auth);
+                currentUser = null;
                 showToast('Logout realizado!');
-                
-                document.getElementById('login-email').value = '';
-                document.getElementById('login-password').value = '';
-                document.getElementById('login-error').classList.add('hidden');
-                
             } catch (error) {
                 console.error("Erro no logout:", error);
                 showToast('Erro ao fazer logout!', 'error');
@@ -690,6 +586,7 @@
         // ==================== LOAD DATA ====================
         async function loadConfig() {
             try {
+                console.log("🔄 Carregando configurações...");
                 const snapshot = await get(ref(window.db, 'config'));
                 if (snapshot.exists()) {
                     config = { ...config, ...snapshot.val() };
@@ -705,13 +602,16 @@
                 document.getElementById('config-avg-time').value = config.avgTime;
                 document.getElementById('config-store-open').checked = config.storeOpen;
                 
+                console.log("✅ Configurações carregadas:", config);
+                
             } catch (error) {
-                console.error("Erro ao carregar config:", error);
+                console.error("❌ Erro ao carregar config:", error);
             }
         }
 
         async function loadMenu() {
             try {
+                console.log("🔄 Carregando cardápio...");
                 const snapshot = await get(ref(window.db, 'menu'));
                 
                 if (snapshot.exists()) {
@@ -721,40 +621,51 @@
                     console.log("📝 Cardápio vazio, usando padrão...");
                     menu = DEFAULT_MENU;
                     await set(ref(window.db, 'menu'), DEFAULT_MENU);
+                    console.log("✅ Cardápio padrão salvo no Firebase");
                 }
                 
+                // Se a aba de menu estiver visível, renderizar
                 if (!document.getElementById('menu-section').classList.contains('hidden')) {
                     renderAdminMenu();
                 }
                 
             } catch (error) {
-                console.error("Erro ao carregar menu:", error);
+                console.error("❌ Erro ao carregar menu:", error);
                 menu = DEFAULT_MENU;
             }
         }
 
         // ==================== ADMIN FUNCTIONS ====================
         function switchAdminTab(tab) {
+            console.log("🔄 Mudando para aba:", tab);
+            
             ['orders', 'menu', 'location', 'config'].forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 const section = document.getElementById(`${t}-section`);
                 if (btn && section) {
                     if (t === tab) {
-                        btn.className = "flex-1 p-3 font-black text-xs bg-purple-600 text-white";
+                        btn.className = "flex-1 p-4 font-black text-sm bg-purple-600 text-white";
                         section.classList.remove('hidden');
                     } else {
-                        btn.className = "flex-1 p-3 font-black text-xs text-gray-500 hover:bg-gray-100";
+                        btn.className = "flex-1 p-4 font-black text-sm text-gray-500 hover:bg-gray-100";
                         section.classList.add('hidden');
                     }
                 }
             });
             
-            if (tab === 'orders') loadOrders();
-            if (tab === 'menu') renderAdminMenu();
+            if (tab === 'orders') {
+                console.log("📋 Carregando pedidos...");
+                loadOrders();
+            }
+            if (tab === 'menu') {
+                console.log("🍜 Renderizando cardápio...");
+                renderAdminMenu();
+            }
         }
 
         async function loadOrders() {
             try {
+                console.log("🔄 Buscando pedidos no Firebase...");
                 const ordersRef = ref(window.db, 'orders');
                 const snapshot = await get(ordersRef);
                 
@@ -762,14 +673,22 @@
                 const countEl = document.getElementById('orders-count');
                 
                 if (!snapshot.exists()) {
-                    container.innerHTML = '<div class="text-center py-8 bg-purple-50 rounded-xl"><div class="text-4xl mb-2">📭</div><p class="text-gray-500 font-bold text-sm">Nenhum pedido ainda</p></div>';
+                    console.log("📭 Nenhum pedido encontrado");
+                    container.innerHTML = '<div class="text-center py-10 bg-purple-50 rounded-2xl"><div class="text-5xl mb-3">📭</div><p class="text-gray-500 font-bold">Nenhum pedido ainda</p><p class="text-sm text-gray-400 mt-2">Os pedidos aparecerão aqui quando forem feitos</p></div>';
                     countEl.textContent = '0';
                     return;
                 }
                 
                 const orders = snapshot.val();
+                console.log("✅ Pedidos encontrados:", Object.keys(orders).length);
+                
                 const ordersArray = Object.entries(orders).sort((a, b) => b[1].timestamp - a[1].timestamp);
                 countEl.textContent = ordersArray.length;
+                
+                if (ordersArray.length === 0) {
+                    container.innerHTML = '<div class="text-center py-10 bg-purple-50 rounded-2xl"><div class="text-5xl mb-3">📭</div><p class="text-gray-500 font-bold">Nenhum pedido ainda</p></div>';
+                    return;
+                }
                 
                 let html = '';
                 
@@ -782,47 +701,48 @@
                     const statusClass = (order.status || 'Novo').replace(/\s+/g, '');
                     
                     const gpsInfo = order.gpsDistance ? 
-                        `<div class="text-xs text-blue-600 mt-2">
-                            <i class="fas fa-satellite-dish"></i> ${order.gpsDistance.toFixed(1)} km
-                            ${order.userLat ? ` • <a href="https://www.google.com/maps?q=${order.userLat},${order.userLng}" target="_blank" class="underline">Ver mapa</a>` : ''}
+                        `<div class="text-xs text-blue-600 mt-2 flex items-center gap-1">
+                            <i class="fas fa-satellite-dish"></i> 
+                            Distância: ${order.gpsDistance.toFixed(1)} km
+                            ${order.userLat ? `• <a href="https://www.google.com/maps?q=${order.userLat},${order.userLng}" target="_blank" class="underline hover:text-blue-800">Ver no mapa</a>` : ''}
                         </div>` : '';
                     
                     html += `
-                        <div class="order-card status-${statusClass}">
-                            <div class="flex justify-between items-start mb-2">
+                        <div class="bg-white p-5 rounded-2xl shadow-md border-l-8 status-${statusClass}">
+                            <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <span class="font-black text-base">#${id.slice(-6)}</span>
-                                    <span class="ml-2 bg-purple-100 px-2 py-0.5 rounded-full text-xs font-bold">${order.customer || 'Cliente'}</span>
+                                    <span class="font-black text-lg">#${id.slice(-6)}</span>
+                                    <span class="ml-3 bg-purple-100 px-3 py-1 rounded-full text-sm font-bold">${order.customer || 'Cliente'}</span>
                                 </div>
-                                <span class="font-black text-base text-purple-600">${formatCurrency(order.total || 0)}</span>
+                                <span class="font-black text-xl text-purple-600">${formatCurrency(order.total || 0)}</span>
                             </div>
                             
-                            <p class="text-xs text-gray-600 mb-2">${itemsText}</p>
+                            <p class="text-sm text-gray-600 mb-3">${itemsText}</p>
                             ${gpsInfo}
                             
-                            <div class="grid grid-cols-2 gap-2 mb-2 text-xs">
-                                <div class="bg-purple-50 p-1.5 rounded-lg">
+                            <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
+                                <div class="bg-purple-50 p-2 rounded-xl">
                                     <span class="text-gray-500">Modo:</span>
-                                    <span class="font-bold ml-1">${order.mode === 'delivery' ? '🚚 Delivery' : order.mode === 'pickup' ? '📦 Retirada' : '🏠 Local'}</span>
+                                    <span class="font-bold ml-2">${order.mode === 'delivery' ? '🚚 Delivery' : order.mode === 'pickup' ? '📦 Retirada' : '🏠 Local'}</span>
                                 </div>
-                                <div class="bg-purple-50 p-1.5 rounded-lg">
-                                    <span class="text-gray-500">Pagto:</span>
-                                    <span class="font-bold ml-1">${order.payment === 'cash' ? '💵 Din' : order.payment === 'credit' ? '💳 Créd' : '📱 Pix'}</span>
+                                <div class="bg-purple-50 p-2 rounded-xl">
+                                    <span class="text-gray-500">Pagamento:</span>
+                                    <span class="font-bold ml-2">${order.payment === 'cash' ? '💵 Dinheiro' : order.payment === 'credit' ? '💳 Crédito' : '📱 Pix'}</span>
                                 </div>
                             </div>
                             
                             <div class="flex gap-2">
                                 <select onchange="updateOrderStatus('${id}', this.value)" 
-                                        class="flex-1 bg-purple-50 p-2 rounded-lg font-bold text-xs">
+                                        class="flex-1 bg-purple-50 p-3 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
                                     <option value="Novo" ${order.status === 'Novo' ? 'selected' : ''}>🆕 Novo</option>
-                                    <option value="Preparando" ${order.status === 'Preparando' ? 'selected' : ''}>👨‍🍳 Prep</option>
+                                    <option value="Preparando" ${order.status === 'Preparando' ? 'selected' : ''}>👨‍🍳 Preparando</option>
                                     <option value="Pronto" ${order.status === 'Pronto' ? 'selected' : ''}>✅ Pronto</option>
                                     <option value="Entregue" ${order.status === 'Entregue' ? 'selected' : ''}>🚚 Entregue</option>
-                                    <option value="Cancelado" ${order.status === 'Cancelado' ? 'selected' : ''}>❌ Cancel</option>
+                                    <option value="Cancelado" ${order.status === 'Cancelado' ? 'selected' : ''}>❌ Cancelado</option>
                                 </select>
                                 
                                 <button onclick='printOrder("${id}", ${JSON.stringify(order).replace(/'/g, "\\'")})' 
-                                        class="bg-purple-100 text-purple-600 p-2 rounded-lg hover:bg-purple-200 text-base">
+                                        class="bg-purple-100 text-purple-600 p-3 rounded-xl hover:bg-purple-200 transition text-xl">
                                     <i class="fas fa-print"></i>
                                 </button>
                             </div>
@@ -830,10 +750,11 @@
                 });
                 
                 container.innerHTML = html;
+                console.log("✅ Pedidos renderizados com sucesso");
                 
             } catch (error) {
-                console.error("Erro ao carregar pedidos:", error);
-                document.getElementById('orders-list').innerHTML = `<div class="text-center text-red-500 p-4 text-sm">Erro ao carregar pedidos</div>`;
+                console.error("❌ Erro ao carregar pedidos:", error);
+                document.getElementById('orders-list').innerHTML = `<div class="text-center text-red-500 p-4">Erro ao carregar pedidos: ${error.message}</div>`;
             }
         }
 
@@ -841,9 +762,10 @@
             const ordersRef = ref(window.db, 'orders');
             onValue(ordersRef, (snapshot) => {
                 if (!document.getElementById('orders-section').classList.contains('hidden')) {
+                    console.log("🔄 Novos pedidos detectados, recarregando...");
                     loadOrders();
                     document.getElementById('notification-sound').play().catch(() => {});
-                    showToast('Novo pedido!', 'success');
+                    showToast('Novo pedido recebido!', 'success');
                 }
             });
         }
@@ -855,56 +777,143 @@
             showToast('Status atualizado!');
         }
 
+        // ==================== FUNÇÃO DE IMPRESSÃO CORRIGIDA ====================
         function printOrder(id, order) {
+            console.log("🖨️ Imprimindo pedido:", id, order);
+            
+            // Criar conteúdo para impressão
             const itemsText = Object.entries(order.items)
                 .map(([item, qty]) => `${qty}x ${item}`)
                 .join('\n');
             
             const date = new Date(order.timestamp).toLocaleString('pt-BR');
             
+            // Criar uma nova janela para impressão
             const printWindow = window.open('', '_blank');
             
             if (!printWindow) {
-                alert('Permita pop-ups para imprimir');
+                alert('Por favor, permita pop-ups para imprimir');
                 return;
             }
             
+            // Escrever o conteúdo na nova janela
             printWindow.document.write(`
                 <html>
-                <head><title>Pedido #${id.slice(-6)}</title>
-                <style>body{font-family:'Courier New',monospace;padding:20px;max-width:300px;margin:0 auto}
-                h1{text-align:center;font-size:24px}hr{margin:15px 0;border:1px dashed #000}</style>
+                <head>
+                    <title>Pedido #${id.slice(-6)}</title>
+                    <style>
+                        body {
+                            font-family: 'Courier New', monospace;
+                            padding: 20px;
+                            max-width: 300px;
+                            margin: 0 auto;
+                        }
+                        h1 {
+                            text-align: center;
+                            font-size: 24px;
+                            margin-bottom: 5px;
+                        }
+                        h2 {
+                            text-align: center;
+                            font-size: 18px;
+                            margin-bottom: 20px;
+                        }
+                        hr {
+                            margin: 20px 0;
+                            border: 1px dashed #000;
+                        }
+                        .info {
+                            margin-bottom: 10px;
+                        }
+                        .info strong {
+                            display: inline-block;
+                            width: 100px;
+                        }
+                        .items {
+                            margin: 20px 0;
+                            white-space: pre-wrap;
+                        }
+                        .total {
+                            font-size: 20px;
+                            font-weight: bold;
+                            text-align: right;
+                            margin-top: 20px;
+                        }
+                        @media print {
+                            body { margin: 0; padding: 10px; }
+                        }
+                    </style>
                 </head>
                 <body>
                     <h1>${config.name}</h1>
-                    <p style="text-align:center">Pedido #${id.slice(-6)}</p>
-                    <p style="text-align:center">${date}</p>
+                    <h2>Pedido #${id.slice(-6)}</h2>
+                    <p style="text-align: center;">${date}</p>
                     <hr>
-                    <p><strong>Cliente:</strong> ${order.customer}</p>
-                    <p><strong>WhatsApp:</strong> ${order.phone}</p>
-                    <p><strong>Modo:</strong> ${order.mode}</p>
-                    ${order.address ? `<p><strong>Endereço:</strong> ${order.address.street}, ${order.address.number}</p>` : ''}
-                    ${order.gpsDistance ? `<p><strong>Distância:</strong> ${order.gpsDistance.toFixed(1)} km</p>` : ''}
+                    
+                    <div class="info">
+                        <p><strong>Cliente:</strong> ${order.customer}</p>
+                        <p><strong>WhatsApp:</strong> ${order.phone}</p>
+                        <p><strong>Modo:</strong> ${order.mode === 'delivery' ? 'Delivery' : order.mode === 'pickup' ? 'Retirada' : 'Local'}</p>
+                    </div>
+                    
+                    ${order.address ? `
+                    <div class="info">
+                        <p><strong>Endereço:</strong> ${order.address.street}, ${order.address.number}</p>
+                        <p><strong>Bairro:</strong> ${order.address.neighborhood}</p>
+                        ${order.address.complement ? `<p><strong>Complemento:</strong> ${order.address.complement}</p>` : ''}
+                    </div>
+                    ` : ''}
+                    
+                    ${order.gpsDistance ? `
+                    <div class="info">
+                        <p><strong>Distância GPS:</strong> ${order.gpsDistance.toFixed(1)} km</p>
+                        ${order.userLat ? `<p><strong>Localização:</strong> ${order.userLat.toFixed(6)}, ${order.userLng.toFixed(6)}</p>` : ''}
+                    </div>
+                    ` : ''}
+                    
                     <hr>
-                    <pre style="font-family:monospace">${itemsText}</pre>
+                    
+                    <div class="items">
+                        <strong>ITENS:</strong>
+                        <pre style="font-family: 'Courier New', monospace;">${itemsText}</pre>
+                    </div>
+                    
                     <hr>
-                    <p><strong>Subtotal:</strong> ${formatCurrency(order.subtotal)}</p>
-                    ${order.deliveryFee > 0 ? `<p><strong>Taxa:</strong> ${formatCurrency(order.deliveryFee)}</p>` : ''}
-                    <p style="font-size:18px"><strong>TOTAL:</strong> ${formatCurrency(order.total)}</p>
-                    <p><strong>Pagamento:</strong> ${order.payment}</p>
-                    ${order.change ? `<p><strong>Troco:</strong> R$ ${order.change}</p>` : ''}
-                    <p><strong>Status:</strong> ${order.status}</p>
-                    <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),500)}<\/script>
+                    
+                    <div class="info">
+                        <p><strong>Subtotal:</strong> ${formatCurrency(order.subtotal)}</p>
+                        ${order.deliveryFee > 0 ? `<p><strong>Taxa:</strong> ${formatCurrency(order.deliveryFee)}</p>` : ''}
+                    </div>
+                    
+                    <div class="total">
+                        <strong>TOTAL: ${formatCurrency(order.total)}</strong>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="info">
+                        <p><strong>Pagamento:</strong> ${order.payment === 'cash' ? 'Dinheiro' : order.payment === 'credit' ? 'Cartão de Crédito' : order.payment === 'debit' ? 'Cartão de Débito' : 'Pix'}</p>
+                        ${order.change ? `<p><strong>Troco:</strong> R$ ${order.change}</p>` : ''}
+                        <p><strong>Status:</strong> ${order.status}</p>
+                    </div>
+                    
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() { window.close(); }, 500);
+                        };
+                    <\/script>
                 </body>
                 </html>
             `);
+            
             printWindow.document.close();
         }
 
         // ==================== LOCATION FUNCTIONS ====================
         function captureCurrentLocation() {
             if (!navigator.geolocation) {
-                alert('Geolocalização não suportada');
+                alert('Seu navegador não suporta geolocalização');
                 return;
             }
             
@@ -920,6 +929,7 @@
                     
                     btn.innerHTML = originalText;
                     btn.disabled = false;
+                    
                     showToast('Localização capturada!');
                 },
                 (error) => {
@@ -945,13 +955,18 @@
         function renderAdminMenu() {
             const container = document.getElementById('admin-menu-list');
             
-            if (!container) return;
-            
-            if (!menu || Object.keys(menu).length === 0) {
-                container.innerHTML = '<div class="text-center py-8 bg-purple-50 rounded-xl"><p class="text-gray-500 text-sm">Nenhum item no cardápio</p></div>';
+            if (!container) {
+                console.error("❌ Container admin-menu-list não encontrado");
                 return;
             }
             
+            if (!menu || Object.keys(menu).length === 0) {
+                console.log("📝 Cardápio vazio");
+                container.innerHTML = '<div class="text-center py-10 bg-purple-50 rounded-2xl"><p class="text-gray-500">Nenhum item no cardápio</p></div>';
+                return;
+            }
+            
+            console.log("🔄 Renderizando cardápio:", menu);
             let html = '';
             
             for (const [category, items] of Object.entries(menu)) {
@@ -961,47 +976,47 @@
                                    category === 'sucos' ? 'Sucos' :
                                    category === 'refrigerantes' ? 'Refrigerantes' : category;
                 
-                html += `<div class="mb-4 border-b pb-3">`;
-                html += `<div class="flex justify-between items-center mb-2">`;
-                html += `<h4 class="font-black text-base text-purple-900">${displayName}</h4>`;
-                html += `<button onclick="addMenuItem('${category}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-black hover:bg-green-700">+ Item</button>`;
+                html += `<div class="mb-8 border-b pb-4">`;
+                html += `<div class="flex justify-between items-center mb-4">`;
+                html += `<h4 class="font-black text-xl text-purple-900">${displayName}</h4>`;
+                html += `<button onclick="addMenuItem('${category}')" class="bg-green-600 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-green-700">+ Adicionar Item</button>`;
                 html += `</div>`;
                 
                 if (category === 'refrigerantes') {
-                    // Mostrar cada tamanho como item separado com opção de editar imagem
+                    // Tratamento especial para refrigerantes
+                    html += `<div class="bg-purple-50 p-4 rounded-xl mb-3">`;
+                    html += `<div class="font-black text-lg mb-2">Refrigerantes</div>`;
+                    html += `<div class="grid grid-cols-3 gap-3 mb-3">`;
+                    
                     for (const [size, data] of Object.entries(items)) {
-                        const sizeName = size === 'lata' ? 'Lata' : size === '1l' ? '1 Litro' : '2 Litros';
+                        const sizeName = size === 'lata' ? 'Lata' : size === '1l' ? '1L' : '2L';
                         html += `
-                            <div class="bg-purple-50 p-3 rounded-xl mb-2">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center gap-2">
-                                        <img src="${data.image}" class="w-12 h-12 rounded-lg object-cover border-2 border-purple-300" onerror="this.src='https://via.placeholder.com/100'">
-                                        <div>
-                                            <div class="font-black text-sm">Refri ${sizeName}</div>
-                                            <div class="text-purple-600 font-black text-xs">R$ ${data.price.toFixed(2)}</div>
-                                            <div class="text-[10px] text-gray-500 mt-1">Sabores: ${data.flavors.length}</div>
-                                        </div>
-                                    </div>
-                                    <button onclick="openEditSodaModal('${size}')" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-black hover:bg-blue-700">
-                                        <i class="fas fa-edit mr-1"></i>Editar
-                                    </button>
-                                </div>
+                            <div class="bg-white p-3 rounded-xl text-center">
+                                <div class="font-bold">${sizeName}</div>
+                                <div class="text-purple-600 font-black mt-1">R$ ${data.price.toFixed(2)}</div>
                             </div>`;
                     }
+                    
+                    html += `</div>`;
+                    html += `<button onclick="editSodaPrices()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-700">Editar Preços</button>`;
+                    html += `</div>`;
+                    
                 } else {
+                    // Items normais
                     for (const [id, item] of Object.entries(items)) {
                         html += `
-                            <div class="bg-purple-50 p-3 rounded-xl mb-2 flex justify-between items-center">
-                                <div class="flex items-center gap-2">
-                                    <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover border-2 border-purple-300" onerror="this.src='https://via.placeholder.com/100'">
+                            <div class="bg-purple-50 p-4 rounded-xl mb-3 flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/100'">
                                     <div>
-                                        <div class="font-black text-sm">${item.name}</div>
-                                        <div class="text-purple-600 font-black text-xs">R$ ${item.price ? item.price.toFixed(2) : ''}</div>
+                                        <div class="font-black">${item.name}</div>
+                                        <div class="text-purple-600 font-black text-sm mt-1">R$ ${item.price ? item.price.toFixed(2) : ''}</div>
+                                        ${item.description ? `<div class="text-xs text-gray-500 mt-1">${item.description}</div>` : ''}
                                     </div>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button onclick="openEditItemModal('${category}', '${id}')" class="text-blue-600 p-1 text-sm bg-blue-100 px-2 py-1 rounded-lg">✏️</button>
-                                    <button onclick="deleteMenuItem('${category}', '${id}')" class="text-red-600 p-1 text-sm bg-red-100 px-2 py-1 rounded-lg">🗑️</button>
+                                    <button onclick="openEditItemModal('${category}', '${id}')" class="text-blue-600 p-2 text-lg hover:text-blue-800">✏️</button>
+                                    <button onclick="deleteMenuItem('${category}', '${id}')" class="text-red-600 p-2 text-lg hover:text-red-800">🗑️</button>
                                 </div>
                             </div>`;
                     }
@@ -1011,67 +1026,7 @@
             }
             
             container.innerHTML = html;
-        }
-
-        // Funções para editar refrigerantes
-        function openEditSodaModal(size) {
-            const item = menu.refrigerantes[size];
-            const sizeNames = { 'lata': 'Lata', '1l': '1 Litro', '2l': '2 Litros' };
-            
-            document.getElementById('edit-soda-size').value = sizeNames[size];
-            document.getElementById('edit-soda-price').value = item.price;
-            document.getElementById('edit-soda-image').value = item.image;
-            document.getElementById('edit-soda-image-preview').src = item.image;
-            document.getElementById('edit-soda-flavors').value = item.flavors.join(', ');
-            document.getElementById('edit-soda-key').value = size;
-            
-            document.getElementById('edit-soda-modal').classList.remove('hidden');
-        }
-
-        function closeEditSodaModal() {
-            document.getElementById('edit-soda-modal').classList.add('hidden');
-        }
-
-        // Preview da imagem ao digitar URL
-        document.getElementById('edit-soda-image')?.addEventListener('input', function(e) {
-            document.getElementById('edit-soda-image-preview').src = e.target.value || 'https://via.placeholder.com/100';
-        });
-
-        async function saveEditedSoda() {
-            const size = document.getElementById('edit-soda-key').value;
-            const price = parseFloat(document.getElementById('edit-soda-price').value);
-            const image = document.getElementById('edit-soda-image').value;
-            const flavorsText = document.getElementById('edit-soda-flavors').value;
-            
-            // Converter string de sabores para array
-            const flavors = flavorsText.split(',').map(s => s.trim()).filter(s => s.length > 0);
-            
-            if (isNaN(price)) {
-                alert('Preço inválido!');
-                return;
-            }
-            
-            if (!image) {
-                alert('URL da imagem é obrigatória!');
-                return;
-            }
-            
-            menu.refrigerantes[size] = {
-                ...menu.refrigerantes[size],
-                price: price,
-                image: image,
-                flavors: flavors
-            };
-            
-            try {
-                await set(ref(window.db, 'menu'), menu);
-                closeEditSodaModal();
-                renderAdminMenu();
-                showToast('Refrigerante atualizado!');
-            } catch (error) {
-                console.error("Erro ao salvar:", error);
-                alert('Erro ao salvar');
-            }
+            console.log("✅ Cardápio renderizado com sucesso");
         }
 
         function addCategory() {
@@ -1127,6 +1082,7 @@
             document.getElementById('edit-item-modal').classList.add('hidden');
         }
 
+        // Preview da imagem ao digitar URL
         document.getElementById('edit-item-image')?.addEventListener('input', function(e) {
             document.getElementById('edit-item-image-preview').src = e.target.value || 'https://via.placeholder.com/100';
         });
@@ -1148,15 +1104,17 @@
                 renderAdminMenu();
                 showToast('Item atualizado!');
             } catch (error) {
+                console.error("Erro ao salvar:", error);
                 alert('Erro ao salvar item');
             }
         }
 
         function deleteMenuItem(category, id) {
-            if (!confirm('Excluir item?')) return;
+            if (!confirm('Tem certeza que deseja excluir este item?')) return;
             
             delete menu[category][id];
             
+            // Reorganizar IDs
             const newItems = {};
             let index = 1;
             for (const [_, item] of Object.entries(menu[category])) {
@@ -1168,6 +1126,23 @@
             set(ref(window.db, 'menu'), menu).then(() => {
                 renderAdminMenu();
                 showToast('Item excluído!');
+            });
+        }
+
+        function editSodaPrices() {
+            const refri = menu.refrigerantes;
+            
+            const lataPrice = parseFloat(prompt("Preço da Lata:", refri.lata.price));
+            const umLPrice = parseFloat(prompt("Preço 1L:", refri['1l'].price));
+            const doisLPrice = parseFloat(prompt("Preço 2L:", refri['2l'].price));
+            
+            if (!isNaN(lataPrice)) refri.lata.price = lataPrice;
+            if (!isNaN(umLPrice)) refri['1l'].price = umLPrice;
+            if (!isNaN(doisLPrice)) refri['2l'].price = doisLPrice;
+            
+            set(ref(window.db, 'menu'), menu).then(() => {
+                renderAdminMenu();
+                showToast("Preços atualizados!");
             });
         }
 
@@ -1201,9 +1176,7 @@
         window.closeEditItemModal = closeEditItemModal;
         window.saveEditedItem = saveEditedItem;
         window.deleteMenuItem = deleteMenuItem;
-        window.openEditSodaModal = openEditSodaModal;
-        window.closeEditSodaModal = closeEditSodaModal;
-        window.saveEditedSoda = saveEditedSoda;
+        window.editSodaPrices = editSodaPrices;
         window.saveConfig = saveConfig;
     </script>
 </body>
