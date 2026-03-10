@@ -3986,5 +3986,232 @@
         }
 
     </script>
+<!-- ==================== INÍCIO DO CÓDIGO DE SINCRONIZAÇÃO DO CARDÁPIO ==================== -->
+<script>
+(function() {
+    // Função principal de sincronização
+    async function syncMenu() {
+        try {
+            console.log("🔄 INICIANDO SINCRONIZAÇÃO DO CARDÁPIO PIZZANIME...");
+            
+            // Verificar se o Firebase está disponível
+            if (!window.firebaseDb || !window.firebaseModules) {
+                console.log("⏳ Firebase não disponível. Tentando novamente em 2 segundos...");
+                setTimeout(syncMenu, 2000);
+                return;
+            }
+
+            const { db, firestore } = window.firebaseModules;
+            const { collection, getDocs, addDoc } = firestore;
+
+            console.log("✅ Firebase conectado. Verificando banco de dados...");
+
+            // 1. VERIFICAR/CATEGORIAS
+            const categoriasSnapshot = await getDocs(collection(db, "categorias"));
+            const categoriasMap = new Map();
+            const categoriasExistentes = [];
+            
+            categoriasSnapshot.docs.forEach(doc => {
+                const data = doc.data();
+                categoriasMap.set(data.nome, doc.id);
+                categoriasExistentes.push(data.nome);
+            });
+            
+            console.log("📁 Categorias existentes:", categoriasExistentes.join(", ") || "Nenhuma");
+
+            // Lista de categorias necessárias
+            const categoriasNecessarias = [
+                "Lamen", 
+                "Onigiri", 
+                "Baozi", 
+                "Sucos Naturais", 
+                "Refrigerantes", 
+                "Pizzas"
+            ];
+
+            // Criar categorias que não existem
+            for (const catNome of categoriasNecessarias) {
+                if (!categoriasMap.has(catNome)) {
+                    try {
+                        const novaCategoria = {
+                            nome: catNome,
+                            tipo: "categoria",
+                            ordem: categoriasMap.size + 1
+                        };
+                        
+                        const docRef = await addDoc(collection(db, "categorias"), novaCategoria);
+                        categoriasMap.set(catNome, docRef.id);
+                        console.log(`✅ Categoria CRIADA: ${catNome}`);
+                    } catch (catError) {
+                        console.error(`❌ Erro ao criar categoria ${catNome}:`, catError);
+                    }
+                }
+            }
+
+            // 2. VERIFICAR PRODUTOS
+            const produtosSnapshot = await getDocs(collection(db, "produtos"));
+            const produtosExistentes = new Map();
+            
+            produtosSnapshot.docs.forEach(doc => {
+                const produto = doc.data();
+                produtosExistentes.set(produto.nome, doc.id);
+            });
+            
+            console.log(`📦 ${produtosExistentes.size} produtos encontrados no banco`);
+
+            // 3. CARDÁPIO COMPLETO PARA SINCRONIZAR
+            const cardapio = [
+                // LAMEN (categoria: Lamen)
+                { nome: "Panceta de Porco", preco: 27.99, categoria: "Lamen", descricao: "Delicioso lamen com panceta de porco" },
+                { nome: "Carne", preco: 27.99, categoria: "Lamen", descricao: "Lamen com carne selecionada" },
+                { nome: "Frango", preco: 27.99, categoria: "Lamen", descricao: "Lamen com frango desfiado" },
+                { nome: "Camarão", preco: 27.99, categoria: "Lamen", descricao: "Lamen especial com camarão" },
+                
+                // ONIGIRI (categoria: Onigiri)
+                { nome: "Frango com Queijo", preco: 4.99, categoria: "Onigiri", descricao: "Onigiri recheado com frango e queijo" },
+                { nome: "Carne com Queijo", preco: 4.99, categoria: "Onigiri", descricao: "Onigiri recheado com carne e queijo" },
+                { nome: "Atum", preco: 4.99, categoria: "Onigiri", descricao: "Onigiri recheado com atum" },
+                
+                // BAOZI (categoria: Baozi)
+                { nome: "Baozi", preco: 4.99, categoria: "Baozi", descricao: "Tradicional pão chinês recheado" },
+                
+                // SUCOS NATURAIS (categoria: Sucos Naturais)
+                { nome: "Acerola 300ml", preco: 4.99, categoria: "Sucos Naturais", descricao: "Suco natural de acerola 300ml" },
+                { nome: "Acerola 500ml", preco: 7.99, categoria: "Sucos Naturais", descricao: "Suco natural de acerola 500ml" },
+                { nome: "Goiaba 300ml", preco: 4.99, categoria: "Sucos Naturais", descricao: "Suco natural de goiaba 300ml" },
+                { nome: "Goiaba 500ml", preco: 7.99, categoria: "Sucos Naturais", descricao: "Suco natural de goiaba 500ml" },
+                { nome: "Abacaxi 300ml", preco: 4.99, categoria: "Sucos Naturais", descricao: "Suco natural de abacaxi 300ml" },
+                { nome: "Abacaxi 500ml", preco: 7.99, categoria: "Sucos Naturais", descricao: "Suco natural de abacaxi 500ml" },
+                { nome: "Abacaxi com Hortelã 300ml", preco: 4.99, categoria: "Sucos Naturais", descricao: "Suco natural de abacaxi com hortelã 300ml" },
+                { nome: "Abacaxi com Hortelã 500ml", preco: 7.99, categoria: "Sucos Naturais", descricao: "Suco natural de abacaxi com hortelã 500ml" },
+                
+                // REFRIGERANTES (categoria: Refrigerantes)
+                { nome: "Coca-Cola 350ml", preco: 5.99, categoria: "Refrigerantes", descricao: "Coca-Cola 350ml" },
+                { nome: "Coca-Cola Zero 350ml", preco: 5.99, categoria: "Refrigerantes", descricao: "Coca-Cola Zero 350ml" },
+                { nome: "Guaraná 350ml", preco: 5.99, categoria: "Refrigerantes", descricao: "Guaraná 350ml" },
+                { nome: "Jesus 350ml", preco: 5.99, categoria: "Refrigerantes", descricao: "Guaraná Jesus 350ml" },
+                { nome: "Uva 350ml", preco: 5.99, categoria: "Refrigerantes", descricao: "Refrigerante de uva 350ml" },
+                { nome: "Laranja 350ml", preco: 5.99, categoria: "Refrigerantes", descricao: "Refrigerante de laranja 350ml" },
+                { nome: "Coca-Cola 1L", preco: 9.99, categoria: "Refrigerantes", descricao: "Coca-Cola 1 litro" },
+                { nome: "Coca-Cola Zero 1L", preco: 9.99, categoria: "Refrigerantes", descricao: "Coca-Cola Zero 1 litro" },
+                { nome: "Guaraná 1L", preco: 9.99, categoria: "Refrigerantes", descricao: "Guaraná 1 litro" },
+                { nome: "Jesus 1L", preco: 9.99, categoria: "Refrigerantes", descricao: "Guaraná Jesus 1 litro" },
+                { nome: "Guaraná 2L", preco: 11.99, categoria: "Refrigerantes", descricao: "Guaraná 2 litros" },
+                
+                // PIZZAS (categoria: Pizzas)
+                { nome: "Mussarela", preco: 27.99, categoria: "Pizzas", descricao: "Pizza de mussarela" },
+                { nome: "Calabresa", preco: 29.99, categoria: "Pizzas", descricao: "Pizza de calabresa" },
+                { nome: "Frango com Catupiry", preco: 29.99, categoria: "Pizzas", descricao: "Pizza de frango com catupiry" }
+            ];
+
+            // 4. INSERIR PRODUTOS QUE NÃO EXISTEM
+            let inseridos = 0;
+            let ignorados = 0;
+            
+            for (const item of cardapio) {
+                try {
+                    // Verificar se a categoria existe no map
+                    if (!categoriasMap.has(item.categoria)) {
+                        console.log(`⚠️ Categoria ${item.categoria} não encontrada, pulando item ${item.nome}`);
+                        ignorados++;
+                        continue;
+                    }
+                    
+                    const categoriaId = categoriasMap.get(item.categoria);
+                    
+                    // Verificar se produto já existe pelo nome
+                    if (!produtosExistentes.has(item.nome)) {
+                        const novoProduto = {
+                            nome: item.nome,
+                            descricao: item.descricao,
+                            preco: item.preco,
+                            categoria_id: categoriaId,
+                            imagem_url: "",
+                            disponivel: true,
+                            created_at: new Date().getTime()
+                        };
+                        
+                        await addDoc(collection(db, "produtos"), novoProduto);
+                        inseridos++;
+                        console.log(`✅ INSERIDO: ${item.nome} (${item.categoria}) - R$ ${item.preco.toFixed(2)}`);
+                    } else {
+                        console.log(`⏭️ JÁ EXISTE: ${item.nome}`);
+                        ignorados++;
+                    }
+                } catch (itemError) {
+                    console.error(`❌ Erro ao processar ${item.nome}:`, itemError);
+                }
+            }
+
+            // 5. RESUMO FINAL
+            console.log("=".repeat(50));
+            console.log(`📊 SINCRONIZAÇÃO CONCLUÍDA!`);
+            console.log(`✅ Produtos inseridos: ${inseridos}`);
+            console.log(`⏭️ Produtos ignorados (já existiam): ${ignorados}`);
+            console.log(`📁 Total de categorias: ${categoriasMap.size}`);
+            console.log("=".repeat(50));
+
+            // 6. TENTAR RECARREGAR O CARDÁPIO
+            if (inseridos > 0) {
+                console.log("🔄 Tentando recarregar o cardápio...");
+                
+                try {
+                    // Atualizar variáveis globais se existirem
+                    if (typeof window.loadData === 'function') {
+                        await window.loadData();
+                        console.log("✅ loadData() executado com sucesso");
+                    }
+                    
+                    // Atualizar CATS e PRODS se existirem
+                    if (window.CATS) {
+                        // Forçar recarregar categorias do Firebase
+                        const newCatsSnap = await getDocs(collection(db, "categorias"));
+                        window.CATS = newCatsSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                        console.log("✅ window.CATS atualizado");
+                    }
+                    
+                    if (window.PRODS) {
+                        const newProdsSnap = await getDocs(collection(db, "produtos"));
+                        window.PRODS = newProdsSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                        console.log("✅ window.PRODS atualizado");
+                    }
+                    
+                    // Renderizar cardápio novamente
+                    if (typeof window.renderCardapio === 'function') {
+                        window.renderCardapio('todos');
+                        console.log("✅ renderCardapio() executado");
+                    }
+                    
+                    if (typeof window.renderFiltros === 'function') {
+                        window.renderFiltros();
+                        console.log("✅ renderFiltros() executado");
+                    }
+                } catch (reloadError) {
+                    console.log("⚠️ Erro ao recarregar interface:", reloadError);
+                }
+            }
+
+        } catch (error) {
+            console.error("❌ ERRO GERAL NA SINCRONIZAÇÃO:", error);
+        }
+    }
+
+    // Executar após o carregamento completo da página
+    function executarSync() {
+        if (document.readyState === 'complete') {
+            console.log("📋 Página carregada, iniciando sincronização em 3 segundos...");
+            setTimeout(syncMenu, 3000);
+        } else {
+            window.addEventListener('load', () => {
+                console.log("📋 Página carregada, iniciando sincronização em 3 segundos...");
+                setTimeout(syncMenu, 3000);
+            });
+        }
+    }
+
+    executarSync();
+})();
+</script>
+<!-- ==================== FIM DO CÓDIGO DE SINCRONIZAÇÃO DO CARDÁPIO ==================== -->
 </body>
 </html>
