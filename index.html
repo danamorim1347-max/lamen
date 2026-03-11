@@ -672,8 +672,7 @@
                         preco_km: 2.5,
                         whatsapp: "5599999999999",
                         pedido_minimo: 35,
-                        admin_email: "admin@pizza.com",
-                        admin_senha: "admin123"
+                        
                     };
                     // Criar configuração padrão se não existir
                     await firestore.setDoc(firestore.doc(db, "configuracoes", "loja"), CONFIG);
