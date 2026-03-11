@@ -341,7 +341,7 @@
     <!-- [PAINEL ADM] -->
     <div id="view-admin" class="hidden w-full max-w-4xl mx-auto min-h-screen pb-20 bg-red-50">
         <header class="bg-gray-900 text-red-400 p-4 flex justify-between items-center sticky top-0 z-50">
-            <h1 class="font-bebas text-red-400 uppercase tracking-tighter text-xl">PAINEL MASTER PIZZA</h1>
+            <h1 class="font-bebas text-red-400 uppercase tracking-tighter text-xl">PAINEL ADMINISTRADOR</h1>
             <div class="flex items-center gap-3">
                 <span id="admin-user" class="text-[10px] text-red-300"></span>
                 <button onclick="sairAdmin()" class="text-[9px] font-bold border border-red-400 text-red-400 px-3 py-1 rounded-full uppercase hover:bg-red-400 hover:text-gray-900 transition">Sair</button>
@@ -672,7 +672,6 @@
                         preco_km: 2.5,
                         whatsapp: "5599999999999",
                         pedido_minimo: 35,
-                        
                     };
                     // Criar configuração padrão se não existir
                     await firestore.setDoc(firestore.doc(db, "configuracoes", "loja"), CONFIG);
