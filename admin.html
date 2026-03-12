@@ -2,13 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Pizza Pro | Sistema Delivery</title>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#dc2626">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Delivery - Painel Administrativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,8 +11,7 @@
     
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-      import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBVaLBuEHarAxQWxJhMLYg_D0UiSuulK-k",
@@ -30,377 +24,207 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
-      const auth = getAuth(app);
-
       window.firebaseDb = db;
-      window.firebaseAuth = auth;
-      window.firebaseModules = {
-        firestore: { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where },
-        auth: { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
-      };
+      window.firebaseModules = { firestore: { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, where } };
     </script>
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fef2f2; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
         .font-bebas { font-family: 'Bebas Neue', cursive; }
         .hidden { display: none !important; }
-        .tab-active { background-color: #dc2626 !important; color: white !important; }
-        .cat-active { background-color: #1f2937 !important; color: #f87171 !important; }
-        .header-banner { position: relative; width: 100%; height: 210px; overflow: hidden; background: linear-gradient(45deg, #1f2937 0%, #991b1b 100%); }
-        .header-banner img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
-        .header-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 25px 20px; background: linear-gradient(to top, #fef2f2 5%, rgba(31,41,55,0.9) 60%, transparent); }
-        .status-Novo { border-left: 12px solid #dc2626 !important; background-color: #fef2f2; }
-        .status-Preparando { border-left: 12px solid #ea580c !important; background-color: #fff7ed; }
-        .status-Assando { border-left: 12px solid #d97706 !important; background-color: #fffbeb; }
-        .status-Pronto { border-left: 12px solid #16a34a !important; background-color: #f0fdf4; }
-        .status-Saiu { border-left: 12px solid #2563eb !important; background-color: #eff6ff; }
-        .status-Finalizado { border-left: 12px solid #7c3aed !important; background-color: #faf5ff; }
-        .status-Cancelado { border-left: 12px solid #6b7280 !important; background-color: #f3f4f6; }
-        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #16a34a; }
-        input:checked + .slider:before { transform: translateX(18px); }
-        #initial-loading { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #fef2f2; display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .pizza-gradient { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-        .tamanho-option { transition: all 0.3s; }
-        .tamanho-selected { background-color: #dc2626 !important; color: white !important; }
     </style>
 </head>
-<body class="flex justify-center">
-    <div id="initial-loading" class="bg-red-50">
-        <div class="text-center">
-            <div class="text-4xl mb-4">🍕</div>
-            <h2 class="text-xl font-bebas text-red-800 mb-2">MASTER PIZZA PRO</h2>
-            <div class="text-red-600 text-sm">Inicializando...</div>
+<body class="p-4">
+    <div id="tela-login" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-[40px] shadow-2xl">
+        <h1 class="text-3xl font-bebas text-red-600 text-center mb-6">PAINEL ADMIN</h1>
+        
+        <!-- SEUS DADOS ESTÃO AQUI -->
+        <div class="bg-blue-50 p-3 rounded-2xl mb-4 text-xs text-blue-800 border border-blue-200">
+            <strong>🔐 Seu acesso:</strong><br>
+            Email: danamorim1347@gmail.com<br>
+            Senha: vidaloka13
         </div>
+        
+        <input id="email" type="email" placeholder="Seu email" value="danamorim1347@gmail.com" class="w-full p-4 bg-gray-100 rounded-2xl mb-3">
+        <input id="senha" type="password" placeholder="Sua senha" value="vidaloka13" class="w-full p-4 bg-gray-100 rounded-2xl mb-4">
+        <button onclick="fazerLogin()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700">ENTRAR NO PAINEL</button>
+        <div id="erro-login" class="text-red-500 text-xs mt-3 text-center hidden"></div>
     </div>
 
-    <audio id="alerta-som" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
-    <div id="secao-impressao" class="hidden font-mono text-[13px] leading-tight text-black bg-white p-4"><div id="print-content"></div></div>
-
-    <!-- MODAL LOGIN -->
-    <div id="view-login" class="hidden fixed inset-0 bg-black/95 z-[150] flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] text-center shadow-2xl">
-            <h2 class="text-2xl font-bebas uppercase mb-6 text-red-600">Login</h2>
-            <input id="login-email" type="email" placeholder="danamorim1347@gmail.com" class="w-full p-4 bg-red-50 rounded-2xl mb-3">
-            <input id="login-pass" type="password" placeholder="vidaloka13" class="w-full p-4 bg-red-50 rounded-2xl mb-4">
-            <button onclick="processarLogin()" class="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase hover:bg-red-700">Entrar</button>
-            <div class="flex justify-center gap-4 mt-4">
-                <button onclick="fecharLogin()" class="text-gray-400 text-xs font-bold underline">Voltar</button>
-                <button onclick="abrirCadastro()" class="text-red-600 text-xs font-bold underline">Criar Conta</button>
+    <div id="painel-principal" class="hidden max-w-6xl mx-auto">
+        <div class="bg-white rounded-[30px] p-6 shadow-lg mb-6 flex justify-between items-center">
+            <div><h1 class="text-2xl font-bebas text-red-600">MASTER DELIVERY PRO</h1><p class="text-xs text-gray-500">Painel de Controle</p></div>
+            <div class="flex items-center gap-4">
+                <span id="email-admin" class="text-sm text-gray-600"></span>
+                <button onclick="fazerLogout()" class="bg-gray-200 px-4 py-2 rounded-xl text-xs font-black hover:bg-gray-300">SAIR</button>
             </div>
-            <div id="login-error" class="mt-3 text-red-500 text-xs hidden"></div>
         </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-5 rounded-2xl shadow" id="card-pendentes"><div class="text-3xl font-black text-yellow-500">0</div><div class="text-xs">Pendentes</div></div>
+            <div class="bg-white p-5 rounded-2xl shadow" id="card-ativos"><div class="text-3xl font-black text-green-500">0</div><div class="text-xs">Ativos</div></div>
+            <div class="bg-white p-5 rounded-2xl shadow" id="card-expirados"><div class="text-3xl font-black text-red-500">0</div><div class="text-xs">Expirados</div></div>
+            <div class="bg-white p-5 rounded-2xl shadow" id="card-bloqueados"><div class="text-3xl font-black text-gray-500">0</div><div class="text-xs">Bloqueados</div></div>
+        </div>
+
+        <div class="flex gap-2 mb-4 overflow-x-auto">
+            <button onclick="mudarAba('pendentes')" id="aba-pendentes" class="px-6 py-3 bg-red-600 text-white rounded-xl text-sm font-black shadow">⏳ Pendentes</button>
+            <button onclick="mudarAba('ativos')" id="aba-ativos" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow">✅ Ativos</button>
+            <button onclick="mudarAba('expirados')" id="aba-expirados" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow">🔴 Expirados</button>
+            <button onclick="mudarAba('bloqueados')" id="aba-bloqueados" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow">🔒 Bloqueados</button>
+            <button onclick="mudarAba('todos')" id="aba-todos" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow">👥 Todos</button>
+        </div>
+
+        <div id="lista-clientes" class="bg-white rounded-[30px] p-6 shadow-lg"></div>
     </div>
-
-    <!-- MODAL CADASTRO -->
-    <div id="view-cadastro" class="hidden fixed inset-0 bg-black/95 z-[150] flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] text-center shadow-2xl">
-            <h2 class="text-2xl font-bebas uppercase mb-6 text-green-600">Criar Conta</h2>
-            <input id="cad-nome" type="text" placeholder="Nome do Estabelecimento" class="w-full p-4 bg-red-50 rounded-2xl mb-3">
-            <input id="cad-slug" type="text" placeholder="Link (ex: pizzaguio)" class="w-full p-4 bg-red-50 rounded-2xl mb-3">
-            <div class="text-[8px] text-left text-gray-500 mb-3">Seu link: <span id="preview-slug">pizzaguio</span></div>
-            <input id="cad-email" type="email" placeholder="Seu Email" class="w-full p-4 bg-red-50 rounded-2xl mb-3">
-            <input id="cad-whatsapp" type="tel" placeholder="WhatsApp" class="w-full p-4 bg-red-50 rounded-2xl mb-3">
-            <input id="cad-senha" type="password" placeholder="Senha (6+ caracteres)" class="w-full p-4 bg-red-50 rounded-2xl mb-3">
-            <input id="cad-confirma" type="password" placeholder="Confirmar Senha" class="w-full p-4 bg-red-50 rounded-2xl mb-4">
-            <button onclick="processarCadastro()" class="w-full bg-green-600 text-white p-4 rounded-2xl font-black uppercase hover:bg-green-700">Criar Conta</button>
-            <div class="mt-4"><button onclick="fecharCadastro()" class="text-gray-400 text-xs font-bold underline">Voltar</button></div>
-            <div id="cad-error" class="mt-3 text-red-500 text-xs hidden"></div>
-            <div id="cad-success" class="mt-3 text-green-500 text-xs hidden"></div>
-        </div>
-    </div>
-
-    <!-- ACOMPANHAR PEDIDO -->
-    <div id="view-acompanhar" class="hidden w-full max-w-md min-h-screen p-6 text-center bg-white">
-        <div class="py-10">
-            <h2 class="text-2xl font-bebas text-red-600 mb-6 uppercase">Acompanhe Seu Pedido</h2>
-            <div id="box-status-cliente" class="py-16 px-4 rounded-[40px] border-4 border-double mb-8 bg-red-50">
-                <h3 id="rastreio-status" class="text-3xl font-bebas uppercase text-gray-800">---</h3>
-                <div id="rastreio-tempo" class="text-sm text-red-600 mt-2">Tempo estimado: 40-50 min</div>
-            </div>
-            <button onclick="location.reload()" class="w-full bg-gray-900 text-red-400 p-5 rounded-2xl font-black uppercase hover:bg-black">🔄 Atualizar Status</button>
-            <button onclick="location.href=location.pathname" class="mt-8 text-gray-400 font-bold text-xs underline">Fazer novo pedido</button>
-        </div>
-    </div>
-
-    <!-- CARDÁPIO PÚBLICO -->
-    <div id="view-cliente" class="hidden w-full max-w-md min-h-screen pb-32 bg-white shadow-2xl">
-        <header class="header-banner">
-            <img id="cli-logo" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800" alt="Logo">
-            <div class="header-overlay">
-                <h1 id="cli-nome" class="text-3xl font-bebas uppercase text-white">CARREGANDO...</h1>
-                <div id="cli-status-loja" class="inline-block px-4 py-1.5 rounded-full text-[9px] font-black mt-2 border border-red-300 text-red-300">● ABERTO AGORA</div>
-            </div>
-            <button onclick="abrirLogin()" class="absolute top-6 right-6 text-red-200 text-xl"><i class="fas fa-cog"></i></button>
-        </header>
-
-        <!-- AVISOS -->
-        <div id="aviso-pendente" class="hidden bg-yellow-500 text-white p-4 mx-5 mt-4 rounded-2xl text-center">
-            <div class="font-bold text-sm">⏳ Aguardando Aprovação</div>
-            <p class="text-xs">Seu cadastro está pendente. Em breve você receberá notícias!</p>
-        </div>
-        <div id="aviso-expirado" class="hidden bg-red-600 text-white p-4 mx-5 mt-4 rounded-2xl text-center">
-            <div class="font-bold text-sm">⏰ Assinatura Expirada</div>
-            <p class="text-xs">Renove sua assinatura para continuar usando o sistema.</p>
-        </div>
-        <div id="aviso-bloqueado" class="hidden bg-gray-800 text-white p-4 mx-5 mt-4 rounded-2xl text-center">
-            <div class="font-bold text-sm">🔒 Acesso Bloqueado</div>
-            <p class="text-xs">Entre em contato com o administrador.</p>
-        </div>
-
-        <div id="promocao-container" class="px-5 mt-4"></div>
-        <div class="px-5 mt-4">
-            <button onclick="abrirMontadorPizza()" class="w-full pizza-gradient text-white p-5 rounded-[25px] font-black text-[11px] uppercase shadow-xl flex justify-between items-center">
-                <span>🎯 MONTAR PIZZA</span>
-                <i class="fas fa-plus bg-white/20 p-2 rounded-lg"></i>
-            </button>
-        </div>
-
-        <nav id="filtros" class="flex gap-2 p-5 overflow-x-auto no-scrollbar sticky top-0 z-20 bg-white/95 backdrop-blur-sm mt-2 border-b border-red-50"></nav>
-        <main id="cardapio" class="px-5 space-y-3 mt-2 text-black"></main>
-
-        <div id="cart-fixed" class="fixed bottom-6 left-0 right-0 px-6 hidden z-30 flex justify-center">
-            <button onclick="abrirCarrinho()" class="w-full max-w-md bg-gray-900 text-red-400 py-5 rounded-[25px] font-black flex justify-between px-8 shadow-2xl items-center border-b-4 border-red-600">
-                <span class="text-xs uppercase">Ver Carrinho</span>
-                <span id="cart-total-display" class="bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-black">R$ 0,00</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAIS (CARRINHO, CHECKOUT, MONTADOR) - MANTIDOS IGUAIS -->
-    <!-- ... (seus modais existentes) ... -->
 
     <script>
-        let PRODS = [], CATS = [], CARRINHO = [], CONFIG = {}, CUPONS = [], PROMOCAO = {}, TAMANHOS = [];
-        let curCat = 'todos', dKM = 0, tFRETE = 0, latCli = 0, lngCli = 0, gpsOk = false, modoConsumo = 'delivery', vCUPOM = 0;
-        let isAdmin = false, pedidosListenerUnsubscribe = null, currentUser = null;
-        let pizzaMontada = { tamanho: null, precoTamanho: 0, sabores: [], borda: null, adicionais: [], precoTotal: 0 };
-        let saboresSelecionadosPromocao = [];
+        // 🔴 SEU EMAIL CADASTRADO
+        const SUPER_ADMIN_EMAIL = "danamorim1347@gmail.com";
 
         function getFirebaseRefs() {
-            return { db: window.firebaseDb, auth: window.firebaseAuth, firestore: window.firebaseModules.firestore, authModules: window.firebaseModules.auth };
+            return { db: window.firebaseDb, firestore: window.firebaseModules.firestore };
         }
 
-        async function init() {
-            try {
-                console.log("Iniciando...");
-                const params = new URLSearchParams(window.location.search);
-                if (params.has('pedido')) {
-                    await carregarAcompanhamento(params.get('pedido'));
-                    return;
-                }
-                document.getElementById('initial-loading').style.display = 'none';
-                document.getElementById('view-cliente').classList.remove('hidden');
-            } catch (error) {
-                console.error("Erro:", error);
-            }
-        }
-
-        // ========== CADASTRO ==========
-        document.getElementById('cad-slug')?.addEventListener('input', function(e) {
-            document.getElementById('preview-slug').innerText = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') || 'pizzaguio';
-        });
-
-        function abrirCadastro() { document.getElementById('view-login').classList.add('hidden'); document.getElementById('view-cadastro').classList.remove('hidden'); }
-        function fecharCadastro() { document.getElementById('view-cadastro').classList.add('hidden'); }
-        function abrirLogin() { document.getElementById('view-login').classList.remove('hidden'); }
-        function fecharLogin() { document.getElementById('view-login').classList.add('hidden'); }
-
-        async function processarCadastro() {
-            const nome = document.getElementById('cad-nome').value.trim();
-            const slug = document.getElementById('cad-slug').value.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const email = document.getElementById('cad-email').value.trim();
-            const whatsapp = document.getElementById('cad-whatsapp').value.replace(/\D/g, '');
-            const senha = document.getElementById('cad-senha').value;
-            const confirma = document.getElementById('cad-confirma').value;
+        function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
             
-            if (!nome || !slug || !email || !whatsapp || !senha || !confirma) return Swal.fire('Erro', 'Preencha todos os campos', 'error');
-            if (senha !== confirma) return Swal.fire('Erro', 'Senhas não conferem', 'error');
-
-            try {
-                const { auth, authModules, db, firestore } = getFirebaseRefs();
-                const q = firestore.query(firestore.collection(db, "estabelecimentos"), firestore.where("slug", "==", slug));
-                if (!(await firestore.getDocs(q)).empty) return Swal.fire('Erro', 'Link já em uso', 'error');
-
-                const user = (await authModules.createUserWithEmailAndPassword(auth, email, senha)).user;
-                
-                await firestore.setDoc(firestore.doc(db, "estabelecimentos", user.uid), {
-                    nome, slug, email, whatsapp, created_at: new Date().getTime(), status: "pendente"
-                });
-                
-                await firestore.setDoc(firestore.doc(db, `lojas/${user.uid}/config`, "loja"), {
-                    nome_pizzaria: nome, loja_aberta: true, whatsapp, pedido_minimo: 35, taxa_base: 6, preco_km: 2.5
-                });
-
-                for (let cat of [{ nome: "Pizzas", ordem: 1 }, { nome: "Bebidas", ordem: 2 }, { nome: "Bordas", tipo: "montador", subtipo: "borda", ordem: 3 }, { nome: "Adicionais", tipo: "montador", subtipo: "adicional", ordem: 4 }]) {
-                    await firestore.addDoc(firestore.collection(db, `lojas/${user.uid}/categorias`), cat);
-                }
-
-                for (let tam of [{ nome: "P", preco: 29.90, ordem: 1 }, { nome: "M", preco: 39.90, ordem: 2 }, { nome: "G", preco: 49.90, ordem: 3 }]) {
-                    await firestore.addDoc(firestore.collection(db, `lojas/${user.uid}/tamanhos_pizza`), { ...tam, descricao: "", disponivel: true });
-                }
-
-                await firestore.setDoc(firestore.doc(db, `lojas/${user.uid}/promocoes`, "dia"), { titulo: "PROMOÇÃO", preco: 69.90, ativa: true });
-
-                Swal.fire('Sucesso!', 'Cadastro realizado! Aguarde aprovação.', 'success');
-                fecharCadastro();
-            } catch (error) {
-                Swal.fire('Erro', error.message, 'error');
+            // Verifica se é o email correto (senha qualquer no modo teste)
+            if (email !== SUPER_ADMIN_EMAIL) {
+                document.getElementById('erro-login').textContent = "Email não autorizado!";
+                document.getElementById('erro-login').classList.remove('hidden');
+                return;
             }
-        }
-
-        // ========== LOGIN COM VERIFICAÇÃO ==========
-        async function processarLogin() {
-            const email = document.getElementById('login-email').value;
-            const senha = document.getElementById('login-pass').value;
             
-            try {
-                const { auth, authModules, db, firestore } = getFirebaseRefs();
-                const user = (await authModules.signInWithEmailAndPassword(auth, email, senha)).user;
-                const estab = (await firestore.getDoc(firestore.doc(db, "estabelecimentos", user.uid))).data();
-                
-                if (!estab) throw new Error("Usuário não encontrado");
-
-                const agora = new Date().getTime();
-
-                if (estab.status === 'pendente') {
-                    await authModules.signOut(auth);
-                    document.getElementById('aviso-pendente').classList.remove('hidden');
-                    return Swal.fire('Aguardando', 'Seu cadastro aguarda aprovação', 'info');
-                }
-
-                if (estab.status === 'bloqueado') {
-                    await authModules.signOut(auth);
-                    document.getElementById('aviso-bloqueado').classList.remove('hidden');
-                    return Swal.fire('Bloqueado', 'Acesso bloqueado', 'error');
-                }
-
-                if (estab.status === 'expirado' || (estab.status === 'ativo' && estab.data_vencimento && agora > estab.data_vencimento)) {
-                    if (estab.status === 'ativo') await firestore.updateDoc(firestore.doc(db, "estabelecimentos", user.uid), { status: 'expirado' });
-                    await authModules.signOut(auth);
-                    document.getElementById('aviso-expirado').classList.remove('hidden');
-                    return Swal.fire('Expirado', 'Assinatura expirada. Renove!', 'warning');
-                }
-
-                // LOGIN OK
-                currentUser = user;
-                fecharLogin();
-                document.getElementById('view-cliente').classList.add('hidden');
-                document.getElementById('view-admin').classList.remove('hidden');
-                document.getElementById('admin-user').innerText = user.email;
-                document.getElementById('admin-status').innerText = estab.status.toUpperCase();
-
-                if (estab.data_vencimento) {
-                    const dias = Math.ceil((estab.data_vencimento - agora) / (24*60*60*1000));
-                    if (dias <= 3 && dias > 0) {
-                        document.getElementById('dias-vencimento').innerText = dias;
-                        document.getElementById('aviso-vencimento').classList.remove('hidden');
-                    }
-                }
-
-                await carregarDadosLoja(user.uid);
-                listenPedidos();
-                
-            } catch (error) {
-                Swal.fire('Erro', 'Email ou senha inválidos', 'error');
-            }
+            document.getElementById('tela-login').classList.add('hidden');
+            document.getElementById('painel-principal').classList.remove('hidden');
+            document.getElementById('email-admin').innerText = email;
+            carregarClientes();
         }
 
-        async function carregarDadosLoja(uid) {
+        function fazerLogout() {
+            document.getElementById('tela-login').classList.remove('hidden');
+            document.getElementById('painel-principal').classList.add('hidden');
+        }
+
+        async function carregarClientes() {
             const { db, firestore } = getFirebaseRefs();
-            const config = (await firestore.getDoc(firestore.doc(db, `lojas/${uid}/config`, "loja"))).data();
-            if (config) {
-                CONFIG = config;
-                document.getElementById('cli-nome').innerText = config.nome_pizzaria || "Master Pizza";
-                if (config.logo_url) document.getElementById('cli-logo').src = config.logo_url;
-            }
-            CATS = (await firestore.getDocs(firestore.collection(db, `lojas/${uid}/categorias`))).docs.map(d => ({ id: d.id, ...d.data() }));
-            PRODS = (await firestore.getDocs(firestore.collection(db, `lojas/${uid}/produtos`))).docs.map(d => ({ id: d.id, ...d.data() }));
-            TAMANHOS = (await firestore.getDocs(firestore.collection(db, `lojas/${uid}/tamanhos_pizza`))).docs.map(d => ({ id: d.id, ...d.data() }));
+            const snap = await firestore.getDocs(firestore.collection(db, "estabelecimentos"));
+            window.clientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             
-            CATS.sort((a, b) => (a.ordem || 999) - (b.ordem || 999));
-            renderFiltros();
-            renderCardapio('todos');
+            document.querySelector('#card-pendentes div:first-child').innerText = window.clientes.filter(c => c.status === 'pendente').length;
+            document.querySelector('#card-ativos div:first-child').innerText = window.clientes.filter(c => c.status === 'ativo').length;
+            document.querySelector('#card-expirados div:first-child').innerText = window.clientes.filter(c => c.status === 'expirado').length;
+            document.querySelector('#card-bloqueados div:first-child').innerText = window.clientes.filter(c => c.status === 'bloqueado').length;
+            
+            mudarAba('pendentes');
         }
 
-        function renderFiltros() {
-            const div = document.getElementById('filtros');
-            let html = `<button onclick="renderCardapio('todos')" class="px-4 py-2 text-[10px] font-black uppercase border rounded-full ${curCat === 'todos' ? 'cat-active' : 'border-red-200 text-gray-400'}">Todos</button>`;
-            CATS.filter(c => !c.tipo || c.tipo === 'categoria').forEach(c => {
-                if (PRODS.filter(p => p.categoria_id === c.id && p.disponivel !== false && p.preco > 0).length > 0) {
-                    html += `<button onclick="renderCardapio('${c.id}')" class="px-4 py-2 text-[10px] font-black uppercase border rounded-full ${curCat === c.id ? 'cat-active' : 'border-red-200 text-gray-400'}">${c.nome}</button>`;
-                }
+        function mudarAba(tipo) {
+            document.querySelectorAll('[id^="aba-"]').forEach(btn => {
+                btn.classList.remove('bg-red-600', 'text-white');
+                btn.classList.add('bg-white');
             });
-            div.innerHTML = html;
+            document.getElementById(`aba-${tipo}`).classList.remove('bg-white');
+            document.getElementById(`aba-${tipo}`).classList.add('bg-red-600', 'text-white');
+            
+            const filtrados = tipo === 'todos' ? window.clientes : window.clientes.filter(c => c.status === tipo);
+            renderizarClientes(filtrados);
         }
 
-        function renderCardapio(cid) {
-            curCat = cid;
-            renderFiltros();
-            const div = document.getElementById('cardapio');
-            const montadorIds = CATS.filter(c => c.tipo === 'montador').map(c => c.id);
-            const prods = (cid === 'todos' ? PRODS.filter(p => !montadorIds.includes(p.categoria_id)) : PRODS.filter(p => p.categoria_id === cid)).filter(p => p.disponivel !== false && p.preco > 0);
-            
-            if (prods.length === 0) {
-                div.innerHTML = '<div class="text-center py-10 text-gray-400">Nenhum produto</div>';
+        function renderizarClientes(clientes) {
+            const container = document.getElementById('lista-clientes');
+            if (!clientes.length) {
+                container.innerHTML = '<div class="text-center py-10 text-gray-400">Nenhum cliente</div>';
                 return;
             }
 
             let html = '';
-            prods.forEach(p => {
-                html += `<div class="bg-white rounded-[20px] p-4 flex gap-4 border border-red-100 items-center" onclick="abrirDetalhesProduto('${p.id}')">
-                    <div class="w-20 h-20 rounded-xl overflow-hidden"><img src="${p.imagem_url || 'https://cdn-icons-png.flaticon.com/512/3595/3595455.png'}" class="w-full h-full object-cover" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3595/3595455.png'"></div>
-                    <div class="flex-1">
-                        <h3 class="font-black text-[11px] uppercase">${p.nome}</h3>
-                        <p class="text-[9px] text-gray-400">${p.descricao || ''}</p>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="text-red-600 font-black">R$ ${p.preco.toFixed(2).replace('.',',')}</span>
-                            <button onclick="event.stopPropagation(); addCart('${p.id}')" class="bg-red-500 text-white w-8 h-8 rounded-xl font-black text-xl">+</button>
-                        </div>
+            clientes.forEach(c => {
+                html += `<div class="border-b py-4 flex justify-between items-start">
+                    <div>
+                        <div class="font-black">${c.nome}</div>
+                        <div class="text-sm">${c.email}</div>
+                        <div class="text-xs">WhatsApp: ${c.whatsapp}</div>
+                        <div class="text-xs">Link: /${c.slug}</div>
+                    </div>
+                    <div class="flex gap-2">
+                        ${c.status === 'pendente' ? `
+                            <button onclick="aprovar('${c.id}')" class="bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-black">✅ APROVAR</button>
+                            <button onclick="recusar('${c.id}')" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black">❌ RECUSAR</button>
+                        ` : ''}
+                        ${c.status === 'ativo' ? `
+                            <button onclick="renovar('${c.id}')" class="bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔄 RENOVAR</button>
+                            <button onclick="bloquear('${c.id}')" class="bg-gray-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔒 BLOQUEAR</button>
+                        ` : ''}
+                        ${c.status === 'expirado' ? `
+                            <button onclick="renovar('${c.id}')" class="bg-green-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔄 RENOVAR</button>
+                            <button onclick="bloquear('${c.id}')" class="bg-gray-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔒 BLOQUEAR</button>
+                        ` : ''}
+                        ${c.status === 'bloqueado' ? `
+                            <button onclick="desbloquear('${c.id}')" class="bg-green-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔓 DESBLOQUEAR</button>
+                        ` : ''}
+                        <button onclick="ver('${c.slug}')" class="bg-purple-500 text-white px-3 py-2 rounded-xl text-xs font-black">👁️ VER</button>
                     </div>
                 </div>`;
             });
-            div.innerHTML = html;
+            container.innerHTML = html;
         }
 
-        function addCart(id) {
-            const p = PRODS.find(x => x.id === id);
-            if (!p || p.disponivel === false) return;
-            CARRINHO.push({ id: p.id, nome: p.nome, descricao: p.descricao, preco: p.preco });
-            document.getElementById('cart-total-display').innerText = `R$ ${CARRINHO.reduce((a,b)=>a+b.preco,0).toFixed(2).replace('.',',')}`;
-            document.getElementById('cart-fixed').classList.remove('hidden');
+        async function aprovar(id) {
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
+                status: "ativo",
+                data_aprovacao: new Date().getTime(),
+                data_vencimento: new Date().getTime() + (30 * 24 * 60 * 60 * 1000)
+            });
+            Swal.fire('Aprovado!', '30 dias de acesso', 'success');
+            carregarClientes();
         }
 
-        function abrirCarrinho() { /* implementar */ }
-        function fecharCarrinho() { /* implementar */ }
-        function abrirCheckout() { /* implementar */ }
-        function fecharCheckout() { /* implementar */ }
-        function setModoConsumo(m) { modoConsumo = m; }
-        function obterGPSCliente() { /* implementar */ }
-        function enviarPedido() { /* implementar */ }
-        function abrirMontadorPizza() { /* implementar */ }
-        function fecharMontadorPizza() { /* implementar */ }
-        function selecionarTamanho() { /* implementar */ }
-        function toggleSabor() { /* implementar */ }
-        function toggleAdicionalPizza() { /* implementar */ }
-        function finalizarPizzaMontada() { /* implementar */ }
-        function carregarAcompanhamento(id) { /* implementar */ }
+        async function renovar(id) {
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
+                status: "ativo",
+                data_vencimento: new Date().getTime() + (30 * 24 * 60 * 60 * 1000)
+            });
+            Swal.fire('Renovado!', '+30 dias', 'success');
+            carregarClientes();
+        }
 
-        window.init = init;
-        window.abrirCadastro = abrirCadastro;
-        window.fecharCadastro = fecharCadastro;
-        window.abrirLogin = abrirLogin;
-        window.fecharLogin = fecharLogin;
-        window.processarCadastro = processarCadastro;
-        window.processarLogin = processarLogin;
-        window.renderCardapio = renderCardapio;
-        window.addCart = addCart;
+        async function bloquear(id) {
+            if (!await Swal.fire({ title: 'Bloquear?', icon: 'warning', showCancelButton: true }).then(r => r.isConfirmed)) return;
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), { status: "bloqueado" });
+            carregarClientes();
+        }
 
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 500));
-        else setTimeout(init, 500);
+        async function desbloquear(id) {
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), { status: "ativo" });
+            Swal.fire('Desbloqueado!', '', 'success');
+            carregarClientes();
+        }
+
+        async function recusar(id) {
+            if (!await Swal.fire({ title: 'Recusar?', text: 'Esta ação não poderá ser desfeita', icon: 'warning', showCancelButton: true }).then(r => r.isConfirmed)) return;
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.deleteDoc(firestore.doc(db, "estabelecimentos", id));
+            carregarClientes();
+        }
+
+        function ver(slug) { if (slug) window.open(`/${slug}`, '_blank'); }
+
+        window.fazerLogin = fazerLogin;
+        window.fazerLogout = fazerLogout;
+        window.mudarAba = mudarAba;
+        window.aprovar = aprovar;
+        window.renovar = renovar;
+        window.bloquear = bloquear;
+        window.desbloquear = desbloquear;
+        window.recusar = recusar;
+        window.ver = ver;
     </script>
 </body>
 </html>
