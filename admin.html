@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Delivery - Painel Administrativo</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,7 +11,7 @@
     
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-      import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+      import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBVaLBuEHarAxQWxJhMLYg_D0UiSuulK-k",
@@ -25,13 +24,8 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
-
       window.firebaseDb = db;
-      window.firebaseModules = {
-        firestore: { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy }
-      };
-
-      console.log("✅ Painel admin carregado");
+      window.firebaseModules = { firestore: { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, where } };
     </script>
 
     <style>
@@ -41,93 +35,58 @@
     </style>
 </head>
 <body class="p-4">
-    <!-- TELA DE LOGIN SIMPLIFICADA -->
     <div id="tela-login" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-[40px] shadow-2xl">
         <h1 class="text-3xl font-bebas text-red-600 text-center mb-6">PAINEL ADMIN</h1>
-        
-        <div class="bg-yellow-50 p-4 rounded-2xl mb-6 text-sm text-yellow-700 border border-yellow-200">
-            ⚠️ <strong>Modo Teste</strong><br>
-            Use qualquer email/senha para entrar
-        </div>
-        
-        <input id="email" type="email" placeholder="Qualquer email" value="admin@teste.com" class="w-full p-4 bg-gray-100 rounded-2xl mb-3">
-        <input id="senha" type="password" placeholder="Qualquer senha" value="123456" class="w-full p-4 bg-gray-100 rounded-2xl mb-4">
-        
-        <button onclick="fazerLogin()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700">
-            ENTRAR NO PAINEL
-        </button>
-        
+        <input id="email" type="email" placeholder="Seu email" class="w-full p-4 bg-gray-100 rounded-2xl mb-3">
+        <input id="senha" type="password" placeholder="Qualquer senha" class="w-full p-4 bg-gray-100 rounded-2xl mb-4">
+        <button onclick="fazerLogin()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700">ENTRAR</button>
         <div id="erro-login" class="text-red-500 text-xs mt-3 text-center hidden"></div>
     </div>
 
-    <!-- PAINEL PRINCIPAL -->
     <div id="painel-principal" class="hidden max-w-6xl mx-auto">
-        <!-- Header -->
         <div class="bg-white rounded-[30px] p-6 shadow-lg mb-6 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bebas text-red-600">MASTER DELIVERY PRO</h1>
-                <p class="text-xs text-gray-500">Painel de Controle do Administrador</p>
-            </div>
+            <div><h1 class="text-2xl font-bebas text-red-600">MASTER DELIVERY PRO</h1><p class="text-xs text-gray-500">Painel de Controle</p></div>
             <div class="flex items-center gap-4">
                 <span id="email-admin" class="text-sm text-gray-600"></span>
-                <button onclick="fazerLogout()" class="bg-gray-200 px-4 py-2 rounded-xl text-xs font-black hover:bg-gray-300">
-                    SAIR
-                </button>
+                <button onclick="fazerLogout()" class="bg-gray-200 px-4 py-2 rounded-xl text-xs font-black hover:bg-gray-300">SAIR</button>
             </div>
         </div>
 
-        <!-- Cards de Resumo -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white p-5 rounded-2xl shadow" id="card-pendentes">
-                <div class="text-3xl font-black text-yellow-500">0</div>
-                <div class="text-xs text-gray-500">Aguardando Aprovação</div>
-            </div>
-            <div class="bg-white p-5 rounded-2xl shadow" id="card-ativos">
-                <div class="text-3xl font-black text-green-500">0</div>
-                <div class="text-xs text-gray-500">Ativos</div>
-            </div>
-            <div class="bg-white p-5 rounded-2xl shadow" id="card-expirados">
-                <div class="text-3xl font-black text-red-500">0</div>
-                <div class="text-xs text-gray-500">Expirados / Bloqueados</div>
-            </div>
-            <div class="bg-white p-5 rounded-2xl shadow" id="card-total">
-                <div class="text-3xl font-black text-blue-500">0</div>
-                <div class="text-xs text-gray-500">Total de Clientes</div>
-            </div>
+            <div class="bg-white p-5 rounded-2xl shadow" id="card-pendentes"><div class="text-3xl font-black text-yellow-500">0</div><div class="text-xs">Pendentes</div></div>
+            <div class="bg-white p-5 rounded-2xl shadow" id="card-ativos"><div class="text-3xl font-black text-green-500">0</div><div class="text-xs">Ativos</div></div>
+            <div class="bg-white p-5 rounded-2xl shadow" id="card-expirados"><div class="text-3xl font-black text-red-500">0</div><div class="text-xs">Expirados</div></div>
+            <div class="bg-white p-5 rounded-2xl shadow" id="card-bloqueados"><div class="text-3xl font-black text-gray-500">0</div><div class="text-xs">Bloqueados</div></div>
         </div>
 
-        <!-- Abas de navegação -->
-        <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-            <button onclick="mudarAba('pendentes')" id="aba-pendentes" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow border-2 border-transparent hover:border-red-200">⏳ Pendentes</button>
-            <button onclick="mudarAba('ativos')" id="aba-ativos" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow border-2 border-transparent hover:border-red-200">✅ Ativos</button>
-            <button onclick="mudarAba('expirados')" id="aba-expirados" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow border-2 border-transparent hover:border-red-200">🔴 Expirados</button>
-            <button onclick="mudarAba('bloqueados')" id="aba-bloqueados" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow border-2 border-transparent hover:border-red-200">🔒 Bloqueados</button>
-            <button onclick="mudarAba('todos')" id="aba-todos" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow border-2 border-transparent hover:border-red-200">👥 Todos</button>
+        <div class="flex gap-2 mb-4 overflow-x-auto">
+            <button onclick="mudarAba('pendentes')" id="aba-pendentes" class="px-6 py-3 bg-red-600 text-white rounded-xl text-sm font-black shadow">⏳ Pendentes</button>
+            <button onclick="mudarAba('ativos')" id="aba-ativos" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow">✅ Ativos</button>
+            <button onclick="mudarAba('expirados')" id="aba-expirados" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow">🔴 Expirados</button>
+            <button onclick="mudarAba('bloqueados')" id="aba-bloqueados" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow">🔒 Bloqueados</button>
+            <button onclick="mudarAba('todos')" id="aba-todos" class="px-6 py-3 bg-white rounded-xl text-sm font-black shadow">👥 Todos</button>
         </div>
 
-        <!-- Lista de Clientes -->
-        <div id="lista-clientes" class="bg-white rounded-[30px] p-6 shadow-lg">
-            <div class="text-center py-10 text-gray-400">
-                Selecione uma aba para ver os clientes
-            </div>
-        </div>
+        <div id="lista-clientes" class="bg-white rounded-[30px] p-6 shadow-lg"></div>
     </div>
 
     <script>
-        // ==================== CONFIGURAÇÃO ====================
+        const SUPER_ADMIN_EMAIL = "dan.amorim@gmail.com"; // 🔴 ALTERE PARA SEU EMAIL
+
         function getFirebaseRefs() {
-            return {
-                db: window.firebaseDb,
-                firestore: window.firebaseModules.firestore
-            };
+            return { db: window.firebaseDb, firestore: window.firebaseModules.firestore };
         }
 
-        // ==================== LOGIN SIMPLIFICADO ====================
         function fazerLogin() {
+            const email = document.getElementById('email').value;
+            if (email !== SUPER_ADMIN_EMAIL) {
+                document.getElementById('erro-login').textContent = "Acesso negado!";
+                document.getElementById('erro-login').classList.remove('hidden');
+                return;
+            }
             document.getElementById('tela-login').classList.add('hidden');
             document.getElementById('painel-principal').classList.remove('hidden');
-            document.getElementById('email-admin').innerText = document.getElementById('email').value || "admin@teste.com";
-            
+            document.getElementById('email-admin').innerText = email;
             carregarClientes();
         }
 
@@ -136,419 +95,123 @@
             document.getElementById('painel-principal').classList.add('hidden');
         }
 
-        // ==================== CARREGAR TODOS OS CLIENTES ====================
         async function carregarClientes() {
-            try {
-                const { db, firestore } = getFirebaseRefs();
-                const clientesSnap = await firestore.getDocs(
-                    firestore.collection(db, "estabelecimentos")
-                );
-                
-                const clientes = clientesSnap.docs.map(d => ({ 
-                    id: d.id, 
-                    ...d.data() 
-                }));
-                
-                // Atualizar cards de resumo
-                const pendentes = clientes.filter(c => c.status === 'pendente').length;
-                const ativos = clientes.filter(c => c.status === 'ativo').length;
-                const expirados = clientes.filter(c => c.status === 'expirado').length;
-                const bloqueados = clientes.filter(c => c.status === 'bloqueado').length;
-                
-                document.querySelector('#card-pendentes div:first-child').innerText = pendentes;
-                document.querySelector('#card-ativos div:first-child').innerText = ativos;
-                document.querySelector('#card-expirados div:first-child').innerText = expirados + bloqueados;
-                document.querySelector('#card-total div:first-child').innerText = clientes.length;
-                
-                // Salvar clientes globalmente
-                window.todosClientes = clientes;
-                
-                // Mostrar aba pendentes por padrão
-                mudarAba('pendentes');
-                
-            } catch (error) {
-                console.error("Erro ao carregar clientes:", error);
-                Swal.fire('Erro', 'Não foi possível carregar os clientes', 'error');
-            }
+            const { db, firestore } = getFirebaseRefs();
+            const snap = await firestore.getDocs(firestore.collection(db, "estabelecimentos"));
+            window.clientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            
+            document.querySelector('#card-pendentes div:first-child').innerText = window.clientes.filter(c => c.status === 'pendente').length;
+            document.querySelector('#card-ativos div:first-child').innerText = window.clientes.filter(c => c.status === 'ativo').length;
+            document.querySelector('#card-expirados div:first-child').innerText = window.clientes.filter(c => c.status === 'expirado').length;
+            document.querySelector('#card-bloqueados div:first-child').innerText = window.clientes.filter(c => c.status === 'bloqueado').length;
+            
+            mudarAba('pendentes');
         }
 
-        // ==================== MUDAR ABA ====================
         function mudarAba(tipo) {
-            // Resetar estilo das abas
             document.querySelectorAll('[id^="aba-"]').forEach(btn => {
                 btn.classList.remove('bg-red-600', 'text-white');
                 btn.classList.add('bg-white');
             });
+            document.getElementById(`aba-${tipo}`).classList.remove('bg-white');
+            document.getElementById(`aba-${tipo}`).classList.add('bg-red-600', 'text-white');
             
-            // Destacar aba ativa
-            const btnAtivo = document.getElementById(`aba-${tipo}`);
-            if (btnAtivo) {
-                btnAtivo.classList.remove('bg-white');
-                btnAtivo.classList.add('bg-red-600', 'text-white');
-            }
-            
-            // Filtrar e mostrar clientes
-            let clientesFiltrados = [];
-            const agora = new Date().getTime();
-            
-            switch(tipo) {
-                case 'pendentes':
-                    clientesFiltrados = window.todosClientes.filter(c => c.status === 'pendente');
-                    break;
-                case 'ativos':
-                    clientesFiltrados = window.todosClientes.filter(c => {
-                        if (c.status !== 'ativo') return false;
-                        // Verificar se não está vencido
-                        if (c.data_vencimento && agora > c.data_vencimento) {
-                            // Atualizar status automaticamente
-                            atualizarStatusCliente(c.id, 'expirado');
-                            return false;
-                        }
-                        return true;
-                    });
-                    break;
-                case 'expirados':
-                    clientesFiltrados = window.todosClientes.filter(c => {
-                        if (c.status === 'expirado') return true;
-                        // Verificar ativos vencidos
-                        if (c.status === 'ativo' && c.data_vencimento && agora > c.data_vencimento) {
-                            atualizarStatusCliente(c.id, 'expirado');
-                            return true;
-                        }
-                        return false;
-                    });
-                    break;
-                case 'bloqueados':
-                    clientesFiltrados = window.todosClientes.filter(c => c.status === 'bloqueado');
-                    break;
-                case 'todos':
-                    clientesFiltrados = window.todosClientes;
-                    break;
-            }
-            
-            renderizarListaClientes(clientesFiltrados, tipo);
+            const filtrados = tipo === 'todos' ? window.clientes : window.clientes.filter(c => c.status === tipo);
+            renderizarClientes(filtrados);
         }
 
-        // ==================== RENDERIZAR LISTA DE CLIENTES ====================
-        function renderizarListaClientes(clientes, tipo) {
+        function renderizarClientes(clientes) {
             const container = document.getElementById('lista-clientes');
-            const agora = new Date().getTime();
-            
-            if (clientes.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10 text-gray-400">
-                        Nenhum cliente ${tipo} encontrado
-                    </div>
-                `;
+            if (!clientes.length) {
+                container.innerHTML = '<div class="text-center py-10 text-gray-400">Nenhum cliente</div>';
                 return;
             }
-            
-            let html = '<div class="space-y-4">';
-            
+
+            let html = '';
             clientes.forEach(c => {
-                const dataCadastro = c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : '---';
-                const dataVencimento = c.data_vencimento ? new Date(c.data_vencimento).toLocaleDateString('pt-BR') : '---';
-                const diasRestantes = c.data_vencimento ? 
-                    Math.ceil((c.data_vencimento - agora) / (24*60*60*1000)) : 0;
-                
-                // Definir cor do status
-                let statusCor = 'bg-gray-100';
-                let statusTexto = c.status || 'desconhecido';
-                
-                if (c.status === 'pendente') statusCor = 'bg-yellow-100 text-yellow-800';
-                if (c.status === 'ativo') statusCor = 'bg-green-100 text-green-800';
-                if (c.status === 'expirado') statusCor = 'bg-red-100 text-red-800';
-                if (c.status === 'bloqueado') statusCor = 'bg-gray-800 text-white';
-                
-                html += `
-                    <div class="border-b border-gray-100 pb-4 last:border-0">
-                        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
-                            <!-- Informações do cliente -->
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 flex-wrap">
-                                    <span class="font-black text-lg">${c.nome || 'Sem nome'}</span>
-                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">/${c.slug}</span>
-                                    <span class="text-xs ${statusCor} px-2 py-1 rounded-full font-bold">${statusTexto.toUpperCase()}</span>
-                                </div>
-                                
-                                <div class="text-sm text-gray-600 mt-1">${c.email || '---'}</div>
-                                <div class="text-xs text-gray-500">WhatsApp: ${c.whatsapp || '---'}</div>
-                                
-                                <div class="flex gap-2 mt-2 flex-wrap">
-                                    <span class="text-[10px] bg-gray-100 px-2 py-1 rounded-full">
-                                        📅 Cadastro: ${dataCadastro}
-                                    </span>
-                                    
-                                    ${c.data_aprovacao ? `
-                                        <span class="text-[10px] bg-gray-100 px-2 py-1 rounded-full">
-                                            ✅ Aprovado: ${new Date(c.data_aprovacao).toLocaleDateString('pt-BR')}
-                                        </span>
-                                    ` : ''}
-                                    
-                                    ${c.data_vencimento ? `
-                                        <span class="text-[10px] ${diasRestantes < 0 ? 'bg-red-100 text-red-600' : diasRestantes < 3 ? 'bg-yellow-100 text-yellow-600' : 'bg-green-100 text-green-600'} px-2 py-1 rounded-full font-bold">
-                                            ${diasRestantes < 0 ? '❌ VENCIDO' : `⏳ Vence em ${diasRestantes} dias`}
-                                        </span>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            
-                            <!-- Botões de ação -->
-                            <div class="flex gap-2 flex-wrap">
-                                ${c.status === 'pendente' ? `
-                                    <button onclick="aprovarCliente('${c.id}')" 
-                                            class="bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-green-600 transition">
-                                        ✅ APROVAR (30 DIAS)
-                                    </button>
-                                    <button onclick="recusarCliente('${c.id}')" 
-                                            class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-red-600 transition">
-                                        ❌ RECUSAR
-                                    </button>
-                                ` : ''}
-                                
-                                ${c.status === 'ativo' ? `
-                                    <button onclick="renovarCliente('${c.id}')" 
-                                            class="bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-600 transition">
-                                        🔄 RENOVAR (+30 DIAS)
-                                    </button>
-                                    <button onclick="bloquearCliente('${c.id}')" 
-                                            class="bg-gray-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-gray-600 transition">
-                                        🔒 BLOQUEAR
-                                    </button>
-                                ` : ''}
-                                
-                                ${c.status === 'expirado' ? `
-                                    <button onclick="renovarCliente('${c.id}')" 
-                                            class="bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-green-600 transition">
-                                        🔓 RENOVAR ASSINATURA
-                                    </button>
-                                    <button onclick="bloquearCliente('${c.id}')" 
-                                            class="bg-gray-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-gray-600 transition">
-                                        🔒 BLOQUEAR
-                                    </button>
-                                ` : ''}
-                                
-                                ${c.status === 'bloqueado' ? `
-                                    <button onclick="desbloquearCliente('${c.id}')" 
-                                            class="bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-green-600 transition">
-                                        🔓 DESBLOQUEAR
-                                    </button>
-                                ` : ''}
-                                
-                                <button onclick="verDetalhes('${c.id}')" 
-                                        class="bg-purple-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-purple-600 transition">
-                                    👁️ VER SISTEMA
-                                </button>
-                                
-                                <button onclick="excluirCliente('${c.id}')" 
-                                        class="bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-red-800 transition">
-                                    🗑️ EXCLUIR
-                                </button>
-                            </div>
-                        </div>
+                html += `<div class="border-b py-4 flex justify-between items-start">
+                    <div>
+                        <div class="font-black">${c.nome}</div>
+                        <div class="text-sm">${c.email}</div>
+                        <div class="text-xs">WhatsApp: ${c.whatsapp}</div>
+                        <div class="text-xs">Link: /${c.slug}</div>
                     </div>
-                `;
+                    <div class="flex gap-2">
+                        ${c.status === 'pendente' ? `
+                            <button onclick="aprovar('${c.id}')" class="bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-black">✅ APROVAR</button>
+                            <button onclick="recusar('${c.id}')" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black">❌ RECUSAR</button>
+                        ` : ''}
+                        ${c.status === 'ativo' ? `
+                            <button onclick="renovar('${c.id}')" class="bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔄 RENOVAR</button>
+                            <button onclick="bloquear('${c.id}')" class="bg-gray-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔒 BLOQUEAR</button>
+                        ` : ''}
+                        ${c.status === 'expirado' ? `
+                            <button onclick="renovar('${c.id}')" class="bg-green-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔄 RENOVAR</button>
+                            <button onclick="bloquear('${c.id}')" class="bg-gray-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔒 BLOQUEAR</button>
+                        ` : ''}
+                        ${c.status === 'bloqueado' ? `
+                            <button onclick="desbloquear('${c.id}')" class="bg-green-500 text-white px-3 py-2 rounded-xl text-xs font-black">🔓 DESBLOQUEAR</button>
+                        ` : ''}
+                        <button onclick="ver('${c.slug}')" class="bg-purple-500 text-white px-3 py-2 rounded-xl text-xs font-black">👁️ VER</button>
+                    </div>
+                </div>`;
             });
-            
-            html += '</div>';
             container.innerHTML = html;
         }
 
-        // ==================== AÇÕES ====================
-        
-        // APROVAR CLIENTE
-        async function aprovarCliente(id) {
-            try {
-                const { db, firestore } = getFirebaseRefs();
-                const agora = new Date().getTime();
-                const vencimento = agora + (30 * 24 * 60 * 60 * 1000); // +30 dias
-                
-                await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
-                    status: "ativo",
-                    data_aprovacao: agora,
-                    data_inicio_uso: agora,
-                    data_vencimento: vencimento
-                });
-                
-                Swal.fire({
-                    title: '✅ Cliente Aprovado!',
-                    html: 'Acesso liberado por <strong>30 dias</strong>',
-                    icon: 'success',
-                    timer: 2000
-                });
-                
-                carregarClientes();
-                
-            } catch (error) {
-                console.error("Erro ao aprovar:", error);
-                Swal.fire('Erro', 'Não foi possível aprovar', 'error');
-            }
-        }
-
-        // RENOVAR ASSINATURA
-        async function renovarCliente(id) {
-            try {
-                const { db, firestore } = getFirebaseRefs();
-                const agora = new Date().getTime();
-                const vencimento = agora + (30 * 24 * 60 * 60 * 1000); // +30 dias
-                
-                await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
-                    status: "ativo",
-                    data_vencimento: vencimento
-                });
-                
-                Swal.fire({
-                    title: '🔄 Assinatura Renovada!',
-                    html: 'Mais <strong>30 dias</strong> de acesso',
-                    icon: 'success',
-                    timer: 2000
-                });
-                
-                carregarClientes();
-                
-            } catch (error) {
-                console.error("Erro ao renovar:", error);
-                Swal.fire('Erro', 'Não foi possível renovar', 'error');
-            }
-        }
-
-        // BLOQUEAR CLIENTE
-        async function bloquearCliente(id) {
-            const result = await Swal.fire({
-                title: '🔒 Bloquear Cliente?',
-                text: 'Ele não conseguirá mais acessar o sistema',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                confirmButtonText: 'Sim, bloquear',
-                cancelButtonText: 'Cancelar'
+        async function aprovar(id) {
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
+                status: "ativo",
+                data_aprovacao: new Date().getTime(),
+                data_vencimento: new Date().getTime() + (30 * 24 * 60 * 60 * 1000)
             });
-            
-            if (!result.isConfirmed) return;
-            
-            try {
-                const { db, firestore } = getFirebaseRefs();
-                await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
-                    status: "bloqueado"
-                });
-                
-                Swal.fire('Bloqueado!', 'Cliente bloqueado com sucesso', 'success');
-                carregarClientes();
-                
-            } catch (error) {
-                console.error("Erro ao bloquear:", error);
-                Swal.fire('Erro', 'Não foi possível bloquear', 'error');
-            }
+            Swal.fire('Aprovado!', '30 dias de acesso', 'success');
+            carregarClientes();
         }
 
-        // DESBLOQUEAR CLIENTE
-        async function desbloquearCliente(id) {
-            try {
-                const { db, firestore } = getFirebaseRefs();
-                await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
-                    status: "ativo"
-                });
-                
-                Swal.fire('Desbloqueado!', 'Cliente pode acessar novamente', 'success');
-                carregarClientes();
-                
-            } catch (error) {
-                console.error("Erro ao desbloquear:", error);
-                Swal.fire('Erro', 'Não foi possível desbloquear', 'error');
-            }
-        }
-
-        // RECUSAR CLIENTE (excluir)
-        async function recusarCliente(id) {
-            const result = await Swal.fire({
-                title: '❌ Recusar Cliente?',
-                text: 'Esta ação não poderá ser desfeita',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                confirmButtonText: 'Sim, recusar',
-                cancelButtonText: 'Cancelar'
+        async function renovar(id) {
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
+                status: "ativo",
+                data_vencimento: new Date().getTime() + (30 * 24 * 60 * 60 * 1000)
             });
-            
-            if (!result.isConfirmed) return;
-            
-            try {
-                const { db, firestore } = getFirebaseRefs();
-                await firestore.deleteDoc(firestore.doc(db, "estabelecimentos", id));
-                
-                Swal.fire('Recusado!', 'Cliente removido do sistema', 'success');
-                carregarClientes();
-                
-            } catch (error) {
-                console.error("Erro ao recusar:", error);
-                Swal.fire('Erro', 'Não foi possível recusar', 'error');
-            }
+            Swal.fire('Renovado!', '+30 dias', 'success');
+            carregarClientes();
         }
 
-        // EXCLUIR CLIENTE
-        async function excluirCliente(id) {
-            const result = await Swal.fire({
-                title: '🗑️ Excluir Cliente?',
-                text: 'Todas os dados serão perdidos!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                confirmButtonText: 'Sim, excluir',
-                cancelButtonText: 'Cancelar'
-            });
-            
-            if (!result.isConfirmed) return;
-            
-            try {
-                const { db, firestore } = getFirebaseRefs();
-                await firestore.deleteDoc(firestore.doc(db, "estabelecimentos", id));
-                
-                Swal.fire('Excluído!', 'Cliente removido', 'success');
-                carregarClientes();
-                
-            } catch (error) {
-                console.error("Erro ao excluir:", error);
-                Swal.fire('Erro', 'Não foi possível excluir', 'error');
-            }
+        async function bloquear(id) {
+            if (!await Swal.fire({ title: 'Bloquear?', icon: 'warning', showCancelButton: true }).then(r => r.isConfirmed)) return;
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), { status: "bloqueado" });
+            carregarClientes();
         }
 
-        // VER SISTEMA DO CLIENTE
-        function verDetalhes(id) {
-            const cliente = window.todosClientes.find(c => c.id === id);
-            if (cliente && cliente.slug) {
-                window.open(`/${cliente.slug}`, '_blank');
-            } else {
-                Swal.fire('Erro', 'Slug não encontrado', 'error');
-            }
+        async function desbloquear(id) {
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), { status: "ativo" });
+            Swal.fire('Desbloqueado!', '', 'success');
+            carregarClientes();
         }
 
-        // ATUALIZAR STATUS AUTOMATICAMENTE
-        async function atualizarStatusCliente(id, novoStatus) {
-            try {
-                const { db, firestore } = getFirebaseRefs();
-                await firestore.updateDoc(firestore.doc(db, "estabelecimentos", id), {
-                    status: novoStatus
-                });
-                console.log(`Cliente ${id} atualizado para ${novoStatus}`);
-            } catch (error) {
-                console.error("Erro ao atualizar status:", error);
-            }
+        async function recusar(id) {
+            if (!await Swal.fire({ title: 'Recusar?', text: 'Esta ação não poderá ser desfeita', icon: 'warning', showCancelButton: true }).then(r => r.isConfirmed)) return;
+            const { db, firestore } = getFirebaseRefs();
+            await firestore.deleteDoc(firestore.doc(db, "estabelecimentos", id));
+            carregarClientes();
         }
 
-        // ==================== EXPORTA FUNÇÕES ====================
+        function ver(slug) { if (slug) window.open(`/${slug}`, '_blank'); }
+
         window.fazerLogin = fazerLogin;
         window.fazerLogout = fazerLogout;
         window.mudarAba = mudarAba;
-        window.aprovarCliente = aprovarCliente;
-        window.renovarCliente = renovarCliente;
-        window.bloquearCliente = bloquearCliente;
-        window.desbloquearCliente = desbloquearCliente;
-        window.recusarCliente = recusarCliente;
-        window.excluirCliente = excluirCliente;
-        window.verDetalhes = verDetalhes;
-
-        // Iniciar
-        console.log("✅ Painel admin pronto - aguardando login");
+        window.aprovar = aprovar;
+        window.renovar = renovar;
+        window.bloquear = bloquear;
+        window.desbloquear = desbloquear;
+        window.recusar = recusar;
+        window.ver = ver;
     </script>
 </body>
 </html>
