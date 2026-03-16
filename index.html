@@ -353,12 +353,12 @@
             <!-- Promoção será carregada dinamicamente aqui -->
         </div>
 
-        <div class="px-5 mt-4 relative z-10">
-            <button onclick="abrirMontadorPizza()" class="w-full pizza-gradient text-white p-5 rounded-[25px] font-black text-[11px] uppercase shadow-xl flex justify-between items-center active:scale-95 transition">
-                <span>🎯 MONTAR PIZZA PERSONALIZADA</span>
-                <i class="fas fa-plus bg-white/20 p-2 rounded-lg"></i>
-            </button>
-        </div>
+        <div id="bloco-montador" class="px-5 mt-4 relative z-10">
+    <button onclick="abrirMontadorPizza()" class="w-full pizza-gradient text-white p-5 rounded-[25px] font-black text-[11px] uppercase shadow-xl flex justify-between items-center active:scale-95 transition">
+        <span>🎯 MONTAR SEU PEDIDO PERSONALIZADO</span>
+        <i class="fas fa-plus bg-white/20 p-2 rounded-lg"></i>
+    </button>
+</div>
 
         <nav id="filtros" class="flex gap-2 p-5 overflow-x-auto no-scrollbar sticky top-0 z-20 bg-white/95 backdrop-blur-sm mt-2 border-b border-red-50"></nav>
         <main id="cardapio" class="px-5 space-y-3 mt-2 text-black"></main>
@@ -864,28 +864,39 @@
 function monitorarStatusLoja() {
     if (!lojaIdAtual) return;
     const { db, firestore } = getFirebaseRefs();
-    const lojaRef = firestore.doc(db, "lojas", lojaIdAtual);
     
-    // Ouvinte em tempo real: se mudar no Admin, muda aqui no ato
-    lojaUnsubscribe = firestore.onSnapshot(lojaRef, (doc) => {
+    // 1. VIGIA O BLOQUEIO (COMO JÁ FAZÍAMOS)
+    const lojaRef = firestore.doc(db, "lojas", lojaIdAtual);
+    firestore.onSnapshot(lojaRef, (doc) => {
         if (doc.exists()) {
             const statusNoBanco = doc.data().status;
-            
             if (statusNoBanco === 'bloqueado') {
                 lojaBloqueada = true;
                 mostrarTelaBloqueio();
-            } else {
-                // Se você desbloquear no Admin, o cardápio volta a funcionar
-                if (lojaBloqueada) {
-                    lojaBloqueada = false;
-                    document.getElementById('view-bloqueado')?.classList.add('hidden');
-                    document.getElementById('view-cliente')?.classList.remove('hidden');
-                    location.reload(); // Recarrega para limpar as travas
+            } else if (lojaBloqueada) {
+                lojaBloqueada = false;
+                location.reload();
+            }
+        }
+    });
+    
+    // 2. VIGIA O BOTÃO DO MONTADOR (A NOVIDADE)
+    // Esse trecho olha especificamente para a pasta de configurações
+    const configRef = firestore.doc(db, "lojas", lojaIdAtual, "configuracoes", "geral");
+    firestore.onSnapshot(configRef, (doc) => {
+        if (doc.exists()) {
+            const dados = doc.data();
+            const blocoMontador = document.getElementById('bloco-montador');
+            
+            if (blocoMontador) {
+                // Se no Admin estiver desmarcado, some na hora
+                if (dados.usa_montador === false) {
+                    blocoMontador.style.display = 'none';
+                } else {
+                    blocoMontador.style.display = 'block';
                 }
             }
         }
-    }, (error) => {
-        console.error("Erro ao monitorar loja:", error);
     });
 }
 
@@ -1033,6 +1044,15 @@ function mostrarTelaBloqueio() {
                     document.getElementById('cli-logo').src = CONFIG.logo_url;
                 }
                 updateStatusLojaUI();
+                // REGRA PARA ESCONDER O MONTADOR
+const blocoMontador = document.getElementById('bloco-montador');
+if (blocoMontador) {
+    if (CONFIG.usa_montador === false) {
+        blocoMontador.style.display = 'none'; // Esconde se estiver desativado
+    } else {
+        blocoMontador.style.display = 'block'; // Mostra se estiver ativado
+    }
+}
             } catch (error) {
                 console.error("Erro ao carregar configuração:", error);
             }
@@ -3951,15 +3971,17 @@ function mostrarTelaBloqueio() {
                             <div class="bg-white p-5 rounded-[25px] shadow-sm">
                                 <div class="flex justify-between items-center">
                                     <div>
-                                        <div class="text-[11px] font-black text-gray-800">Status da Loja</div>
-                                        <div class="text-[9px] text-gray-500">Abrir/fechar para novos pedidos</div>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" id="cfg-aberta" ${CONFIG.loja_aberta ? 'checked' : ''}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
+                                       <!-- CÓDIGO DO MONTADOR QUE VOCÊ VAI COLAR -->
+<div class="border-t pt-4 mt-4 flex justify-between items-center">
+    <div>
+        <div class="text-[11px] font-black text-gray-800">Montador de Pedidos</div>
+        <div class="text-[9px] text-gray-500">Ativar ou desativar o botão de montar pizza/pedido</div>
+    </div>
+    <label class="switch">
+        <input type="checkbox" id="cfg-montador" ${CONFIG.usa_montador !==false ? 'checked' : '' }>
+        <span class="slider"></span>
+    </label>
+</div>
                             
                             <button onclick="salvarConfig()" class="w-full bg-green-600 text-white py-4 rounded-[25px] font-black uppercase text-sm hover:bg-green-700 transition">💾 Salvar Configurações</button>
                         </div>
