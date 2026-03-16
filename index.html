@@ -226,9 +226,9 @@
     <!-- Loading inicial -->
     <div id="initial-loading" class="bg-red-50">
         <div class="text-center">
-            <div class="text-4xl mb-4">📄</div>
-            <h2 class="text-xl font-bebas text-red-800 mb-2"CARDÁPIO ONLINE</h2>
-            <div class="text-red-600 text-sm">Carregando cardápio...</div>
+            <div class="text-4xl mb-4">🍕</div>
+            <h2 class="text-xl font-bebas text-red-800 mb-2">MASTER PIZZA PRO</h2>
+            <div class="text-red-600 text-sm">Inicializando sistema de delivery...</div>
         </div>
     </div>
 
@@ -590,11 +590,8 @@
         </div>
     </div>
 
-    <!-- BOTÃO FLUTUANTE ADMIN -->
-    <button onclick="abrirLogin()" 
-        style="position:fixed; bottom:20px; right:20px; z-index:999; background:#dc2626; color:white; padding:12px 18px; border-radius:30px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.3); display:flex; align-items:center; gap:8px;">
-        <i class="fas fa-user"></i> ADM
-    </button>
+    <!-- BOTÃO FLUTUANTE ADMIN (REMOVIDO CONFORME SOLICITADO) -->
+    <!-- O botão foi removido para atender à solicitação do usuário -->
 
     <script>
         // ==================== FUNÇÕES GLOBAIS DE SEGURANÇA ====================
@@ -1253,15 +1250,6 @@
                 if (titulo) {
                     titulo.innerHTML = `Acompanhar Pedido <span class="text-xs">#${id.slice(-6)}</span>`;
                 }
-                
-                // Nota: Precisamos saber de qual loja é o pedido. 
-                // O pedido contém o campo lojaId, então podemos construir o caminho.
-                // Mas para simplificar, vamos buscar o pedido diretamente sabendo que o ID é único.
-                // Idealmente, deveríamos ter uma coleção global de pedidos ou armazenar lojaId no pedido.
-                // Como adaptação, vamos assumir que o pedido está em alguma loja e fazer uma busca.
-                // Para simplificar, vamos usar uma consulta em todas as lojas (não eficiente).
-                // Uma solução melhor: adicionar campo lojaId ao pedido e depois usar esse campo para construir a referência.
-                // Por enquanto, vamos manter a estrutura original (pedidos globais) e adaptar depois.
                 
                 // Como o pedido original estava em coleção global, manteremos assim temporariamente
                 const pedidoRef = firestore.doc(db, "pedidos", id);
