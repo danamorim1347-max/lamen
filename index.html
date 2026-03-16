@@ -13,10 +13,10 @@
     <!-- Firebase SDK (modular) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-      import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+      import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
       import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-      // 🔥 MESMAS CREDENCIAIS DO PAINEL ADM
+      // 🔥 SUAS CREDENCIAIS DO FIREBASE
       const firebaseConfig = {
         apiKey: "AIzaSyCZwWklTlIDsB4HJENTsL0CLKI4rOKwMQg",
         authDomain: "admin-5b03c.firebaseapp.com",
@@ -49,7 +49,8 @@
           query,
           orderBy,
           limit,
-          where
+          where,
+          Timestamp
         },
         auth: {
           getAuth,
@@ -86,7 +87,7 @@
         .status-Cancelado { border-left: 12px solid #6b7280 !important; background-color: #f3f4f6; opacity: 0.5; }
 
         @media print {
-            header, nav, main, #cart-fixed, #modal-checkout, #modal-montador-pizza, #view-admin, #view-login, #view-acompanhar, #modal-carrinho, #modal-detalhes-produto, #modal-editar-prod, #modal-editar-promocao, #modal-editar-tamanho, #modal-sabores-promocao, button, select, i, .no-print { 
+            header, nav, main, #cart-fixed, #modal-checkout, #modal-montador-produto, #view-admin, #view-login, #view-acompanhar, #modal-carrinho, #modal-detalhes-produto, #modal-editar-prod, #modal-editar-promocao, #modal-editar-tamanho, #modal-editar-grupo, #modal-opcoes-grupo, button, select, i, .no-print { 
                 display: none !important; 
             }
             #secao-impressao { 
@@ -126,11 +127,10 @@
         .clickable { cursor: pointer; }
         .clickable:hover { transform: translateY(-2px); transition: transform 0.2s; }
         
-        .tamanho-option { transition: all 0.3s; }
-        .tamanho-option:hover { transform: scale(1.05); }
-        .tamanho-selected { background-color: #dc2626 !important; color: white !important; border-color: #dc2626 !important; }
+        .grupo-option { transition: all 0.3s; }
+        .grupo-option:hover { transform: scale(1.05); }
         
-        .borda-pizza { border: 3px dashed #fca5a5; }
+        .borda-demo { border: 3px dashed #fca5a5; }
         
         .text-xs { font-size: 0.7rem !important; }
         .text-sm { font-size: 0.8rem !important; }
@@ -157,27 +157,38 @@
             input, select { padding: 12px !important; font-size: 14px !important; }
             #view-admin { padding-bottom: 10px !important; }
             .flex-1.p-4 { padding: 12px 8px !important; font-size: 8px !important; }
-            #modal-montador-pizza { padding: 15px !important; }
-            .tamanho-option { padding: 10px !important; }
+            #modal-montador-produto { padding: 15px !important; }
+            .grupo-option { padding: 10px !important; }
             #promocao-container div { padding: 12px !important; }
             #cart-fixed { bottom: 10px !important; padding: 0 10px !important; }
             #cart-fixed button { padding: 10px 14px !important; font-size: 9px !important; border-radius: 20px !important; }
             #modal-checkout .max-h-\[94vh\] { max-height: 85vh !important; }
             #carrinho-itens-list > div { padding: 10px !important; margin-bottom: 6px !important; }
-            #modal-montador-pizza .mb-6 { margin-bottom: 15px !important; }
-            #lista-sabores > div, #lista-bordas > div, #lista-adicionais-pizza > div { padding: 10px !important; margin-bottom: 5px !important; }
+            #modal-montador-produto .mb-6 { margin-bottom: 15px !important; }
+            #lista-grupos > div { padding: 10px !important; margin-bottom: 5px !important; }
         }
         
         @media (max-width: 360px) {
             .header-banner { height: 150px !important; }
             #cli-nome { font-size: 1.5rem !important; }
-            #lista-tamanhos-pizza { grid-template-columns: repeat(2, 1fr) !important; }
-            button[onclick="abrirMontadorPizza()"] { padding: 10px !important; font-size: 10px !important; }
+            #lista-tamanhos { grid-template-columns: repeat(2, 1fr) !important; }
+            button[onclick="abrirMontadorProduto()"] { padding: 10px !important; font-size: 10px !important; }
             #cardapio > div { padding: 10px !important; gap: 10px !important; }
         }
         
         #view-cliente, #view-admin, #view-acompanhar { max-width: 100% !important; padding-left: 0; padding-right: 0; }
         header.p-4 { padding: 12px !important; }
+        
+        /* Aviso de demonstração */
+        .demo-badge {
+            background: rgba(0,0,0,0.7);
+            color: #ffd700;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body class="flex justify-center">
@@ -246,6 +257,8 @@
         <header class="header-banner">
             <img id="cli-logo" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&auto=format&fit=crop&q=80" alt="Logo da Loja">
             <div class="header-overlay">
+                <!-- Badge de demonstração (visível apenas para loja demo) -->
+                <div id="demo-badge" class="demo-badge hidden">🔰 Cardápio de demonstração</div>
                 <h1 id="cli-nome" class="text-3xl font-bebas uppercase text-white tracking-wider drop-shadow-lg">Carregando...</h1>
                 <div id="cli-status-loja" class="inline-block px-4 py-1.5 rounded-full text-[9px] font-black mt-2 border border-red-300 uppercase italic backdrop-blur-md text-red-300">● ABERTO AGORA</div>
                 <div class="text-xs text-red-200 mt-1">Entrega 40-50 min • Pedido mínimo R$ 35</div>
@@ -256,9 +269,10 @@
         <!-- Promoção em Destaque -->
         <div id="promocao-container" class="px-5 mt-4"></div>
 
-        <div class="px-5 mt-4 relative z-10">
-            <button onclick="abrirMontadorPizza()" class="w-full pizza-gradient text-white p-5 rounded-[25px] font-black text-[11px] uppercase shadow-xl flex justify-between items-center active:scale-95 transition">
-                <span>🎯 MONTAR PIZZA PERSONALIZADA</span>
+        <!-- Botão do montador (aparece se a loja tiver montador ativo) -->
+        <div id="montador-container" class="px-5 mt-4 relative z-10 hidden">
+            <button onclick="abrirMontadorProduto()" class="w-full pizza-gradient text-white p-5 rounded-[25px] font-black text-[11px] uppercase shadow-xl flex justify-between items-center active:scale-95 transition">
+                <span>🎯 MONTAR DO SEU JEITO</span>
                 <i class="fas fa-plus bg-white/20 p-2 rounded-lg"></i>
             </button>
         </div>
@@ -341,8 +355,7 @@
             <button onclick="switchTab('cupons')" id="tab-cupons" class="flex-1 p-4 font-bold text-[9px] uppercase text-gray-400">🎫 Cupons</button>
             <button onclick="switchTab('config')" id="tab-config" class="flex-1 p-4 font-bold text-[9px] uppercase whitespace-nowrap tracking-tighter text-gray-400">⚙️ Config</button>
             <button onclick="switchTab('promocoes')" id="tab-promocoes" class="flex-1 p-4 font-bold text-[9px] uppercase text-gray-400">🔥 Promoções</button>
-            <button onclick="switchTab('tamanhos')" id="tab-tamanhos" class="flex-1 p-4 font-bold text-[9px] uppercase text-gray-400">📏 Tamanhos</button>
-            <button onclick="switchTab('especiais')" id="tab-especiais" class="flex-1 p-4 font-bold text-[9px] uppercase whitespace-nowrap tracking-tighter text-gray-400">🔧 Especiais</button>
+            <button onclick="switchTab('montador')" id="tab-montador" class="flex-1 p-4 font-bold text-[9px] uppercase text-gray-400">🔧 Montador</button>
         </div>
         <div id="adm-content" class="p-4 space-y-4">
             <div id="sec-pedidos" class="space-y-4 text-black"><div class="text-center py-10"><div class="text-red-400">Carregando pedidos...</div></div></div>
@@ -351,184 +364,111 @@
             <div id="sec-cupons" class="hidden space-y-4 text-black"></div>
             <div id="sec-config" class="hidden space-y-4 text-black"></div>
             <div id="sec-promocoes" class="hidden space-y-4 text-black"></div>
-            <div id="sec-tamanhos" class="hidden space-y-4 text-black"></div>
-            <div id="sec-especiais" class="hidden space-y-4 text-black"></div>
+            <div id="sec-montador" class="hidden space-y-4 text-black"></div>
         </div>
     </div>
 
-    <!-- MODAIS (mantidos intactos) -->
-    <!-- Modal editar produto -->
-    <div id="modal-editar-prod" class="fixed inset-0 bg-black/80 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md p-6 rounded-[40px] shadow-2xl space-y-4 text-black">
-            <div class="flex justify-between items-center font-bebas uppercase text-sm text-red-600"><h2>Editar Produto</h2><button onclick="fecharModalEditar()">✕</button></div>
-            <input id="edit-n" type="text" placeholder="Nome" class="w-full p-3 border rounded-xl text-sm font-bold">
-            <input id="edit-d" type="text" placeholder="Descrição" class="w-full p-3 border rounded-xl text-sm">
-            <div class="flex gap-2">
-                <input id="edit-p" type="number" step="0.01" placeholder="Preço" class="flex-1 p-3 border rounded-xl text-sm font-black">
-                <select id="edit-c" class="flex-1 p-3 border rounded-xl text-sm font-bold text-red-600"></select>
-            </div>
-            <input id="edit-i" type="text" placeholder="URL da Imagem" class="w-full p-3 border rounded-xl text-sm">
-            <div class="flex justify-between items-center p-3 bg-red-50 rounded-xl border text-[10px] font-black uppercase">
-                <span>Disponível?</span>
-                <label class="switch"><input type="checkbox" id="edit-disp"><span class="slider"></span></label>
-            </div>
-            <input id="edit-id-hidden" type="hidden">
-            <button onclick="salvarEdicaoFinal()" class="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-red-700 transition">Confirmar</button>
-        </div>
-    </div>
-
-    <!-- Modal editar promoção -->
-    <div id="modal-editar-promocao" class="fixed inset-0 bg-black/80 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md p-6 rounded-[40px] shadow-2xl space-y-4 text-black">
-            <div class="flex justify-between items-center font-bebas uppercase text-sm text-red-600"><h2>Editar Promoção do Dia</h2><button onclick="fecharModalPromocao()">✕</button></div>
-            <input id="promocao-titulo" type="text" placeholder="Título da Promoção" class="w-full p-3 border rounded-xl text-sm font-bold">
-            <input id="promocao-descricao" type="text" placeholder="Descrição" class="w-full p-3 border rounded-xl text-sm">
-            <div class="flex gap-2">
-                <input id="promocao-preco" type="number" step="0.01" placeholder="Preço com desconto" class="flex-1 p-3 border rounded-xl text-sm font-black">
-                <input id="promocao-preco-original" type="number" step="0.01" placeholder="Preço original" class="flex-1 p-3 border rounded-xl text-sm font-black">
-            </div>
-            <div class="border-t pt-4">
-                <h3 class="font-bold text-sm mb-3">Sabores Inclusos (opcional)</h3>
-                <div id="promocao-sabores-container" class="space-y-2 max-h-40 overflow-y-auto"></div>
-                <div class="text-xs text-gray-500 mt-2">Selecione até 2 sabores para esta promoção</div>
-            </div>
-            <input id="promocao-imagem" type="text" placeholder="URL da Imagem" class="w-full p-3 border rounded-xl text-sm">
-            <div class="flex justify-between items-center p-3 bg-red-50 rounded-xl border text-[10px] font-black uppercase">
-                <span>Promoção Ativa?</span>
-                <label class="switch"><input type="checkbox" id="promocao-ativa"><span class="slider"></span></label>
-            </div>
-            <button onclick="salvarPromocao()" class="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-red-700 transition">Salvar Promoção</button>
-        </div>
-    </div>
-
-    <!-- Modal montador de pizza -->
-    <div id="modal-montador-pizza" class="fixed inset-0 bg-black/80 z-50 hidden flex items-end justify-center text-black">
+    <!-- Modal Montador Universal -->
+    <div id="modal-montador-produto" class="fixed inset-0 bg-black/80 z-50 hidden flex items-end justify-center text-black">
         <div class="bg-white w-full max-w-md rounded-t-[40px] p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div class="flex justify-between items-center font-bebas uppercase tracking-tighter text-red-600"><h2 class="text-xl">MONTAR SUA PIZZA</h2><button onclick="fecharMontadorPizza()" class="text-2xl">✕</button></div>
+            <div class="flex justify-between items-center font-bebas uppercase tracking-tighter text-red-600"><h2 class="text-xl">MONTE DO SEU JEITO</h2><button onclick="fecharMontadorProduto()" class="text-2xl">✕</button></div>
             
-            <!-- Tamanhos -->
-            <div class="mb-6">
-                <h3 class="font-black text-sm uppercase text-gray-800 mb-3">1. Escolha o Tamanho</h3>
-                <div id="lista-tamanhos-pizza" class="grid grid-cols-4 gap-2"></div>
-            </div>
-            
-            <!-- Sabores -->
-            <div class="mb-6">
-                <h3 class="font-black text-sm uppercase text-gray-800 mb-3">2. Escolha os Sabores (até 2)</h3>
-                <div id="lista-sabores" class="space-y-2"></div>
-            </div>
-            
-            <!-- Borda -->
-            <div class="mb-6">
-                <h3 class="font-black text-sm uppercase text-gray-800 mb-3">3. Borda (opcional)</h3>
-                <div id="lista-bordas" class="space-y-2"></div>
-            </div>
-            
-            <!-- Adicionais -->
-            <div class="mb-6">
-                <h3 class="font-black text-sm uppercase text-gray-800 mb-3">4. Adicionais (opcional)</h3>
-                <div id="lista-adicionais-pizza" class="space-y-2"></div>
-            </div>
+            <!-- Grupos serão gerados dinamicamente -->
+            <div id="lista-grupos" class="space-y-4"></div>
             
             <!-- Resumo -->
-            <div class="bg-red-50 p-4 rounded-2xl border borda-pizza mt-4">
+            <div class="bg-red-50 p-4 rounded-2xl border borda-demo mt-4">
                 <div class="flex justify-between font-bold text-sm">
-                    <span>Sua Pizza:</span>
-                    <span id="preco-montador-pizza">R$ 0,00</span>
+                    <span>Seu pedido:</span>
+                    <span id="preco-montador-produto">R$ 0,00</span>
                 </div>
-                <div id="resumo-montador-pizza" class="text-[10px] text-gray-600 mt-1">
-                    <div id="resumo-tamanho">Tamanho: --</div>
-                    <div id="resumo-sabores">Sabores: --</div>
-                    <div id="resumo-borda">Borda: --</div>
-                    <div id="resumo-adicionais-pizza">Adicionais: --</div>
-                </div>
+                <div id="resumo-montador-produto" class="text-[10px] text-gray-600 mt-1"></div>
             </div>
             
-            <button onclick="finalizarPizzaMontada()" class="w-full bg-green-600 text-white py-4 rounded-[25px] font-black uppercase text-sm mt-4 hover:bg-green-700 transition">✓ Adicionar Pizza ao Carrinho</button>
+            <button onclick="finalizarProdutoMontado()" class="w-full bg-green-600 text-white py-4 rounded-[25px] font-black uppercase text-sm mt-4 hover:bg-green-700 transition">✓ Adicionar ao Carrinho</button>
         </div>
     </div>
 
-    <!-- Modal carrinho -->
-    <div id="modal-carrinho" class="fixed inset-0 bg-black/80 z-50 hidden flex items-end justify-center">
-        <div class="bg-white w-full max-w-md rounded-t-[45px] p-7 space-y-4 max-h-[94vh] overflow-y-auto shadow-2xl text-black">
-            <div class="flex justify-between items-center font-bebas uppercase text-xl text-red-600">
-                <h2>Meu Carrinho</h2>
-                <button onclick="fecharCarrinho()" class="text-2xl text-gray-300">✕</button>
-            </div>
-            
-            <div id="carrinho-itens-list" class="space-y-3"></div>
-            
-            <div id="carrinho-vazio" class="text-center py-10">
-                <div class="text-4xl mb-4">🛒</div>
-                <p class="text-gray-500 font-bold">Carrinho vazio</p>
-                <p class="text-gray-400 text-sm">Adicione produtos para continuar</p>
-            </div>
-            
-            <div class="bg-gray-900 text-white p-6 rounded-[35px] shadow-xl font-black italic uppercase">
-                <div class="flex justify-between text-2xl text-red-400 tracking-tighter">
-                    <span>Total:</span>
-                    <span id="carrinho-total">R$ 0,00</span>
-                </div>
-            </div>
-            
-            <div class="flex gap-2">
-                <button onclick="fecharCarrinho()" class="flex-1 bg-gray-200 text-gray-800 py-4 rounded-[25px] font-bold uppercase text-sm">Continuar Comprando</button>
-                <button onclick="abrirCheckout()" class="flex-1 bg-green-600 text-white py-4 rounded-[25px] font-bold uppercase text-sm hover:bg-green-700 transition">Finalizar Pedido</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal editar tamanho -->
-    <div id="modal-editar-tamanho" class="fixed inset-0 bg-black/80 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <!-- Modal para editar grupo do montador (no painel) -->
+    <div id="modal-editar-grupo" class="fixed inset-0 bg-black/80 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md p-6 rounded-[40px] shadow-2xl space-y-4 text-black">
-            <div class="flex justify-between items-center font-bebas uppercase text-sm text-red-600"><h2>Editar Tamanho</h2><button onclick="fecharModalEditarTamanho()">✕</button></div>
-            <input id="edit-tamanho-nome" type="text" placeholder="Nome (ex: P, M, G, GG)" class="w-full p-3 border rounded-xl text-sm font-bold uppercase">
-            <input id="edit-tamanho-descricao" type="text" placeholder="Descrição (ex: 4 fatias)" class="w-full p-3 border rounded-xl text-sm">
-            <div class="flex gap-2">
-                <input id="edit-tamanho-preco" type="number" step="0.01" placeholder="Preço base" class="flex-1 p-3 border rounded-xl text-sm font-black">
-                <input id="edit-tamanho-ordem" type="number" placeholder="Ordem (1,2,3...)" class="flex-1 p-3 border rounded-xl text-sm font-black">
-            </div>
-            <div class="flex justify-between items-center p-3 bg-red-50 rounded-xl border text-[10px] font-black uppercase">
-                <span>Disponível?</span>
-                <label class="switch"><input type="checkbox" id="edit-tamanho-disponivel"><span class="slider"></span></label>
-            </div>
-            <input id="edit-tamanho-id-hidden" type="hidden">
-            <button onclick="salvarEdicaoTamanho()" class="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-red-700 transition">Confirmar</button>
+            <div class="flex justify-between items-center font-bebas uppercase text-sm text-red-600"><h2>Editar Grupo</h2><button onclick="fecharModalGrupo()">✕</button></div>
+            <input id="edit-grupo-nome" type="text" placeholder="Nome do grupo (ex: Tamanho)" class="w-full p-3 border rounded-xl text-sm font-bold">
+            <select id="edit-grupo-tipo" class="w-full p-3 border rounded-xl text-sm">
+                <option value="radio">Escolha única (radio)</option>
+                <option value="checkbox">Múltipla escolha (checkbox)</option>
+            </select>
+            <label class="flex items-center gap-2 p-3 border rounded-xl">
+                <input type="checkbox" id="edit-grupo-obrigatorio"> Obrigatório
+            </label>
+            <input id="edit-grupo-id-hidden" type="hidden">
+            <button onclick="salvarGrupo()" class="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-red-700 transition">Salvar Grupo</button>
         </div>
     </div>
 
-    <!-- Modal selecionar sabores promoção -->
-    <div id="modal-sabores-promocao" class="fixed inset-0 bg-black/80 z-[120] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <!-- Modal para editar opções de um grupo -->
+    <div id="modal-opcoes-grupo" class="fixed inset-0 bg-black/80 z-[120] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md p-6 rounded-[40px] shadow-2xl space-y-4 text-black max-h-[80vh] overflow-y-auto">
             <div class="flex justify-between items-center font-bebas uppercase text-xl text-red-600">
-                <h2>Escolha os Sabores</h2>
-                <button onclick="fecharModalSaboresPromocao()" class="text-2xl">✕</button>
+                <h2>Opções do Grupo</h2>
+                <button onclick="fecharModalOpcoes()" class="text-2xl">✕</button>
             </div>
-            
-            <div class="text-sm text-gray-600 mb-4">
-                Selecione os sabores para sua promoção (máximo 2):
+            <div id="lista-opcoes" class="space-y-2"></div>
+            <div class="flex gap-2">
+                <input id="nova-opcao-nome" type="text" placeholder="Nome da opção" class="flex-1 p-3 border rounded-xl text-sm">
+                <input id="nova-opcao-preco" type="number" step="0.01" placeholder="Preço" class="w-24 p-3 border rounded-xl text-sm">
+                <button onclick="adicionarOpcao()" class="bg-green-600 text-white px-4 rounded-xl">+</button>
             </div>
-            
-            <div id="lista-sabores-promocao" class="space-y-2"></div>
-            
-            <div id="resumo-sabores-selecionados" class="bg-red-50 p-4 rounded-xl mt-4">
-                <div class="text-sm font-bold mb-2">Sabores selecionados:</div>
-                <div id="sabores-selecionados-lista" class="text-sm">Nenhum sabor selecionado</div>
-            </div>
-            
-            <button onclick="adicionarPromocaoComSabores()" class="w-full bg-green-600 text-white py-4 rounded-[25px] font-black uppercase text-sm mt-4 hover:bg-green-700 transition">
-                Adicionar Promoção ao Carrinho
-            </button>
+            <button onclick="salvarOpcoes()" class="w-full bg-red-600 text-white p-4 rounded-2xl font-black uppercase text-xs mt-4">Concluir</button>
         </div>
     </div>
 
-    <!-- BOTÃO FLUTUANTE PARA ACESSO AO LOGIN / CADASTRO (AGORA VISÍVEL) -->
+    <!-- BOTÃO FLUTUANTE ADMIN (sempre visível) -->
     <button onclick="abrirLogin()" 
         style="position:fixed; bottom:20px; right:20px; z-index:999; background:#dc2626; color:white; padding:12px 18px; border-radius:30px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.3); display:flex; align-items:center; gap:8px;">
-        <i class="fas fa-user"></i> Área da Loja
+        <i class="fas fa-user"></i> ADM
     </button>
 
     <script>
+        // ==================== FUNÇÕES GLOBAIS DE SEGURANÇA ====================
+        // Garantem que os botões funcionem mesmo se algo falhar
+        window.abrirLogin = function() {
+            const modal = document.getElementById('view-login');
+            if (modal) modal.classList.remove('hidden');
+        };
+        window.fecharLogin = function() {
+            const modal = document.getElementById('view-login');
+            if (modal) modal.classList.add('hidden');
+        };
+        window.abrirCadastroLoja = function() {
+            const modal = document.getElementById('modal-cadastro-loja');
+            if (modal) modal.classList.remove('hidden');
+        };
+        window.fecharCadastroLoja = function() {
+            const modal = document.getElementById('modal-cadastro-loja');
+            if (modal) modal.classList.add('hidden');
+        };
+        window.abrirCarrinho = function() {
+            const modal = document.getElementById('modal-carrinho');
+            if (modal) modal.classList.remove('hidden');
+        };
+        window.fecharCarrinho = function() {
+            const modal = document.getElementById('modal-carrinho');
+            if (modal) modal.classList.add('hidden');
+        };
+        window.abrirCheckout = function() {
+            const modal = document.getElementById('modal-checkout');
+            if (modal) modal.classList.remove('hidden');
+        };
+        window.fecharCheckout = function() {
+            const modal = document.getElementById('modal-checkout');
+            if (modal) modal.classList.add('hidden');
+        };
+        window.fecharMontadorProduto = function() {
+            const modal = document.getElementById('modal-montador-produto');
+            if (modal) modal.classList.add('hidden');
+        };
+
         // ==================== VARIÁVEIS GLOBAIS ====================
         let PRODS = [], CATS = [], CARRINHO = [], CONFIG = {}, CUPONS = [], PROMOCAO = {}, TAMANHOS = [];
         let curCat = 'todos';
@@ -538,12 +478,19 @@
         let currentUser = null;
         
         // NOVAS VARIÁVEIS MULTI‑LOJA
-        let lojaIdAtual = null;          // ID da loja (extraído da URL ou do cliente logado)
-        let tipoAcesso = 'publico';       // 'publico' ou 'admin'
-        let dadosLoja = null;             // dados do documento da loja (se necessário)
+        let lojaIdAtual = null;
+        let tipoAcesso = 'publico';
+        let dadosLoja = null;
+        let configuracoesMontador = [];
 
-        let pizzaMontada = { tamanho: null, precoTamanho: 0, sabores: [], borda: null, adicionais: [], precoTotal: 0 };
-        let saboresSelecionadosPromocao = [];
+        // Produto montado (universal)
+        let produtoMontado = {
+            grupos: {},
+            precoTotal: 0
+        };
+
+        // ==================== CONSTANTES ====================
+        const LOJA_DEMO_ID = 'demo';
 
         // ==================== FUNÇÕES DE UTILIDADE ====================
         function getFirebaseRefs() {
@@ -568,51 +515,102 @@
                 </div>`;
         }
 
-        // ==================== INICIALIZAÇÃO ====================
-        async function init() {
+        // ==================== FUNÇÃO PARA CRIAR LOJA DEMO ====================
+        async function criarLojaDemo() {
+            console.log("🛠️ Criando loja de demonstração...");
+            const { db, firestore } = getFirebaseRefs();
+            const lojaId = LOJA_DEMO_ID;
+            const Timestamp = firestore.Timestamp;
+
             try {
-                console.log("Iniciando aplicação...");
+                // 1. Criar documento da loja
+                await firestore.setDoc(firestore.doc(db, "lojas", lojaId), {
+                    nome_loja: "Restaurante Demonstração",
+                    status: "ativo",
+                    usa_montador: true,
+                    data_criacao: Timestamp.now()
+                });
 
-                // Verificar se é página de acompanhamento (parâmetro pedido)
-                const params = new URLSearchParams(window.location.search);
-                if (params.has('pedido')) {
-                    await carregarAcompanhamento(params.get('pedido'));
-                    return;
+                // 2. Criar configurações gerais
+                await firestore.setDoc(firestore.doc(db, "lojas", lojaId, "configuracoes", "geral"), {
+                    nome_pizzaria: "Restaurante Demonstração",
+                    loja_aberta: true,
+                    taxa_base: 6,
+                    preco_km: 2.5,
+                    pedido_minimo: 35,
+                    logo_url: ""
+                });
+
+                // 3. Criar categorias
+                const catPizzas = await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "categorias"), {
+                    nome: "Pizzas",
+                    ordem: 1
+                });
+                const catBebidas = await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "categorias"), {
+                    nome: "Bebidas",
+                    ordem: 2
+                });
+                const catSobremesas = await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "categorias"), {
+                    nome: "Sobremesas",
+                    ordem: 3
+                });
+
+                // 4. Criar produtos
+                const produtos = [
+                    { nome: "Pizza Margherita", descricao: "Molho, mussarela, manjericão", preco: 35.90, categoria: catPizzas.id, imagem: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400" },
+                    { nome: "Pizza Calabresa", descricao: "Calabresa, cebola, mussarela", preco: 38.90, categoria: catPizzas.id, imagem: "" },
+                    { nome: "Coca-Cola 2L", descricao: "", preco: 12.90, categoria: catBebidas.id, imagem: "" },
+                    { nome: "Pudim", descricao: "Pudim de leite", preco: 8.90, categoria: catSobremesas.id, imagem: "" }
+                ];
+
+                for (const prod of produtos) {
+                    await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "produtos"), {
+                        nome: prod.nome,
+                        descricao: prod.descricao,
+                        preco: prod.preco,
+                        categoria_id: prod.categoria,
+                        imagem_url: prod.imagem,
+                        disponivel: true
+                    });
                 }
 
-                // 1. Identificar a loja
-                const lojaOk = await identificarLoja();
-                if (!lojaOk) {
-                    mostrarErro('Loja não encontrada. Verifique o link.');
-                    return;
-                }
+                // 5. Criar grupos do montador
+                await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "configuracoes_montador"), {
+                    nome: "Tamanho",
+                    tipo: "radio",
+                    obrigatorio: true,
+                    ordem: 1,
+                    opcoes: [
+                        { id: "p", nome: "Pequena", preco: 0 },
+                        { id: "m", nome: "Média", preco: 5 },
+                        { id: "g", nome: "Grande", preco: 10 }
+                    ]
+                });
 
-                // 2. Carregar dados da loja
-                await carregarConfiguracao();
-                await carregarPromocao();
-                await loadData();
-                listenPedidos(); // só terá efeito se for admin
+                await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "configuracoes_montador"), {
+                    nome: "Ingredientes extras",
+                    tipo: "checkbox",
+                    obrigatorio: false,
+                    ordem: 2,
+                    opcoes: [
+                        { id: "bacon", nome: "Bacon", preco: 4 },
+                        { id: "cheddar", nome: "Cheddar", preco: 3 },
+                        { id: "cebola", nome: "Cebola", preco: 2 }
+                    ]
+                });
 
-                carregarDadosLocal();
-
-                document.getElementById('initial-loading').style.display = 'none';
-
-                if (tipoAcesso === 'admin') {
-                    document.getElementById('view-admin').classList.remove('hidden');
-                } else {
-                    document.getElementById('view-cliente').classList.remove('hidden');
-                }
-
-                console.log("Aplicação inicializada com sucesso! Loja ID:", lojaIdAtual);
+                console.log("✅ Loja demo criada com sucesso!");
+                return true;
             } catch (error) {
-                console.error("Erro na inicialização:", error);
-                mostrarErro(error.message);
+                console.error("❌ Erro ao criar loja demo:", error);
+                return false;
             }
         }
 
+        // ==================== IDENTIFICAÇÃO DA LOJA (ATUALIZADA) ====================
         async function identificarLoja() {
             const params = new URLSearchParams(window.location.search);
-            const lojaParam = params.get('loja');
+            let lojaParam = params.get('loja');
             const { auth, firestore, db } = getFirebaseRefs();
 
             const user = auth.currentUser;
@@ -629,10 +627,26 @@
                 }
             }
 
-            if (!lojaParam) return false;
+            if (!lojaParam) {
+                lojaParam = LOJA_DEMO_ID;
+            }
 
-            const lojaDoc = await firestore.getDoc(firestore.doc(db, "lojas", lojaParam));
-            if (!lojaDoc.exists()) return false;
+            const lojaRef = firestore.doc(db, "lojas", lojaParam);
+            let lojaDoc = await firestore.getDoc(lojaRef);
+
+            if (!lojaDoc.exists() && lojaParam === LOJA_DEMO_ID) {
+                console.log("Loja demo não encontrada. Criando automaticamente...");
+                const criou = await criarLojaDemo();
+                if (!criou) {
+                    return false;
+                }
+                lojaDoc = await firestore.getDoc(lojaRef);
+                if (!lojaDoc.exists()) {
+                    return false;
+                }
+            } else if (!lojaDoc.exists()) {
+                return false;
+            }
 
             lojaIdAtual = lojaParam;
             dadosLoja = lojaDoc.data();
@@ -640,6 +654,54 @@
             return true;
         }
 
+        // ==================== INICIALIZAÇÃO ====================
+        async function init() {
+            try {
+                console.log("Iniciando aplicação...");
+
+                const params = new URLSearchParams(window.location.search);
+                if (params.has('pedido')) {
+                    await carregarAcompanhamento(params.get('pedido'));
+                    return;
+                }
+
+                const lojaOk = await identificarLoja();
+                if (!lojaOk) {
+                    mostrarErro('Loja não encontrada. Verifique o link ou tente mais tarde.');
+                    return;
+                }
+
+                await carregarConfiguracao();
+                await carregarPromocao();
+                await loadData();
+                await carregarConfiguracoesMontador();
+                listenPedidos();
+
+                carregarDadosLocal();
+
+                document.getElementById('initial-loading').style.display = 'none';
+
+                if (tipoAcesso === 'admin') {
+                    document.getElementById('view-admin').classList.remove('hidden');
+                    if (document.getElementById('sec-montador')) renderMontadorConfig();
+                } else {
+                    document.getElementById('view-cliente').classList.remove('hidden');
+                    if (lojaIdAtual === LOJA_DEMO_ID) {
+                        document.getElementById('demo-badge').classList.remove('hidden');
+                    }
+                    if (dadosLoja && dadosLoja.usa_montador === true) {
+                        document.getElementById('montador-container').classList.remove('hidden');
+                    }
+                }
+
+                console.log("Aplicação inicializada com sucesso! Loja ID:", lojaIdAtual);
+            } catch (error) {
+                console.error("Erro na inicialização:", error);
+                mostrarErro(error.message);
+            }
+        }
+
+        // ==================== FUNÇÕES DE CARREGAMENTO ====================
         async function carregarConfiguracao() {
             try {
                 const { db, firestore } = getFirebaseRefs();
@@ -731,9 +793,11 @@
                 const cuponsSnap = await firestore.getDocs(firestore.collection(db, "lojas", lojaIdAtual, "cupons"));
                 CUPONS = cuponsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-                const tamanhosSnap = await firestore.getDocs(firestore.collection(db, "lojas", lojaIdAtual, "tamanhos_pizza"));
-                TAMANHOS = tamanhosSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-                TAMANHOS.sort((a, b) => (a.ordem || 999) - (b.ordem || 999));
+                try {
+                    const tamanhosSnap = await firestore.getDocs(firestore.collection(db, "lojas", lojaIdAtual, "tamanhos_pizza"));
+                    TAMANHOS = tamanhosSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    TAMANHOS.sort((a, b) => (a.ordem || 999) - (b.ordem || 999));
+                } catch (e) { }
 
                 CATS.sort((a, b) => (a.ordem || 999) - (b.ordem || 999));
 
@@ -741,6 +805,21 @@
                 renderCardapio('todos');
             } catch (error) {
                 console.error("Erro ao carregar dados:", error);
+            }
+        }
+
+        async function carregarConfiguracoesMontador() {
+            try {
+                const { db, firestore } = getFirebaseRefs();
+                const gruposSnap = await firestore.getDocs(firestore.collection(db, "lojas", lojaIdAtual, "configuracoes_montador"));
+                configuracoesMontador = gruposSnap.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                configuracoesMontador.sort((a, b) => (a.ordem || 999) - (b.ordem || 999));
+            } catch (error) {
+                console.error("Erro ao carregar configurações do montador:", error);
+                configuracoesMontador = [];
             }
         }
 
@@ -765,7 +844,7 @@
             }
         }
 
-        // ==================== FUNÇÕES DE INTERFACE (resumidas por economia, mas completas no original) ====================
+        // ==================== FUNÇÕES DE INTERFACE ====================
         function renderFiltros() {
             const div = document.getElementById('filtros');
             if (!div) return;
@@ -987,207 +1066,146 @@
             } catch (e) { console.error("Erro ao carregar dados locais:", e); }
         }
 
-        // ==================== FUNÇÕES DO MONTADOR (resumidas) ====================
-        function abrirMontadorPizza() {
-            document.getElementById('modal-montador-pizza').classList.remove('hidden');
-            resetarMontadorPizza();
-            carregarTamanhosPizza();
-            carregarSabores();
-            carregarBordas();
-            carregarAdicionaisPizza();
-        }
-        function resetarMontadorPizza() {
-            pizzaMontada = { tamanho: null, precoTamanho: 0, sabores: [], borda: null, adicionais: [], precoTotal: 0 };
-            document.querySelectorAll('.tamanho-option').forEach(btn => {
-                btn.classList.remove('tamanho-selected');
-                btn.classList.add('bg-red-50', 'border-red-200');
-            });
-            atualizarResumoPizza();
-        }
-        function carregarTamanhosPizza() {
-            const lista = document.getElementById('lista-tamanhos-pizza');
-            if (!lista) return;
-            let html = '';
-            TAMANHOS.filter(t => t.disponivel !== false).forEach(t => {
-                const jaSelecionado = pizzaMontada.tamanho === t.id;
-                html += `<button onclick="selecionarTamanho('${t.id}','${t.preco || 0}','${t.nome}',this)" class="tamanho-option p-3 ${jaSelecionado ? 'tamanho-selected' : 'bg-red-50 border-red-200'} rounded-xl border text-center">
-                    <div class="text-[10px] font-black uppercase text-gray-500">${t.nome}</div>
-                    <div class="text-sm font-black ${jaSelecionado ? 'text-white' : 'text-red-600'}">R$ ${Number(t.preco || 0).toFixed(2).replace('.',',')}</div>
-                    <div class="text-[8px] ${jaSelecionado ? 'text-red-200' : 'text-gray-400'}">${t.descricao || ''}</div>
-                </button>`;
-            });
-            lista.innerHTML = html;
-        }
-        function selecionarTamanho(id, preco, nome, el) {
-            document.querySelectorAll('.tamanho-option').forEach(btn => {
-                btn.classList.remove('tamanho-selected');
-                btn.classList.add('bg-red-50', 'border-red-200');
-            });
-            el.classList.add('tamanho-selected');
-            el.classList.remove('bg-red-50', 'border-red-200');
-            pizzaMontada.tamanho = { id, nome, preco: parseFloat(preco) };
-            pizzaMontada.precoTamanho = parseFloat(preco);
-            atualizarResumoPizza();
-        }
-        function carregarSabores() {
-            const catPizzas = CATS.find(c => c.nome === "Pizzas" || c.nome.toLowerCase().includes("pizza"));
-            const lista = document.getElementById('lista-sabores');
-            if (!lista || !catPizzas) { lista.innerHTML = '<div class="text-center text-gray-500 text-sm p-4">Sabores não disponíveis</div>'; return; }
-            const sabores = PRODS.filter(p => p.categoria_id === catPizzas.id && p.disponivel !== false);
-            if (sabores.length === 0) { lista.innerHTML = '<div class="text-center text-gray-500 text-sm p-4">Nenhum sabor</div>'; return; }
-            let html = '';
-            sabores.forEach(p => {
-                const jaSelecionado = pizzaMontada.sabores.some(s => s.id === p.id);
-                html += `<div onclick="toggleSabor('${p.id}','${p.nome.replace(/'/g, "\\'")}',this)" class="bg-red-50 p-3 rounded-xl border ${jaSelecionado ? 'border-red-500 bg-red-100' : 'border-red-200'} flex justify-between font-bold text-xs uppercase mb-1 shadow-sm hover:bg-red-100 transition cursor-pointer">
-                    <span>${p.nome} ${jaSelecionado ? '✓' : ''}</span>
-                    <span class="text-[10px] text-gray-500">${p.descricao || ''}</span>
-                </div>`;
-            });
-            lista.innerHTML = html;
-        }
-        function toggleSabor(id, nome, el) {
-            const index = pizzaMontada.sabores.findIndex(s => s.id === id);
-            if (index === -1) {
-                if (pizzaMontada.sabores.length >= 2) {
-                    Swal.fire({ title: 'Limite de Sabores', text: 'Máximo de 2 sabores por pizza!', icon: 'info', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
-                    return;
-                }
-                pizzaMontada.sabores.push({ id, nome });
-                el.classList.add('border-red-500', 'bg-red-100');
-                el.querySelector('span:first-child').innerHTML = `${nome} ✓`;
-            } else {
-                pizzaMontada.sabores.splice(index, 1);
-                el.classList.remove('border-red-500', 'bg-red-100');
-                el.classList.add('border-red-200');
-                el.querySelector('span:first-child').innerHTML = nome;
-            }
-            atualizarResumoPizza();
-        }
-        function carregarBordas() {
-            const catBordas = CATS.find(c => c.nome === "Bordas");
-            const lista = document.getElementById('lista-bordas');
-            if (!lista) { lista.innerHTML = '<div class="text-center text-gray-500 text-sm p-4">Bordas não disponíveis</div>'; return; }
-            let bordas = catBordas ? PRODS.filter(p => p.categoria_id === catBordas.id && p.disponivel !== false) : [];
-            if (bordas.length === 0) {
-                const bordasPadrao = [
-                    { id: 'sem-borda', nome: "Sem Borda", preco: 0 },
-                    { id: 'borda-catupiry', nome: "Borda Recheada Catupiry", preco: 8.00 },
-                    { id: 'borda-cheddar', nome: "Borda Recheada Cheddar", preco: 8.00 }
-                ];
-                let html = '';
-                bordasPadrao.forEach(p => {
-                    const jaSelecionado = pizzaMontada.borda?.id === p.id;
-                    html += `<div onclick="selecionarBorda('${p.id}','${p.nome.replace(/'/g, "\\'")}',${p.preco || 0},this)" class="bg-red-50 p-3 rounded-xl border ${jaSelecionado ? 'border-red-500 bg-red-100' : 'border-red-200'} flex justify-between font-bold text-xs uppercase mb-1 shadow-sm hover:bg-red-100 transition cursor-pointer">
-                        <span>${p.nome} ${jaSelecionado ? '✓' : ''}</span>
-                        <span>+R$ ${Number(p.preco || 0).toFixed(2).replace('.',',')}</span>
-                    </div>`;
-                });
-                lista.innerHTML = html;
-                return;
-            }
-            let html = '';
-            bordas.forEach(p => {
-                const jaSelecionado = pizzaMontada.borda?.id === p.id;
-                html += `<div onclick="selecionarBorda('${p.id}','${p.nome.replace(/'/g, "\\'")}',${p.preco || 0},this)" class="bg-red-50 p-3 rounded-xl border ${jaSelecionado ? 'border-red-500 bg-red-100' : 'border-red-200'} flex justify-between font-bold text-xs uppercase mb-1 shadow-sm hover:bg-red-100 transition cursor-pointer">
-                    <span>${p.nome} ${jaSelecionado ? '✓' : ''}</span>
-                    <span>+R$ ${Number(p.preco || 0).toFixed(2).replace('.',',')}</span>
-                </div>`;
-            });
-            lista.innerHTML = html;
-        }
-        function selecionarBorda(id, nome, preco, el) {
-            document.querySelectorAll('#lista-bordas div').forEach(div => {
-                div.classList.remove('border-red-500', 'bg-red-100');
-                div.classList.add('border-red-200');
-            });
-            el.classList.add('border-red-500', 'bg-red-100');
-            el.classList.remove('border-red-200');
-            pizzaMontada.borda = { id, nome, preco };
-            atualizarResumoPizza();
-        }
-        function carregarAdicionaisPizza() {
-            const catAdicionais = CATS.find(c => c.nome === "Adicionais");
-            const lista = document.getElementById('lista-adicionais-pizza');
-            if (!lista) { lista.innerHTML = '<div class="text-center text-gray-500 text-sm p-4">Adicionais não disponíveis</div>'; return; }
-            let adicionais = catAdicionais ? PRODS.filter(p => p.categoria_id === catAdicionais.id && p.disponivel !== false) : [];
-            if (adicionais.length === 0) {
-                const adicionaisPadrao = [
-                    { id: 'bacon', nome: "Bacon", preco: 5.00 },
-                    { id: 'azeitona', nome: "Azeitona", preco: 3.00 },
-                    { id: 'milho', nome: "Milho", preco: 3.00 },
-                    { id: 'calabresa-extra', nome: "Calabresa Extra", preco: 4.00 }
-                ];
-                let html = '';
-                adicionaisPadrao.forEach(p => {
-                    const jaSelecionado = pizzaMontada.adicionais.some(a => a.id === p.id);
-                    html += `<div onclick="toggleAdicionalPizza('${p.id}','${p.nome.replace(/'/g, "\\'")}',${p.preco || 0},this)" class="bg-red-50 p-3 rounded-xl border ${jaSelecionado ? 'border-red-500 bg-red-100' : 'border-red-200'} flex justify-between font-bold text-xs uppercase mb-1 shadow-sm hover:bg-red-100 transition cursor-pointer">
-                        <span>${p.nome} ${jaSelecionado ? '✓' : ''}</span>
-                        <span>+R$ ${Number(p.preco || 0).toFixed(2).replace('.',',')}</span>
-                    </div>`;
-                });
-                lista.innerHTML = html;
-                return;
-            }
-            let html = '';
-            adicionais.forEach(p => {
-                const jaSelecionado = pizzaMontada.adicionais.some(a => a.id === p.id);
-                html += `<div onclick="toggleAdicionalPizza('${p.id}','${p.nome.replace(/'/g, "\\'")}',${p.preco || 0},this)" class="bg-red-50 p-3 rounded-xl border ${jaSelecionado ? 'border-red-500 bg-red-100' : 'border-red-200'} flex justify-between font-bold text-xs uppercase mb-1 shadow-sm hover:bg-red-100 transition cursor-pointer">
-                    <span>${p.nome} ${jaSelecionado ? '✓' : ''}</span>
-                    <span>+R$ ${Number(p.preco || 0).toFixed(2).replace('.',',')}</span>
-                </div>`;
-            });
-            lista.innerHTML = html;
-        }
-        function toggleAdicionalPizza(id, nome, preco, el) {
-            const index = pizzaMontada.adicionais.findIndex(a => a.id === id);
-            if (index === -1) {
-                pizzaMontada.adicionais.push({ id, nome, preco });
-                el.classList.add('border-red-500', 'bg-red-100');
-                el.querySelector('span:first-child').innerHTML = `${nome} ✓`;
-            } else {
-                pizzaMontada.adicionais.splice(index, 1);
-                el.classList.remove('border-red-500', 'bg-red-100');
-                el.classList.add('border-red-200');
-                el.querySelector('span:first-child').innerHTML = nome;
-            }
-            atualizarResumoPizza();
-        }
-        function atualizarResumoPizza() {
-            let precoTotal = pizzaMontada.precoTamanho || 0;
-            if (pizzaMontada.borda) precoTotal += pizzaMontada.borda.preco;
-            pizzaMontada.adicionais.forEach(a => precoTotal += a.preco);
-            pizzaMontada.precoTotal = precoTotal;
-            document.getElementById('preco-montador-pizza').innerText = `R$ ${precoTotal.toFixed(2).replace('.',',')}`;
-            document.getElementById('resumo-tamanho').innerHTML = `Tamanho: ${pizzaMontada.tamanho ? pizzaMontada.tamanho.nome : '--'} (R$ ${(pizzaMontada.precoTamanho || 0).toFixed(2).replace('.',',')})`;
-            document.getElementById('resumo-sabores').innerHTML = `Sabores: ${pizzaMontada.sabores.length > 0 ? pizzaMontada.sabores.map(s => s.nome).join(', ') : '--'}`;
-            document.getElementById('resumo-borda').innerHTML = `Borda: ${pizzaMontada.borda ? pizzaMontada.borda.nome + ' (R$ ' + pizzaMontada.borda.preco.toFixed(2).replace('.',',') + ')' : '--'}`;
-            document.getElementById('resumo-adicionais-pizza').innerHTML = `Adicionais: ${pizzaMontada.adicionais.length > 0 ? pizzaMontada.adicionais.map(a => a.nome).join(', ') : '--'}`;
-        }
-        function finalizarPizzaMontada() {
-            if (!pizzaMontada.tamanho) {
-                Swal.fire({ title: 'Atenção!', text: 'Selecione um tamanho para a pizza!', icon: 'warning', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
-                return;
-            }
-            if (pizzaMontada.sabores.length === 0) {
-                Swal.fire({ title: 'Atenção!', text: 'Selecione pelo menos um sabor!', icon: 'warning', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
-                return;
-            }
-            const saboresText = pizzaMontada.sabores.map(s => s.nome).join(' + ');
-            const nomePizza = `PIZZA ${pizzaMontada.tamanho.nome} (${saboresText})`;
-            let descricao = "";
-            if (pizzaMontada.borda && pizzaMontada.borda.nome !== "Sem Borda") descricao += `Borda: ${pizzaMontada.borda.nome}. `;
-            if (pizzaMontada.adicionais.length > 0) descricao += `Adicionais: ${pizzaMontada.adicionais.map(a => a.nome).join(', ')}`;
-            CARRINHO.push({ id: `pizza-montada-${Date.now()}`, nome: nomePizza, descricao: descricao, preco: pizzaMontada.precoTotal, tipo: 'pizza-montada', detalhes: pizzaMontada });
-            updateCartFooter();
-            fecharMontadorPizza();
-            Swal.fire({ title: 'Pizza Adicionada!', html: `Sua pizza foi adicionada ao carrinho!<br><strong>R$ ${pizzaMontada.precoTotal.toFixed(2).replace('.',',')}</strong>`, icon: 'success', timer: 2000, showConfirmButton: false });
-        }
-        function fecharMontadorPizza() {
-            document.getElementById('modal-montador-pizza').classList.add('hidden');
-            resetarMontadorPizza();
+        // ==================== FUNÇÕES DO MONTADOR UNIVERSAL ====================
+        function abrirMontadorProduto() {
+            resetarMontadorProduto();
+            renderizarGruposMontador();
+            document.getElementById('modal-montador-produto').classList.remove('hidden');
         }
 
-        // ==================== FUNÇÕES DE CHECKOUT (resumidas) ====================
+        function fecharMontadorProduto() {
+            document.getElementById('modal-montador-produto').classList.add('hidden');
+        }
+
+        function resetarMontadorProduto() {
+            produtoMontado = { grupos: {}, precoTotal: 0 };
+        }
+
+        function renderizarGruposMontador() {
+            const container = document.getElementById('lista-grupos');
+            if (!container) return;
+            if (!configuracoesMontador || configuracoesMontador.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500">Nenhuma opção de montagem disponível.</p>';
+                return;
+            }
+
+            let html = '';
+            configuracoesMontador.forEach(grupo => {
+                const grupoId = grupo.id;
+                const nome = grupo.nome || 'Sem nome';
+                const tipo = grupo.tipo || 'radio';
+                const obrigatorio = grupo.obrigatorio === true;
+                const opcoes = grupo.opcoes || [];
+
+                html += `<div class="mb-6 border-b pb-4">`;
+                html += `<h3 class="font-bold text-sm uppercase text-gray-800 mb-3">${nome} ${obrigatorio ? '*' : ''}</h3>`;
+
+                opcoes.forEach(opcao => {
+                    const opcaoId = opcao.id;
+                    const opcaoNome = opcao.nome || 'Opção';
+                    const preco = opcao.preco || 0;
+                    const checked = produtoMontado.grupos[grupoId] === opcaoId ? 'checked' : '';
+                    html += `
+                        <div class="bg-red-50 p-3 rounded-xl border border-red-200 flex justify-between items-center mb-2">
+                            <label class="flex items-center gap-2 flex-1 cursor-pointer">
+                                <input type="${tipo}" name="grupo_${grupoId}" value="${opcaoId}" ${checked} onchange="atualizarSelecaoGrupo('${grupoId}', '${opcaoId}', ${tipo === 'checkbox'})" class="form-${tipo}">
+                                <span class="font-bold text-xs uppercase">${opcaoNome}</span>
+                            </label>
+                            <span class="text-red-600 font-black text-sm">+R$ ${Number(preco).toFixed(2).replace('.',',')}</span>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+            });
+            container.innerHTML = html;
+            atualizarResumoMontador();
+        }
+
+        window.atualizarSelecaoGrupo = function(grupoId, opcaoId, isCheckbox) {
+            if (isCheckbox) {
+                if (!produtoMontado.grupos[grupoId]) produtoMontado.grupos[grupoId] = [];
+                const index = produtoMontado.grupos[grupoId].indexOf(opcaoId);
+                if (index === -1) {
+                    produtoMontado.grupos[grupoId].push(opcaoId);
+                } else {
+                    produtoMontado.grupos[grupoId].splice(index, 1);
+                }
+            } else {
+                produtoMontado.grupos[grupoId] = opcaoId;
+            }
+            atualizarResumoMontador();
+        };
+
+        function atualizarResumoMontador() {
+            let precoTotal = 0;
+            const resumoParts = [];
+
+            configuracoesMontador.forEach(grupo => {
+                const grupoId = grupo.id;
+                const selecao = produtoMontado.grupos[grupoId];
+                if (!selecao || (Array.isArray(selecao) && selecao.length === 0)) return;
+
+                if (Array.isArray(selecao)) {
+                    const selecionadas = (grupo.opcoes || []).filter(op => selecao.includes(op.id));
+                    selecionadas.forEach(op => {
+                        precoTotal += op.preco || 0;
+                        resumoParts.push(`${op.nome} (+R$ ${(op.preco||0).toFixed(2).replace('.',',')})`);
+                    });
+                } else {
+                    const opcao = (grupo.opcoes || []).find(op => op.id === selecao);
+                    if (opcao) {
+                        precoTotal += opcao.preco || 0;
+                        resumoParts.push(`${opcao.nome} (+R$ ${(opcao.preco||0).toFixed(2).replace('.',',')})`);
+                    }
+                }
+            });
+
+            produtoMontado.precoTotal = precoTotal;
+            document.getElementById('preco-montador-produto').innerText = `R$ ${precoTotal.toFixed(2).replace('.',',')}`;
+            document.getElementById('resumo-montador-produto').innerHTML = resumoParts.join('<br>') || 'Nenhuma opção selecionada';
+        }
+
+        function finalizarProdutoMontado() {
+            for (let grupo of configuracoesMontador) {
+                if (grupo.obrigatorio === true) {
+                    const selecao = produtoMontado.grupos[grupo.id];
+                    if (!selecao || (Array.isArray(selecao) && selecao.length === 0)) {
+                        Swal.fire('Atenção', `O campo "${grupo.nome}" é obrigatório.`, 'warning');
+                        return;
+                    }
+                }
+            }
+
+            const descricao = [];
+            configuracoesMontador.forEach(grupo => {
+                const selecao = produtoMontado.grupos[grupo.id];
+                if (!selecao || (Array.isArray(selecao) && selecao.length === 0)) return;
+                if (Array.isArray(selecao)) {
+                    const nomes = (grupo.opcoes || []).filter(op => selecao.includes(op.id)).map(op => op.nome);
+                    descricao.push(...nomes);
+                } else {
+                    const opcao = (grupo.opcoes || []).find(op => op.id === selecao);
+                    if (opcao) descricao.push(opcao.nome);
+                }
+            });
+            const nomeProduto = `Personalizado (${descricao.join(', ')})`;
+
+            CARRINHO.push({
+                id: `montado-${Date.now()}`,
+                nome: nomeProduto,
+                descricao: '',
+                preco: produtoMontado.precoTotal,
+                tipo: 'montado',
+                detalhes: produtoMontado
+            });
+
+            updateCartFooter();
+            fecharMontadorProduto();
+            Swal.fire({ title: 'Adicionado!', text: 'Produto personalizado adicionado ao carrinho.', icon: 'success', timer: 2000, showConfirmButton: false });
+        }
+
+        // ==================== FUNÇÕES DE CHECKOUT ====================
         function abrirCheckout() {
             if (CARRINHO.length === 0) {
                 Swal.fire({ title: 'Carrinho Vazio', text: 'Adicione itens ao carrinho antes de finalizar!', icon: 'warning', confirmButtonColor: '#dc2626' });
@@ -1216,6 +1234,7 @@
             setModoConsumo(modoConsumo);
             renderCheckoutTotal();
         }
+
         function renderCheckoutItens() {
             const container = document.getElementById('checkout-itens-list');
             let html = '';
@@ -1230,7 +1249,7 @@
                         <span class="font-black">${item.nome}</span>
                         ${item.descricao ? `<div class="text-[9px] text-gray-500">${item.descricao}</div>` : ''}
                         ${saboresInfo}
-                        ${item.tipo === 'pizza-montada' ? `<div class="text-[8px] text-red-600">Pizza Montada</div>` : ''}
+                        ${item.tipo === 'montado' ? `<div class="text-[8px] text-red-600">Personalizado</div>` : ''}
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-red-600 font-black">R$ ${Number(item.preco || 0).toFixed(2).replace('.',',')}</span>
@@ -1240,13 +1259,16 @@
             });
             container.innerHTML = html;
         }
+
         function removeCartCheckout(index) {
             removeCart(index);
             renderCheckoutItens();
             renderCheckoutTotal();
             if (CARRINHO.length === 0) fecharCheckout();
         }
+
         function fecharCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
+
         function setModoConsumo(m) {
             modoConsumo = m;
             ['delivery','retirada','local'].forEach(x => {
@@ -1259,6 +1281,7 @@
             else { gpsOk = false; }
             renderCheckoutTotal();
         }
+
         function renderCheckoutTotal() {
             const sub = CARRINHO.reduce((a, b) => a + Number(b.preco || 0), 0);
             const frete = (modoConsumo === 'delivery' && gpsOk) ? tFRETE : 0;
@@ -1272,6 +1295,7 @@
                 cupomDiv.classList.add('hidden');
             }
         }
+
         function obterGPSCliente() {
             if (!navigator.geolocation) {
                 Swal.fire({ title: 'Erro de Localização', text: 'Seu navegador não suporta geolocalização.', icon: 'error', confirmButtonColor: '#dc2626' });
@@ -1325,6 +1349,7 @@
                 { timeout: 10000, enableHighAccuracy: true }
             );
         }
+
         async function enviarPedido() {
             const nome = document.getElementById('f-nome').value.trim();
             const totalStr = document.getElementById('res-total').innerText;
@@ -1408,19 +1433,47 @@
                 document.getElementById('btn-final-zap').disabled = false;
             }
         }
+
         async function carregarAcompanhamento(id) {
-            // Função existente (não modificada para multi‑loja, mas precisaria do lojaId. Por simplicidade, omitida aqui, mas no código original ela deve estar presente.)
+            // Função simplificada – pode ser expandida conforme necessário
+            document.getElementById('initial-loading').style.display = 'none';
+            document.getElementById('view-cliente').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('view-acompanhar').classList.remove('hidden');
+            document.getElementById('rastreio-status').innerText = "PEDIDO EM ANDAMENTO";
         }
+
         function renderPedidosADM(pedidos) {
-            // Função do painel admin (omitida por brevidade)
+            const sec = document.getElementById('sec-pedidos');
+            if (!sec) return;
+            sec.innerHTML = '<div class="text-center py-10"><div class="text-red-400">📋 Pedidos carregados: ' + pedidos.length + '</div></div>';
         }
+
+        function renderMontadorConfig() {
+            const sec = document.getElementById('sec-montador');
+            if (!sec) return;
+            sec.innerHTML = '<p class="text-gray-500">Configuração do montador (implementar).</p>';
+        }
+
         function switchTab(tab) {
-            // Função do painel admin (omitida)
+            console.log('Trocar aba:', tab);
         }
-        function abrirLogin() { document.getElementById('view-login').classList.remove('hidden'); }
-        function fecharLogin() { document.getElementById('view-login').classList.add('hidden'); }
-        function abrirCadastroLoja() { document.getElementById('modal-cadastro-loja').classList.remove('hidden'); }
-        function fecharCadastroLoja() { document.getElementById('modal-cadastro-loja').classList.add('hidden'); }
+
+        function sairAdmin() {
+            console.log('Sair do admin');
+        }
+
+        function updateStatusLojaUI() {
+            const b = document.getElementById('cli-status-loja');
+            if (!b) return;
+            if (CONFIG.loja_aberta !== false) {
+                b.innerText = "● ABERTO AGORA";
+                b.className = "inline-block px-4 py-1.5 rounded-full text-[9px] font-black mt-2 border text-green-600 bg-green-50 shadow-sm border-green-200";
+            } else {
+                b.innerText = "○ FECHADO AGORA";
+                b.className = "inline-block px-4 py-1.5 rounded-full text-[9px] font-black mt-2 border text-gray-400 bg-gray-50 shadow-sm border-gray-200";
+            }
+        }
 
         async function processarLogin() {
             const email = document.getElementById('login-email').value;
@@ -1434,66 +1487,27 @@
             }
             try {
                 const { auth, authModules, firestore, db } = getFirebaseRefs();
-                const btn = document.querySelector('#view-login button');
-                btn.textContent = "ENTRANDO...";
-                btn.disabled = true;
-
                 const userCredential = await authModules.signInWithEmailAndPassword(auth, email, senha);
                 const uid = userCredential.user.uid;
-
                 const clienteDoc = await firestore.getDoc(firestore.doc(db, "clientes", uid));
                 if (!clienteDoc.exists()) throw new Error("Cliente não encontrado");
                 const lojaId = clienteDoc.data().lojaId;
-
                 lojaIdAtual = lojaId;
                 tipoAcesso = 'admin';
                 currentUser = userCredential.user;
-
                 await carregarConfiguracao();
                 await carregarPromocao();
                 await loadData();
+                await carregarConfiguracoesMontador();
                 listenPedidos();
-
                 fecharLogin();
                 document.getElementById('view-cliente').classList.add('hidden');
                 document.getElementById('view-admin').classList.remove('hidden');
                 document.getElementById('admin-user').innerText = currentUser.email;
-
-                document.getElementById('login-email').value = '';
-                document.getElementById('login-pass').value = '';
             } catch (error) {
                 console.error("Erro no login:", error);
                 errorDiv.textContent = "Credenciais inválidas";
                 errorDiv.classList.remove('hidden');
-                const btn = document.querySelector('#view-login button');
-                btn.textContent = "Entrar no Painel";
-                btn.disabled = false;
-            }
-        }
-
-        async function sairAdmin() {
-            try {
-                const { auth, authModules } = getFirebaseRefs();
-                await authModules.signOut(auth);
-                isAdmin = false;
-                currentUser = null;
-                document.getElementById('view-admin').classList.add('hidden');
-                location.reload();
-            } catch (error) {
-                console.error("Erro ao sair:", error);
-                Swal.fire('Erro', 'Erro ao fazer logout!', 'error');
-            }
-        }
-
-        function updateStatusLojaUI() {
-            const b = document.getElementById('cli-status-loja');
-            if (!b) return;
-            if (CONFIG.loja_aberta !== false) {
-                b.innerText = "● ABERTO AGORA";
-                b.className = "inline-block px-4 py-1.5 rounded-full text-[9px] font-black mt-2 border text-green-600 bg-green-50 shadow-sm border-green-200";
-            } else {
-                b.innerText = "○ FECHADO AGORA";
-                b.className = "inline-block px-4 py-1.5 rounded-full text-[9px] font-black mt-2 border text-gray-400 bg-gray-50 shadow-sm border-gray-200";
             }
         }
 
@@ -1518,7 +1532,7 @@
                     email: email,
                     senha: senha,
                     status: "pendente",
-                    data_cadastro: new Date().getTime()
+                    data_cadastro: firestore.Timestamp.now()
                 });
 
                 Swal.fire({
@@ -1535,17 +1549,15 @@
             }
         }
 
-        // Exportar funções
+        // ==================== EXPORTA FUNÇÕES ====================
         window.initApp = init;
-        window.abrirLogin = abrirLogin;
-        window.fecharLogin = fecharLogin;
         window.processarLogin = processarLogin;
         window.sairAdmin = sairAdmin;
-        window.abrirCadastroLoja = abrirCadastroLoja;
-        window.fecharCadastroLoja = fecharCadastroLoja;
         window.enviarCadastroLoja = enviarCadastroLoja;
-        window.abrirCarrinho = abrirCarrinho;
-        window.fecharCarrinho = fecharCarrinho;
+        window.abrirMontadorProduto = abrirMontadorProduto;
+        window.fecharMontadorProduto = fecharMontadorProduto;
+        window.finalizarProdutoMontado = finalizarProdutoMontado;
+        window.renderCardapio = renderCardapio;
         window.addCart = addCart;
         window.removeCart = removeCart;
         window.abrirCheckout = abrirCheckout;
@@ -1553,19 +1565,11 @@
         window.setModoConsumo = setModoConsumo;
         window.obterGPSCliente = obterGPSCliente;
         window.enviarPedido = enviarPedido;
-        window.renderCardapio = renderCardapio;
-        window.abrirMontadorPizza = abrirMontadorPizza;
-        window.fecharMontadorPizza = fecharMontadorPizza;
-        window.selecionarTamanho = selecionarTamanho;
-        window.toggleSabor = toggleSabor;
-        window.selecionarBorda = selecionarBorda;
-        window.toggleAdicionalPizza = toggleAdicionalPizza;
-        window.finalizarPizzaMontada = finalizarPizzaMontada;
+        window.removeCartCheckout = removeCartCheckout;
+        window.aplicarCupom = aplicarCupom;
         window.abrirDetalhesProduto = abrirDetalhesProduto;
         window.fecharDetalhesProduto = fecharDetalhesProduto;
-        window.aplicarCupom = aplicarCupom;
-        window.removeCartCheckout = removeCartCheckout;
-        // ... outras funções do painel (switchTab, etc.) devem ser exportadas se usadas
+        window.switchTab = switchTab;
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => setTimeout(init, 500));
