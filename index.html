@@ -861,37 +861,38 @@
 
         // FUNÇÃO PARA MONITORAR O STATUS DA LOJA
         function monitorarStatusLoja() {
-            if (!lojaIdAtual) return;
-            const { db, firestore } = getFirebaseRefs();
-            const lojaRef = firestore.doc(db, "lojas", lojaIdAtual);
+    if (!lojaIdAtual) return;
+    const { db, firestore } = getFirebaseRefs();
+    const lojaRef = firestore.doc(db, "lojas", lojaIdAtual);
+    
+    // Esse código fica vigiando o banco de dados. Se você mudar no painel, ele age aqui na hora.
+    lojaUnsubscribe = firestore.onSnapshot(lojaRef, (doc) => {
+        if (doc.exists()) {
+            const statusNoBanco = doc.data().status;
             
-            lojaUnsubscribe = firestore.onSnapshot(lojaRef, (doc) => {
-                if (doc.exists()) {
-                    const novoStatus = doc.data().status;
-                    const estavaBloqueada = lojaBloqueada;
-                    lojaBloqueada = (novoStatus === 'bloqueado');
-                    
-                    // Se o status mudou para bloqueado, redirecionar para a tela de bloqueio
-                    if (!estavaBloqueada && lojaBloqueada) {
-                        mostrarTelaBloqueio();
-                    }
-                    // Se estava bloqueado e agora está ativo, recarregar (opcional)
-                    else if (estavaBloqueada && !lojaBloqueada) {
-                        // Pode recarregar a página para restaurar funcionalidades
-                        location.reload();
-                    }
+            if (statusNoBanco === 'bloqueado') {
+                lojaBloqueada = true;
+                mostrarTelaBloqueio(); // Chama a tela de cadeado
+            } else {
+                // Se estava bloqueado e você desbloqueou, ele libera a tela
+                if (lojaBloqueada) {
+                    lojaBloqueada = false;
+                    document.getElementById('view-bloqueado').classList.add('hidden');
+                    document.getElementById('view-cliente').classList.remove('hidden');
                 }
-            }, (error) => {
-                console.error("Erro ao monitorar status da loja:", error);
-            });
+            }
         }
+    });
+}
 
-        // FUNÇÃO PARA MOSTRAR TELA DE BLOQUEIO
-        function mostrarTelaBloqueio() {
-            document.getElementById('view-cliente').classList.add('hidden');
-            document.getElementById('view-admin').classList.add('hidden');
-            document.getElementById('view-bloqueado').classList.remove('hidden');
-        }
+// Função para esconder tudo e mostrar o aviso de bloqueio
+function mostrarTelaBloqueio() {
+    document.getElementById('view-cliente').classList.add('hidden');
+    document.getElementById('view-admin').classList.add('hidden');
+    document.getElementById('modal-carrinho').classList.add('hidden');
+    document.getElementById('modal-checkout').classList.add('hidden');
+    document.getElementById('view-bloqueado').classList.remove('hidden');
+}
 
         // FUNÇÃO INIT MELHORADA
         async function init() {
