@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Pizza Pro | Painel Administrativo</title>
     
-    <!-- Tailwind + Font Awesome + Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -33,1753 +30,438 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        window.db = db;
-        window.auth = auth;
-        window.authModules = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut };
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
-        window.doc = doc;
-        window.getDoc = getDoc;
-        window.setDoc = setDoc;
-        window.updateDoc = updateDoc;
-        window.deleteDoc = deleteDoc;
-        window.onSnapshot = onSnapshot;
-        window.query = query;
-        window.where = where;
-        window.orderBy = orderBy;
-        window.limit = limit;
-        window.Timestamp = Timestamp;
+        // Exportação global para o sistema funcionar
+        window.db = db; window.auth = auth; window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut; window.doc = doc; window.getDoc = getDoc;
+        window.updateDoc = updateDoc; window.setDoc = setDoc; window.addDoc = addDoc;
+        window.collection = collection; window.onSnapshot = onSnapshot; window.query = query;
+        window.where = where; window.orderBy = orderBy; window.limit = limit;
+        window.Timestamp = Timestamp; window.authModules = { createUserWithEmailAndPassword };
 
-        console.log("🔥 Firebase inicializado (admin-5b03c)");
-        
         if (window.startApp) window.startApp();
     </script>
 
     <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        
-        body {
-            background: #f3f4f6;
-        }
-        
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        
-        /* Animações */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        /* Cards e botões */
-        .stat-card {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            transition: all 0.3s;
-            border: 1px solid #f1f5f9;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
-            cursor: pointer;
-            border: none;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: #1f2937;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-            border: 1px solid #e5e7eb;
-            cursor: pointer;
-        }
-        
-        .btn-secondary:hover {
-            background: #f9fafb;
-            border-color: #d1d5db;
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
-            cursor: pointer;
-            border: none;
-        }
-        
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
-        }
-        
-        /* Botões de ação */
-        .action-button {
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            border: none;
-        }
-        
-        .action-button i {
-            font-size: 0.9rem;
-        }
-        
-        .action-edit {
-            background: #eff6ff;
-            color: #1e40af;
-        }
-        
-        .action-edit:hover {
-            background: #dbeafe;
-        }
-        
-        .action-view {
-            background: #ecfdf5;
-            color: #065f46;
-        }
-        
-        .action-view:hover {
-            background: #d1fae5;
-        }
-        
-        .action-block {
-            background: #fffbeb;
-            color: #92400e;
-        }
-        
-        .action-block:hover {
-            background: #fef3c7;
-        }
-        
-        .action-whatsapp {
-            background: #f0fdf4;
-            color: #166534;
-        }
-        
-        .action-whatsapp:hover {
-            background: #dcfce7;
-        }
-        
-        .action-delete {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        
-        .action-delete:hover {
-            background: #fecaca;
-        }
-        
-        /* Tabela */
-        .table-container {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            border: 1px solid #f1f5f9;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 16px;
-            font-weight: 600;
-            color: #64748b;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        
-        td {
-            padding: 16px;
-            border-bottom: 1px solid #e2e8f0;
-            color: #1e293b;
-            font-size: 0.95rem;
-        }
-        
-        tr:hover {
-            background-color: #f8fafc;
-        }
-        
-        /* Container de ações */
-        .actions-footer {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        
-        /* Badges */
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .badge-warning {
-            background: #fed7aa;
-            color: #92400e;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .badge-info {
-            background: #dbeafe;
-            color: #1e40af;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        /* Tabs */
-        .tab {
-            padding: 12px 24px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: #64748b;
-            border-radius: 12px;
-            transition: all 0.2s;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        
-        .tab:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-        
-        .tab-active {
-            background: #059669;
-            color: white;
-        }
-        
-        .tab-active:hover {
-            background: #047857;
-            color: white;
-        }
-        
-        /* Sidebar */
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: #94a3b8;
-            border-radius: 12px;
-            transition: all 0.2s;
-            font-weight: 500;
-            text-decoration: none;
-        }
-        
-        .sidebar-link:hover {
-            background: #1e293b;
-            color: white;
-        }
-        
-        .sidebar-link.active {
-            background: #059669;
-            color: white;
-        }
-        
-        /* Cards de solicitação */
-        .solicitacao-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s;
-        }
-        
-        .solicitacao-card:hover {
-            border-color: #059669;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.1);
-        }
-        
-        /* Loading */
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #059669;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-
-        /* Personalização - Cores customizáveis */
-        .custom-primary {
-            background: var(--primary-color, #059669);
-        }
-        
-        .custom-secondary {
-            background: var(--secondary-color, #10b981);
-        }
-        
-        .custom-accent {
-            background: var(--accent-color, #f59e0b);
-        }
-        
-        /* Preview de cores */
-        .color-preview {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            border: 2px solid #e5e7eb;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .color-preview:hover {
-            transform: scale(1.1);
-            border-color: #059669;
-        }
-        
-        .color-preview.selected {
-            border: 3px solid #059669;
-            box-shadow: 0 0 0 2px white;
-        }
-
-        /* Botões no topo */
-        .top-actions {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #f3f4f6; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .sidebar-link { transition: all 0.2s; color: #94a3b8; border-radius: 12px; white-space: nowrap; }
+        .sidebar-link:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar-link.active { background: #059669; color: white; }
+        .stat-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .btn-primary { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 10px 20px; border-radius: 12px; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
+        .btn-secondary { background: white; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 12px; font-size: 0.8rem; }
+        .action-button { padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: inline-flex; items-center; gap: 4px; }
+        .color-preview { width: 30px; height: 30px; border-radius: 8px; border: 2px solid #e5e7eb; cursor: pointer; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
     </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Loading inicial -->
-    <div id="initial-loading" class="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div class="text-center fade-in">
-            <div class="loading-spinner mx-auto mb-6"></div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Carregando painel</h2>
-            <p class="text-gray-500">Aguarde um instante...</p>
+<body>
+
+    <!-- MENU SUPERIOR FIXO -->
+    <header class="fixed top-0 left-0 right-0 bg-gray-900 text-white z-50 shadow-xl">
+        <div class="p-2">
+            <div class="flex justify-between items-center px-2 mb-2">
+                <h1 class="text-lg font-black tracking-tighter">
+                    <span id="logo-part1" class="text-emerald-400">Master</span><span id="logo-part2" class="text-white">Pizza</span>
+                </h1>
+                <div class="flex items-center gap-3">
+                    <div class="text-right leading-tight">
+                        <p id="admin-name" class="text-[10px] font-bold">Admin</p>
+                        <p id="admin-email" class="text-[8px] text-gray-400">admin@pizza.com</p>
+                    </div>
+                    <div id="admin-avatar" class="hidden"></div>
+                    <div id="header-avatar" class="hidden"></div>
+                    <button onclick="sairAdmin()" class="text-[10px] bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-full font-black uppercase transition-all shadow-md">
+                        Sair
+                    </button>
+                </div>
+            </div>
+            <nav class="flex gap-1 overflow-x-auto no-scrollbar px-1 pb-1">
+                <a href="#" onclick="showSection('dashboard')" id="menu-dashboard" class="sidebar-link active flex flex-col items-center min-w-[75px] py-1.5">
+                    <i class="fas fa-chart-pie text-sm"></i><span class="text-[9px] font-bold">Dash</span>
+                </a>
+                <a href="#" onclick="showSection('clientes')" id="menu-clientes" class="sidebar-link flex flex-col items-center min-w-[75px] py-1.5">
+                    <i class="fas fa-store text-sm"></i><span class="text-[9px] font-bold">Lojas</span>
+                </a>
+                <a href="#" onclick="showSection('solicitacoes')" id="menu-solicitacoes" class="sidebar-link flex flex-col items-center min-w-[75px] py-1.5">
+                    <i class="fas fa-user-plus text-sm"></i><span class="text-[9px] font-bold">Solicit</span>
+                </a>
+                <a href="#" onclick="showSection('pedidos')" id="menu-pedidos" class="sidebar-link flex flex-col items-center min-w-[75px] py-1.5">
+                    <i class="fas fa-shopping-bag text-sm"></i><span class="text-[9px] font-bold">Vendas</span>
+                </a>
+                <a href="#" onclick="showSection('financeiro')" id="menu-financeiro" class="sidebar-link flex flex-col items-center min-w-[75px] py-1.5">
+                    <i class="fas fa-dollar-sign text-sm"></i><span class="text-[9px] font-bold">Financ</span>
+                </a>
+                <a href="#" onclick="showSection('configuracoes')" id="menu-configuracoes" class="sidebar-link flex flex-col items-center min-w-[75px] py-1.5">
+                    <i class="fas fa-cog text-sm"></i><span class="text-[9px] font-bold">Config</span>
+                </a>
+            </nav>
         </div>
-    </div>
+    </header>
 
-    <!-- Estrutura principal -->
-    <div id="app" class="hidden flex min-h-screen bg-gray-50">
-        <!-- Sidebar fixa -->
-        <aside class="w-72 bg-gray-900 text-white fixed left-0 top-0 h-screen overflow-y-auto shadow-2xl" style="z-index: 40;">
-            <div class="p-6">
-                <!-- Logo com cores dinâmicas -->
-                <div class="mb-10">
-                    <h1 class="text-3xl font-black">
-                        <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent" id="logo-part1">Master</span>
-                        <span class="text-white" id="logo-part2">Pizza</span>
-                    </h1>
-                    <p class="text-xs text-gray-400 mt-2 font-medium">Painel Administrativo</p>
-                </div>
-                
-                <!-- Menu -->
-                <nav class="space-y-2">
-                    <a href="#" onclick="showSection('dashboard')" id="menu-dashboard" class="sidebar-link active">
-                        <i class="fas fa-chart-pie w-6 text-lg"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="#" onclick="showSection('clientes')" id="menu-clientes" class="sidebar-link">
-                        <i class="fas fa-store w-6 text-lg"></i>
-                        <span>Lojas</span>
-                    </a>
-                    <a href="#" onclick="showSection('solicitacoes')" id="menu-solicitacoes" class="sidebar-link">
-                        <i class="fas fa-user-plus w-6 text-lg"></i>
-                        <span>Solicitações</span>
-                    </a>
-                    <a href="#" onclick="showSection('pedidos')" id="menu-pedidos" class="sidebar-link">
-                        <i class="fas fa-shopping-bag w-6 text-lg"></i>
-                        <span>Pedidos</span>
-                    </a>
-                    <a href="#" onclick="showSection('financeiro')" id="menu-financeiro" class="sidebar-link">
-                        <i class="fas fa-dollar-sign w-6 text-lg"></i>
-                        <span>Financeiro</span>
-                    </a>
-                    <a href="#" onclick="showSection('configuracoes')" id="menu-configuracoes" class="sidebar-link">
-                        <i class="fas fa-cog w-6 text-lg"></i>
-                        <span>Configurações</span>
-                    </a>
-                </nav>
-                
-                <!-- Perfil e logout -->
-                <div class="absolute bottom-6 left-6 right-6">
-                    <div class="bg-gray-800/50 backdrop-blur-sm p-5 rounded-2xl border border-gray-700">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg" id="admin-avatar">
-                                A
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-white" id="admin-name">Administrador</p>
-                                <p class="text-xs text-gray-400" id="admin-email">admin@pizza.com</p>
-                            </div>
-                        </div>
-                        <button onclick="sairAdmin()" class="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-medium text-sm transition flex items-center justify-center gap-2">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Sair
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Conteúdo principal -->
-        <main class="flex-1 ml-72 p-8">
-            <!-- Header com botões no topo -->
-            <div class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 id="page-title" class="text-3xl font-black text-gray-800">Dashboard</h2>
-                    <p class="text-gray-500 mt-1">Visão geral do sistema</p>
-                </div>
-                <div class="top-actions">
-                    <button onclick="novoCliente()" class="btn-primary flex items-center gap-2">
-                        <i class="fas fa-plus"></i>
-                        Nova Loja
-                    </button>
-                    <button onclick="exportarRelatorio()" class="btn-secondary flex items-center gap-2">
-                        <i class="fas fa-download"></i>
-                        Exportar
-                    </button>
-                    <div class="relative">
-                        <button class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg" id="header-avatar">
-                            A
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Seções dinâmicas -->
-            <div id="dashboard-section" class="section fade-in">
-                <!-- Cards de estatísticas -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="stats-cards">
-                    <!-- Estatísticas serão carregadas via JS -->
-                </div>
-
-                <!-- Alertas de vencimento -->
+    <main class="mt-32 p-4 max-w-7xl mx-auto pb-10">
+        
+        <!-- DASHBOARD -->
+        <div id="dashboard-section" class="section fade-in">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="stats-cards"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div class="stat-card">
-                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                        <i class="fas fa-exclamation-triangle text-amber-500"></i>
-                        Lojas com vencimento próximo
-                    </h3>
-                    <div id="alerta-lista" class="space-y-3">
-                        <!-- Alertas serão carregados aqui -->
-                    </div>
+                    <h3 class="font-bold text-xs text-gray-400 uppercase mb-4">Distribuição</h3>
+                    <div style="position: relative; height: 220px; width: 100%;"><canvas id="grafico-distribuicao"></canvas></div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="font-bold text-xs text-gray-400 uppercase mb-4">Faturamento (6 meses)</h3>
+                    <div style="position: relative; height: 220px; width: 100%;"><canvas id="grafico-faturamento"></canvas></div>
                 </div>
             </div>
+            <div class="stat-card mt-4">
+                <h3 class="font-bold text-xs text-gray-400 uppercase mb-4">Alertas de Vencimento</h3>
+                <div id="alerta-lista" class="space-y-2"></div>
+            </div>
+        </div>
 
-            <!-- Seção de Lojas -->
-            <div id="clientes-section" class="section hidden fade-in">
-                <div class="table-container">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-bold text-gray-800">Lojas cadastradas</h3>
-                        <button onclick="novoCliente()" class="btn-primary flex items-center gap-2">
-                            <i class="fas fa-plus"></i>
-                            Nova Loja
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Loja</th>
-                                    <th>Responsável</th>
-                                    <th>WhatsApp</th>
-                                    <th>Plano</th>
-                                    <th>Vencimento</th>
-                                    <th>Status</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clientes-tbody">
-                                <!-- Lojas serão carregadas aqui -->
-                            </tbody>
-                        </table>
-                    </div>
+        <!-- LOJAS -->
+        <div id="clientes-section" class="section hidden fade-in">
+            <div class="bg-white rounded-3xl p-4 shadow-sm border">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-gray-800">Lojas Cadastradas</h3>
+                    <button onclick="novoCliente()" class="btn-primary">Nova Loja</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr><th>Loja</th><th>WhatsApp</th><th>Plano/Venc</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody id="clientes-tbody"></tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Seção de Solicitações -->
-            <div id="solicitacoes-section" class="section hidden fade-in">
-                <div class="table-container">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-bold text-gray-800">Solicitações de cadastro</h3>
-                        <span class="badge-info" id="solicitacoes-count">0 pendentes</span>
-                    </div>
-                    <div id="solicitacoes-lista" class="space-y-4">
-                        <!-- Solicitações serão carregadas aqui -->
-                    </div>
-                </div>
+        <!-- SOLICITAÇÕES -->
+        <div id="solicitacoes-section" class="section hidden fade-in">
+            <div class="bg-white rounded-3xl p-4 shadow-sm border">
+                <h3 class="font-bold text-gray-800 mb-6">Solicitações Pendentes <span id="solicitacoes-count" class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs ml-2">0</span></h3>
+                <div id="solicitacoes-lista" class="space-y-4"></div>
             </div>
+        </div>
 
-            <!-- Seção de Pedidos -->
-            <div id="pedidos-section" class="section hidden fade-in">
-                <div class="table-container">
-                    <h3 class="text-xl font-bold text-gray-800 mb-6">Últimos pedidos</h3>
-                    <div class="overflow-x-auto">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Pedido</th>
-                                    <th>Loja</th>
-                                    <th>Cliente</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                    <th>Data</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pedidos-tbody">
-                                <!-- Pedidos serão carregados aqui -->
-                                <tr>
-                                    <td colspan="7" class="text-center py-8 text-gray-500">
-                                        Carregando pedidos...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <!-- PEDIDOS / VENDAS -->
+        <div id="pedidos-section" class="section hidden fade-in">
+            <div class="bg-white rounded-3xl p-4 shadow-sm border">
+                <h3 class="font-bold text-gray-800 mb-6">Últimas Vendas</h3>
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Loja</th><th>Cliente</th><th>Total</th><th>Status</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody id="pedidos-tbody"></tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Seção Financeiro -->
-            <div id="financeiro-section" class="section hidden fade-in">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="stat-card">
-                        <p class="text-gray-500 text-sm mb-1">Faturamento do mês</p>
-                        <p class="text-3xl font-black text-gray-800" id="faturamento-mes">R$ 0,00</p>
-                        <p class="text-sm text-green-600 mt-2">+12% em relação ao mês passado</p>
-                    </div>
-                    <div class="stat-card">
-                        <p class="text-gray-500 text-sm mb-1">Receita prevista</p>
-                        <p class="text-3xl font-black text-gray-800" id="receita-prevista">R$ 0,00</p>
-                        <p class="text-sm text-blue-600 mt-2">Próximos 30 dias</p>
-                    </div>
-                    <div class="stat-card">
-                        <p class="text-gray-500 text-sm mb-1">Inadimplência</p>
-                        <p class="text-3xl font-black text-gray-800" id="inadimplencia">0%</p>
-                        <p class="text-sm text-red-600 mt-2">Lojas com pagamento atrasado</p>
-                    </div>
+        <!-- FINANCEIRO -->
+        <div id="financeiro-section" class="section hidden fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="stat-card border-l-4 border-green-500">
+                    <p class="text-[10px] text-gray-400 uppercase">Faturamento Mês</p>
+                    <p id="faturamento-mes" class="text-2xl font-black">R$ 0,00</p>
                 </div>
-                <div class="table-container">
-                    <h3 class="text-xl font-bold text-gray-800 mb-6">Histórico de pagamentos</h3>
-                    <div id="pagamentos-lista" class="text-center py-8 text-gray-500">
-                        Em breve...
-                    </div>
+                <div class="stat-card border-l-4 border-blue-500">
+                    <p class="text-[10px] text-gray-400 uppercase">Previsão Receita</p>
+                    <p id="receita-prevista" class="text-2xl font-black">R$ 0,00</p>
+                </div>
+                <div class="stat-card border-l-4 border-red-500">
+                    <p class="text-[10px] text-gray-400 uppercase">Inadimplência</p>
+                    <p id="inadimplencia" class="text-2xl font-black">0%</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Seção Configurações com Personalização -->
-            <div id="configuracoes-section" class="section hidden fade-in">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Configurações Gerais -->
-                    <div class="stat-card">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
-                            <i class="fas fa-sliders-h text-emerald-500"></i>
-                            Configurações Gerais
-                        </h3>
-                        <div class="space-y-5">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Valor da mensalidade (R$)
-                                </label>
-                                <input type="number" id="config-mensalidade" value="97.00" step="0.01" min="0"
-                                       class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Dias de aviso prévio
-                                </label>
-                                <input type="number" id="config-dias-aviso" value="3" min="1" max="30"
-                                       class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Domínio dos cardápios
-                                </label>
-                                <input type="text" id="config-dominio" value="https://danamorim1347-max.github.io/lamen/?loja=" 
-                                       class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                            </div>
-                            <button onclick="salvarConfiguracoes()" class="btn-primary w-full">
-                                Salvar configurações
-                            </button>
-                        </div>
+        <!-- CONFIGURAÇÕES -->
+        <div id="configuracoes-section" class="section hidden fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="stat-card">
+                    <h3 class="font-bold mb-6">Configurações Gerais</h3>
+                    <div class="space-y-4">
+                        <div><label class="text-xs font-bold text-gray-500">Mensalidade Padrão (R$)</label><input type="number" id="config-mensalidade" class="w-full p-3 border rounded-xl"></div>
+                        <div><label class="text-xs font-bold text-gray-500">URL Base do Cardápio</label><input type="text" id="config-dominio" class="w-full p-3 border rounded-xl"></div>
+                        <button onclick="salvarConfiguracoes()" class="btn-primary w-full">Salvar</button>
                     </div>
-                    
-                    <!-- Personalização Ativada -->
-                    <div class="stat-card">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
-                            <i class="fas fa-palette text-emerald-500"></i>
-                            Personalização
-                        </h3>
-                        
-                        <!-- Cores principais -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">
-                                Cor Primária
-                            </label>
-                            <div class="flex gap-3 flex-wrap">
-                                <div class="color-preview" style="background: #059669;" onclick="selecionarCor('primary', '#059669')" title="Verde Esmeralda"></div>
-                                <div class="color-preview" style="background: #2563eb;" onclick="selecionarCor('primary', '#2563eb')" title="Azul"></div>
-                                <div class="color-preview" style="background: #7c3aed;" onclick="selecionarCor('primary', '#7c3aed')" title="Roxo"></div>
-                                <div class="color-preview" style="background: #db2777;" onclick="selecionarCor('primary', '#db2777')" title="Rosa"></div>
-                                <div class="color-preview" style="background: #ea580c;" onclick="selecionarCor('primary', '#ea580c')" title="Laranja"></div>
-                                <div class="color-preview" style="background: #dc2626;" onclick="selecionarCor('primary', '#dc2626')" title="Vermelho"></div>
-                            </div>
-                            <input type="color" id="cor-primary-custom" class="mt-3 w-full h-12 rounded-xl border border-gray-200" value="#059669" onchange="selecionarCor('primary', this.value)">
+                </div>
+                <div class="stat-card">
+                    <h3 class="font-bold mb-6">Personalização Visual</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold">Cor Primária</span>
+                            <input type="color" id="cor-primary-custom" onchange="selecionarCor('primary', this.value)" class="color-preview">
                         </div>
-                        
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">
-                                Cor Secundária
-                            </label>
-                            <div class="flex gap-3 flex-wrap">
-                                <div class="color-preview" style="background: #10b981;" onclick="selecionarCor('secondary', '#10b981')" title="Verde Claro"></div>
-                                <div class="color-preview" style="background: #3b82f6;" onclick="selecionarCor('secondary', '#3b82f6')" title="Azul Claro"></div>
-                                <div class="color-preview" style="background: #8b5cf6;" onclick="selecionarCor('secondary', '#8b5cf6')" title="Roxo Claro"></div>
-                                <div class="color-preview" style="background: #ec4899;" onclick="selecionarCor('secondary', '#ec4899')" title="Rosa Claro"></div>
-                                <div class="color-preview" style="background: #f97316;" onclick="selecionarCor('secondary', '#f97316')" title="Laranja Claro"></div>
-                                <div class="color-preview" style="background: #ef4444;" onclick="selecionarCor('secondary', '#ef4444')" title="Vermelho Claro"></div>
-                            </div>
-                            <input type="color" id="cor-secondary-custom" class="mt-3 w-full h-12 rounded-xl border border-gray-200" value="#10b981" onchange="selecionarCor('secondary', this.value)">
-                        </div>
-                        
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">
-                                Cor de Destaque
-                            </label>
-                            <div class="flex gap-3 flex-wrap">
-                                <div class="color-preview" style="background: #f59e0b;" onclick="selecionarCor('accent', '#f59e0b')" title="Âmbar"></div>
-                                <div class="color-preview" style="background: #f43f5e;" onclick="selecionarCor('accent', '#f43f5e')" title="Rosa Forte"></div>
-                                <div class="color-preview" style="background: #14b8a6;" onclick="selecionarCor('accent', '#14b8a6')" title="Verde Água"></div>
-                                <div class="color-preview" style="background: #a855f7;" onclick="selecionarCor('accent', '#a855f7')" title="Roxo Médio"></div>
-                                <div class="color-preview" style="background: #f97316;" onclick="selecionarCor('accent', '#f97316')" title="Laranja"></div>
-                                <div class="color-preview" style="background: #06b6d4;" onclick="selecionarCor('accent', '#06b6d4')" title="Ciano"></div>
-                            </div>
-                            <input type="color" id="cor-accent-custom" class="mt-3 w-full h-12 rounded-xl border border-gray-200" value="#f59e0b" onchange="selecionarCor('accent', this.value)">
-                        </div>
-                        
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Modo de Tema
-                            </label>
-                            <select id="tema-modo" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition" onchange="aplicarTema()">
-                                <option value="light">Claro</option>
-                                <option value="dark">Escuro</option>
-                                <option value="system">Sistema</option>
-                            </select>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-3">
-                            <button onclick="resetarCores()" class="btn-secondary w-full">
-                                <i class="fas fa-undo mr-2"></i>
-                                Resetar
-                            </button>
-                            <button onclick="salvarPersonalizacao()" class="btn-primary w-full">
-                                <i class="fas fa-save mr-2"></i>
-                                Salvar
-                            </button>
-                        </div>
-                        
-                        <!-- Preview -->
-                        <div class="mt-6 p-4 bg-gray-50 rounded-xl">
-                            <p class="text-sm font-medium text-gray-700 mb-3">Preview</p>
-                            <div class="flex gap-2">
-                                <button class="btn-primary text-sm px-3 py-2">Botão Primário</button>
-                                <button class="btn-secondary text-sm px-3 py-2">Botão Secundário</button>
-                                <span class="badge-warning">Destaque</span>
-                            </div>
-                        </div>
+                        <button onclick="resetarCores()" class="btn-secondary w-full">Resetar Padrão</button>
+                        <button onclick="salvarPersonalizacao()" class="btn-primary w-full">Aplicar Cores</button>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
-    <!-- Modal de cadastro/edição de loja -->
-    <div id="modal-cliente" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-800" id="modal-titulo">Nova Loja</h3>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 transition">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
+    <!-- MODAL LOJA -->
+    <div id="modal-cliente" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 id="modal-titulo" class="text-xl font-bold mb-4">Nova Loja</h3>
             <input type="hidden" id="cliente-id">
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome da loja</label>
-                    <input type="text" id="campo-nome" placeholder="Ex: Pizzaria do João" 
-                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+            <div class="space-y-3">
+                <input type="text" id="campo-nome" placeholder="Nome da Loja" class="w-full p-3 border rounded-xl">
+                <input type="text" id="campo-responsavel" placeholder="Responsável" class="w-full p-3 border rounded-xl">
+                <input type="text" id="campo-whatsapp" placeholder="WhatsApp" class="w-full p-3 border rounded-xl">
+                <input type="email" id="campo-email" placeholder="E-mail" class="w-full p-3 border rounded-xl">
+                <select id="campo-plano" class="w-full p-3 border rounded-xl">
+                    <option value="Mensal">Mensal - R$ 97</option>
+                    <option value="Trimestral">Trimestral</option>
+                    <option value="Anual">Anual</option>
+                </select>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="date" id="campo-data-inicio" class="p-3 border rounded-xl">
+                    <input type="date" id="campo-data-vencimento" class="p-3 border rounded-xl">
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome do responsável</label>
-                    <input type="text" id="campo-responsavel" placeholder="Ex: João Silva" 
-                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
-                    <input type="text" id="campo-whatsapp" placeholder="Ex: 11999999999" 
-                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
-                    <input type="email" id="campo-email" placeholder="Ex: contato@loja.com" 
-                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Plano</label>
-                    <select id="campo-plano" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                        <option value="Mensal">Mensal - R$ 97/mês</option>
-                        <option value="Trimestral">Trimestral - R$ 87/mês (R$ 261)</option>
-                        <option value="Anual">Anual - R$ 77/mês (R$ 924)</option>
-                    </select>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Data de início</label>
-                        <input type="date" id="campo-data-inicio" 
-                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Vencimento</label>
-                        <input type="date" id="campo-data-vencimento" 
-                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select id="campo-status" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                        <option value="ativo">Ativo</option>
-                        <option value="bloqueado">Bloqueado</option>
-                        <option value="inadimplente">Inadimplente</option>
-                    </select>
-                </div>
+                <select id="campo-status" class="w-full p-3 border rounded-xl">
+                    <option value="ativo">Ativo</option>
+                    <option value="bloqueado">Bloqueado</option>
+                    <option value="inadimplente">Inadimplente</option>
+                </select>
             </div>
-            
-            <div class="flex gap-4 mt-8">
-                <button onclick="salvarCliente()" class="btn-primary flex-1">
-                    Salvar
-                </button>
-                <button onclick="fecharModal()" class="btn-secondary flex-1">
-                    Cancelar
-                </button>
+            <div class="flex gap-2 mt-6">
+                <button onclick="salvarCliente()" class="btn-primary flex-1">Salvar</button>
+                <button onclick="fecharModal()" class="btn-secondary flex-1">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ==================== VARIÁVEIS GLOBAIS ====================
-        let clientes = [];
-        let pedidos = [];
-        let solicitacoes = [];
-        let clientesUnsubscribe = null;
-        let pedidosUnsubscribe = null;
-        let solicitacoesUnsubscribe = null;
-        let mensalidadePadrao = 97.00;
-        let diasAviso = 3;
-        let dominioBase = "https://danamorim1347-max.github.io/lamen/?loja=";
+        // --- UTILITÁRIOS ---
+        const setText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+        let clientes = [], pedidos = [], solicitacoes = [], coresPersonalizadas = { primary: '#059669' };
+        let graficoFaturamento, graficoDistribuicao;
+        let mensalidadePadrao = 97.00, dominioBase = "https://danamorim1347-max.github.io/lamen/?loja=";
 
-        // Cores personalizadas
-        let coresPersonalizadas = {
-            primary: '#059669',
-            secondary: '#10b981',
-            accent: '#f59e0b'
-        };
-
-        // ==================== INICIALIZAÇÃO ====================
+        // --- INICIALIZAÇÃO ---
         window.startApp = function() {
-            document.getElementById('initial-loading').style.display = 'none';
-            document.getElementById('app').classList.remove('hidden');
-            
-            carregarConfiguracoes();
-            carregarPersonalizacao();
-            iniciarListeners();
-            aplicarCoresSalvas();
-            
-            // Garantir que o dashboard seja a seção ativa
-            showSection('dashboard');
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    setText('admin-name', user.displayName || "Administrador");
+                    setText('admin-email', user.email);
+                    carregarConfiguracoes();
+                    iniciarListeners();
+                    inicializarGraficos();
+                } else { window.location.href = "login.html"; }
+            });
         };
 
-        // ==================== PERSONALIZAÇÃO ====================
-        function carregarPersonalizacao() {
-            const saved = localStorage.getItem('painelCores');
-            if (saved) {
-                coresPersonalizadas = JSON.parse(saved);
-                aplicarCores();
-            }
-        }
-
-        function selecionarCor(tipo, cor) {
-            coresPersonalizadas[tipo] = cor;
-            
-            // Atualizar input color
-            document.getElementById(`cor-${tipo}-custom`).value = cor;
-            
-            // Aplicar preview
-            aplicarCoresPreview();
-        }
-
-        function aplicarCoresPreview() {
-            // Atualizar variáveis CSS
-            document.documentElement.style.setProperty('--primary-color', coresPersonalizadas.primary);
-            document.documentElement.style.setProperty('--secondary-color', coresPersonalizadas.secondary);
-            document.documentElement.style.setProperty('--accent-color', coresPersonalizadas.accent);
-            
-            // Atualizar botões primários
-            document.querySelectorAll('.btn-primary').forEach(btn => {
-                btn.style.background = `linear-gradient(135deg, ${coresPersonalizadas.primary} 0%, ${coresPersonalizadas.secondary} 100%)`;
-            });
-            
-            // Atualizar elementos com gradiente
-            document.querySelectorAll('.bg-gradient-to-br.from-emerald-500.to-teal-500').forEach(el => {
-                el.style.background = `linear-gradient(135deg, ${coresPersonalizadas.primary} 0%, ${coresPersonalizadas.secondary} 100%)`;
-            });
-            
-            // Atualizar logo gradiente
-            const logoPart1 = document.getElementById('logo-part1');
-            if (logoPart1) {
-                logoPart1.style.backgroundImage = `linear-gradient(135deg, ${coresPersonalizadas.primary} 0%, ${coresPersonalizadas.secondary} 100%)`;
-            }
-        }
-
-        function aplicarCores() {
-            aplicarCoresPreview();
-            
-            // Salvar no localStorage
-            localStorage.setItem('painelCores', JSON.stringify(coresPersonalizadas));
-        }
-
-        function aplicarCoresSalvas() {
-            const saved = localStorage.getItem('painelCores');
-            if (saved) {
-                coresPersonalizadas = JSON.parse(saved);
-                aplicarCoresPreview();
-            }
-        }
-
-        function salvarPersonalizacao() {
-            aplicarCores();
-            Swal.fire({
-                title: 'Personalização salva!',
-                text: 'As cores foram aplicadas com sucesso.',
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        }
-
-        function resetarCores() {
-            coresPersonalizadas = {
-                primary: '#059669',
-                secondary: '#10b981',
-                accent: '#f59e0b'
-            };
-            
-            document.getElementById('cor-primary-custom').value = coresPersonalizadas.primary;
-            document.getElementById('cor-secondary-custom').value = coresPersonalizadas.secondary;
-            document.getElementById('cor-accent-custom').value = coresPersonalizadas.accent;
-            
-            aplicarCores();
-            
-            Swal.fire({
-                title: 'Cores resetadas!',
-                text: 'As cores voltaram ao padrão.',
-                icon: 'info',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        }
-
-        function aplicarTema() {
-            const tema = document.getElementById('tema-modo').value;
-            
-            if (tema === 'dark') {
-                document.body.classList.add('dark');
-                document.body.style.background = '#1f2937';
-            } else if (tema === 'light') {
-                document.body.classList.remove('dark');
-                document.body.style.background = '#f3f4f6';
-            } else {
-                // Sistema - verificar preferência do sistema
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.body.classList.add('dark');
-                    document.body.style.background = '#1f2937';
-                } else {
-                    document.body.classList.remove('dark');
-                    document.body.style.background = '#f3f4f6';
-                }
-            }
-            
-            localStorage.setItem('painelTema', tema);
-        }
-
-        // ==================== LISTENERS ====================
         function iniciarListeners() {
-            const { db, collection, onSnapshot, query, orderBy, where } = getFirebase();
-            
-            // Listener de clientes
-            const qClientes = query(collection(db, "clientes"), orderBy("nome"));
-            clientesUnsubscribe = onSnapshot(qClientes, (snapshot) => {
-                clientes = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                tratarDatasClientes();
-                atualizarDashboard();
-                atualizarTabelaClientes();
+            onSnapshot(query(collection(db, "clientes"), orderBy("nome")), (snap) => {
+                clientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                atualizarUI();
+                atualizarGraficos();
                 atualizarAlertas();
-            }, (error) => {
-                console.error("Erro ao carregar clientes:", error);
             });
-
-            // Listener de pedidos
-            const qPedidos = query(collection(db, "pedidos"), orderBy("created_at", "desc"), limit(100));
-            pedidosUnsubscribe = onSnapshot(qPedidos, (snapshot) => {
-                pedidos = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+            onSnapshot(query(collection(db, "pedidos"), orderBy("created_at", "desc"), limit(50)), (snap) => {
+                pedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 atualizarTabelaPedidos();
-                atualizarFaturamentoFinanceiro(); // Atualiza os cards do financeiro
-            }, (error) => {
-                console.error("Erro ao carregar pedidos:", error);
+                atualizarGraficoFaturamento();
             });
-
-            // Listener de solicitações
-            const qSolicitacoes = query(collection(db, "solicitacoes_lojas"), where("status", "==", "pendente"));
-            solicitacoesUnsubscribe = onSnapshot(qSolicitacoes, (snapshot) => {
-                solicitacoes = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                atualizarListaSolicitacoes();
-            }, (error) => {
-                console.error("Erro ao carregar solicitações:", error);
+            onSnapshot(query(collection(db, "solicitacoes_lojas"), where("status", "==", "pendente")), (snap) => {
+                solicitacoes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                atualizarSolicitacoes();
             });
         }
 
-        function tratarDatasClientes() {
-            clientes.forEach(c => {
-                if (c.dataInicio && typeof c.dataInicio.toDate === 'function') {
-                    c.dataInicio = c.dataInicio.toDate().toISOString().split('T')[0];
-                }
-                if (c.dataVencimento && typeof c.dataVencimento.toDate === 'function') {
-                    c.dataVencimento = c.dataVencimento.toDate().toISOString().split('T')[0];
-                }
-            });
-        }
-
-        // ==================== FIREBASE HELPER ====================
-        function getFirebase() {
-            return {
-                db: window.db,
-                auth: window.auth,
-                authModules: window.authModules,
-                collection: window.collection,
-                addDoc: window.addDoc,
-                getDocs: window.getDocs,
-                doc: window.doc,
-                getDoc: window.getDoc,
-                setDoc: window.setDoc,
-                updateDoc: window.updateDoc,
-                deleteDoc: window.deleteDoc,
-                onSnapshot: window.onSnapshot,
-                query: window.query,
-                where: window.where,
-                orderBy: window.orderBy,
-                limit: window.limit,
-                Timestamp: window.Timestamp
-            };
-        }
-
-        // ==================== NAVEGAÇÃO ====================
-        function showSection(section) {
-            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(section + '-section').classList.remove('hidden');
-            
-            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-            document.getElementById('menu-' + section).classList.add('active');
-            
-            const titles = {
-                dashboard: 'Dashboard',
-                clientes: 'Lojas',
-                solicitacoes: 'Solicitações',
-                pedidos: 'Pedidos',
-                financeiro: 'Financeiro',
-                configuracoes: 'Configurações'
-            };
-            document.getElementById('page-title').innerText = titles[section] || 'Dashboard';
-        }
-
-        // ==================== DASHBOARD ====================
-        function atualizarDashboard() {
-            const total = clientes.length;
+        // --- DASHBOARD E UI ---
+        function atualizarUI() {
             const ativos = clientes.filter(c => c.status === 'ativo').length;
             const bloqueados = clientes.filter(c => c.status === 'bloqueado').length;
             const inadimplentes = clientes.filter(c => c.status === 'inadimplente').length;
             
-            document.getElementById('stats-cards').innerHTML = `
-                <div class="stat-card">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: ${coresPersonalizadas.primary}20;">
-                            <i class="fas fa-store text-2xl" style="color: ${coresPersonalizadas.primary};"></i>
-                        </div>
-                        <span class="text-3xl font-black text-gray-800">${total}</span>
-                    </div>
-                    <p class="text-gray-500 text-sm">Total de lojas</p>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: ${coresPersonalizadas.primary}20;">
-                            <i class="fas fa-check-circle text-2xl" style="color: ${coresPersonalizadas.primary};"></i>
-                        </div>
-                        <span class="text-3xl font-black" style="color: ${coresPersonalizadas.primary};">${ativos}</span>
-                    </div>
-                    <p class="text-gray-500 text-sm">Lojas ativas</p>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-ban text-2xl text-red-600"></i>
-                        </div>
-                        <span class="text-3xl font-black text-red-600">${bloqueados}</span>
-                    </div>
-                    <p class="text-gray-500 text-sm">Lojas bloqueadas</p>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: ${coresPersonalizadas.accent}20;">
-                            <i class="fas fa-exclamation-triangle text-2xl" style="color: ${coresPersonalizadas.accent};"></i>
-                        </div>
-                        <span class="text-3xl font-black" style="color: ${coresPersonalizadas.accent};">${inadimplentes}</span>
-                    </div>
-                    <p class="text-gray-500 text-sm">Inadimplentes</p>
-                </div>
+            setText('faturamento-mes', `R$ ${pedidos.reduce((acc, p) => acc + (p.total || 0), 0).toFixed(2)}`);
+            setText('receita-prevista', `R$ ${(ativos * mensalidadePadrao).toFixed(2)}`);
+            setText('inadimplencia', `${clientes.length ? ((inadimplentes / clientes.length) * 100).toFixed(1) : 0}%`);
+
+            const cards = document.getElementById('stats-cards');
+            if (cards) cards.innerHTML = `
+                <div class="stat-card border-l-4 border-blue-500"><p class="text-[9px] font-bold text-gray-400">TOTAL</p><p class="text-xl font-black">${clientes.length}</p></div>
+                <div class="stat-card border-l-4 border-emerald-500"><p class="text-[9px] font-bold text-gray-400">ATIVAS</p><p class="text-xl font-black text-emerald-600">${ativos}</p></div>
+                <div class="stat-card border-l-4 border-red-500"><p class="text-[9px] font-bold text-gray-400">BLOQUEADAS</p><p class="text-xl font-black text-red-600">${bloqueados}</p></div>
+                <div class="stat-card border-l-4 border-amber-500"><p class="text-[9px] font-bold text-gray-400">INADIMP</p><p class="text-xl font-black text-amber-600">${inadimplentes}</p></div>
             `;
-            
-            // Atualiza também os cards do financeiro
-            atualizarFaturamentoFinanceiro();
-        }
 
-        function atualizarFaturamentoFinanceiro() {
-            const ativos = clientes.filter(c => c.status === 'ativo').length;
-            const inadimplentes = clientes.filter(c => c.status === 'inadimplente').length;
-            const total = clientes.length;
-            
-            const faturamentoMensal = calcularFaturamentoMesAtual();
-            
-            document.getElementById('faturamento-mes').innerText = `R$ ${faturamentoMensal.toFixed(2).replace('.',',')}`;
-            
-            const receitaPrevista = ativos * mensalidadePadrao;
-            document.getElementById('receita-prevista').innerText = `R$ ${receitaPrevista.toFixed(2).replace('.',',')}`;
-            
-            const percInadimplencia = total > 0 ? ((inadimplentes / total) * 100).toFixed(1) : 0;
-            document.getElementById('inadimplencia').innerText = `${percInadimplencia}%`;
-        }
-
-        function calcularFaturamentoMesAtual() {
-            const hoje = new Date();
-            const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-            const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
-            
-            return pedidos
-                .filter(p => {
-                    if (!p.created_at || p.status === 'Cancelado') return false;
-                    const dataPedido = p.created_at.toDate ? p.created_at.toDate() : new Date(p.created_at);
-                    return dataPedido >= inicioMes && dataPedido <= fimMes;
-                })
-                .reduce((acc, p) => acc + (p.total || 0), 0);
-        }
-
-        // ==================== TABELA DE LOJAS ====================
-        function atualizarTabelaClientes() {
-            const hoje = new Date(); hoje.setHours(0,0,0,0);
-            
-            let html = '';
-            if (clientes.length === 0) {
-                html = `<tr><td colspan="7" class="text-center py-8 text-gray-500">Nenhuma loja cadastrada</td></tr>`;
-            } else {
-                clientes.forEach(c => {
-                    const venc = c.dataVencimento ? new Date(c.dataVencimento + 'T00:00:00') : null;
-                    const diff = venc ? Math.ceil((venc - hoje) / (1000*60*60*24)) : null;
-                    let diasClasse = '', diasTexto = '';
-                    
-                    if (diff !== null) {
-                        if (diff < 0) { diasClasse = 'badge-danger'; diasTexto = 'Vencido'; }
-                        else if (diff === 0) { diasClasse = 'badge-danger'; diasTexto = 'Vence hoje'; }
-                        else if (diff <= 3) { diasClasse = 'badge-warning'; diasTexto = `${diff} dias`; }
-                        else { diasClasse = 'badge-success'; diasTexto = `${diff} dias`; }
-                    }
-                    
-                    let statusClasse = '';
-                    let statusTexto = c.status || 'ativo';
-                    if (c.status === 'ativo') statusClasse = 'badge-success';
-                    else if (c.status === 'inadimplente') statusClasse = 'badge-warning';
-                    else statusClasse = 'badge-danger';
-                    
-                    const link = `${dominioBase}${c.link || c.nome?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'loja'}`;
-                    
-                    html += `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="font-semibold">${c.nome || '-'}</td>
-                        <td>${c.responsavel || '-'}</td>
-                        <td>${c.whatsapp || '-'}</td>
-                        <td>${c.plano || 'Mensal'}</td>
-                        <td>
-                            <span class="${diasClasse}">${diasTexto}</span>
-                            <div class="text-xs text-gray-400 mt-1">${c.dataVencimento || ''}</div>
-                        </td>
-                        <td>
-                            <span class="${statusClasse}">${statusTexto}</span>
-                        </td>
-                        <td>
-                            <div class="actions-footer">
-                                <button onclick="editarCliente('${c.id}')" class="action-button action-edit" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                    Editar
-                                </button>
-                                <button onclick="verDetalhesLoja('${c.id}')" class="action-button action-view" title="Detalhes">
-                                    <i class="fas fa-eye"></i>
-                                    Detalhes
-                                </button>
-                                <button onclick="toggleBloqueio('${c.id}', '${c.status}')" class="action-button action-block" title="${c.status === 'ativo' ? 'Bloquear' : 'Desbloquear'}">
-                                    <i class="fas ${c.status === 'ativo' ? 'fa-lock' : 'fa-unlock'}"></i>
-                                    ${c.status === 'ativo' ? 'Bloquear' : 'Desbloquear'}
-                                </button>
-                                <button onclick="enviarCobranca('${c.id}')" class="action-button action-whatsapp" title="Enviar cobrança">
-                                    <i class="fab fa-whatsapp"></i>
-                                    WhatsApp
-                                </button>
-                                <button onclick="excluirCliente('${c.id}')" class="action-button action-delete" title="Excluir">
-                                    <i class="fas fa-trash"></i>
-                                    Excluir
-                                </button>
-                            </div>
-                        </td>
-                    </tr>`;
-                });
-            }
-            document.getElementById('clientes-tbody').innerHTML = html;
-        }
-
-        // ==================== TABELA DE PEDIDOS ====================
-        function atualizarTabelaPedidos() {
-            const tbody = document.getElementById('pedidos-tbody');
-            if (!tbody) return;
-            
-            if (pedidos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500">Nenhum pedido encontrado</td></tr>`;
-                return;
-            }
-            
-            let html = '';
-            pedidos.slice(0, 10).forEach(p => {
-                const loja = clientes.find(c => c.id === p.lojaId) || { nome: 'Desconhecida' };
-                const data = p.created_at ? new Date(p.created_at.seconds * 1000).toLocaleString('pt-BR') : '-';
-                
-                html += `
-                <tr>
-                    <td class="font-mono text-xs">#${p.id.slice(-8)}</td>
-                    <td>${loja.nome}</td>
-                    <td>${p.cliente_nome || '-'}</td>
-                    <td class="font-bold">R$ ${(p.total || 0).toFixed(2).replace('.',',')}</td>
-                    <td><span class="badge-info">${p.status || 'Novo'}</span></td>
-                    <td class="text-sm">${data}</td>
-                    <td>
-                        <button onclick="verPedido('${p.id}')" class="action-button action-view">
-                            <i class="fas fa-eye"></i>
-                            Ver
-                        </button>
+            const tbody = document.getElementById('clientes-tbody');
+            if (tbody) tbody.innerHTML = clientes.map(c => `
+                <tr class="hover:bg-gray-50">
+                    <td><div class="font-bold text-sm">${c.nome}</div><div class="text-[10px] text-gray-400">${c.responsavel}</div></td>
+                    <td class="text-xs">${c.whatsapp}</td>
+                    <td><div class="text-xs font-bold">${c.plano}</div><div class="text-[10px] text-red-500">${c.dataVencimento || '-'}</div></td>
+                    <td><span class="px-2 py-1 rounded-full text-[9px] font-bold ${c.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${c.status}</span></td>
+                    <td class="flex gap-1">
+                        <button onclick="editarCliente('${c.id}')" class="p-2 bg-gray-100 rounded-lg"><i class="fas fa-edit"></i></button>
+                        <button onclick="toggleBloqueio('${c.id}', '${c.status}')" class="p-2 bg-gray-100 rounded-lg"><i class="fas fa-power-off"></i></button>
+                        <button onclick="enviarCobranca('${c.id}')" class="p-2 bg-green-100 text-green-600 rounded-lg"><i class="fab fa-whatsapp"></i></button>
                     </td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
+                </tr>
+            `).join('');
         }
 
-        // ==================== SOLICITAÇÕES ====================
-        function atualizarListaSolicitacoes() {
-            const container = document.getElementById('solicitacoes-lista');
-            const countSpan = document.getElementById('solicitacoes-count');
-            
-            if (!container) return;
-            
-            countSpan.innerText = `${solicitacoes.length} pendente${solicitacoes.length !== 1 ? 's' : ''}`;
+        // --- BLOQUEIO E ACESSO ---
+        async function toggleBloqueio(id, statusAtual) {
+            const novoStatus = statusAtual === 'ativo' ? 'bloqueado' : 'ativo';
+            const result = await Swal.fire({ title: 'Confirmar?', text: `Deseja ${novoStatus} esta loja?`, icon: 'warning', showCancelButton: true });
+            if (!result.isConfirmed) return;
+            try {
+                await updateDoc(doc(db, "clientes", id), { status: novoStatus });
+                const snap = await getDoc(doc(db, "clientes", id));
+                const link = snap.data().lojaId || snap.data().link;
+                if (link) await updateDoc(doc(db, "lojas", link), { status: novoStatus });
+                Swal.fire('Sucesso', 'Status alterado!', 'success');
+            } catch (e) { Swal.fire('Erro', e.message, 'error'); }
+        }
 
-            if (solicitacoes.length === 0) {
-                container.innerHTML = '<div class="text-center py-12 bg-gray-50 rounded-2xl"><p class="text-gray-500">Nenhuma solicitação pendente</p></div>';
-                return;
-            }
-
-            let html = '';
-            solicitacoes.forEach(s => {
-                const data = s.data_cadastro ? new Date(s.data_cadastro.seconds * 1000).toLocaleString('pt-BR') : 'Data não informada';
-                html += `
-                <div class="solicitacao-card">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <h4 class="font-bold text-lg text-gray-800">${s.nome_loja}</h4>
-                                <span class="badge-warning">Pendente</span>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <i class="fas fa-user w-5"></i>
-                                    <span>${s.responsavel || 'Não informado'}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <i class="fab fa-whatsapp w-5"></i>
-                                    <span>${s.whatsapp || 'Não informado'}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <i class="fas fa-envelope w-5"></i>
-                                    <span>${s.email || 'Não informado'}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <i class="fas fa-calendar w-5"></i>
-                                    <span>${data}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="aprovarSolicitacao('${s.id}')" class="btn-primary flex items-center gap-2">
-                                <i class="fas fa-check"></i>
-                                Aprovar
-                            </button>
-                            <button onclick="rejeitarSolicitacao('${s.id}')" class="btn-danger flex items-center gap-2">
-                                <i class="fas fa-times"></i>
-                                Rejeitar
-                            </button>
-                        </div>
+        // --- SOLICITAÇÕES ---
+        function atualizarSolicitacoes() {
+            setText('solicitacoes-count', solicitacoes.length);
+            const lista = document.getElementById('solicitacoes-lista');
+            if (!lista) return;
+            lista.innerHTML = solicitacoes.map(s => `
+                <div class="p-4 bg-gray-50 rounded-2xl flex justify-between items-center border">
+                    <div><h4 class="font-bold text-sm">${s.nome_loja}</h4><p class="text-xs text-gray-500">${s.email} | ${s.whatsapp}</p></div>
+                    <div class="flex gap-2">
+                        <button onclick="aprovarSolicitacao('${s.id}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Aprovar</button>
+                        <button onclick="rejeitarSolicitacao('${s.id}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Rejeitar</button>
                     </div>
-                </div>`;
-            });
-            container.innerHTML = html;
+                </div>
+            `).join('');
         }
 
-        // ==================== MODAL CLIENTE ====================
+        async function aprovarSolicitacao(id) {
+            const s = solicitacoes.find(x => x.id === id);
+            try {
+                const uc = await authModules.createUserWithEmailAndPassword(auth, s.email, s.senha);
+                const uid = uc.user.uid;
+                const lojaId = s.nome_loja.toLowerCase().replace(/\s+/g, '-');
+                await setDoc(doc(db, "clientes", uid), { nome: s.nome_loja, responsavel: s.responsavel, email: s.email, whatsapp: s.whatsapp, status: 'ativo', plano: 'Mensal', lojaId: lojaId });
+                await setDoc(doc(db, "lojas", lojaId), { nome_loja: s.nome_loja, status: 'ativo', data_criacao: Timestamp.now() });
+                await updateDoc(doc(db, "solicitacoes_lojas", id), { status: 'aprovado' });
+                Swal.fire('Sucesso', 'Loja criada e ativa!', 'success');
+            } catch (e) { Swal.fire('Erro', e.message, 'error'); }
+        }
+
+        // --- GRÁFICOS ---
+        function inicializarGraficos() {
+            const ctxD = document.getElementById('grafico-distribuicao').getContext('2d');
+            graficoDistribuicao = new Chart(ctxD, {
+                type: 'doughnut', data: { labels: ['Ativas', 'Bloqueadas'], datasets: [{ data: [0,0], backgroundColor: ['#10b981', '#ef4444'] }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+            const ctxF = document.getElementById('grafico-faturamento').getContext('2d');
+            graficoFaturamento = new Chart(ctxF, {
+                type: 'line', data: { labels: ['Jan','Fev','Mar','Abr','Mai','Jun'], datasets: [{ label: 'Faturamento', data: [0,0,0,0,0,0], borderColor: '#059669', fill: true, backgroundColor: 'rgba(5, 150, 105, 0.1)' }] },
+                options: { maintainAspectRatio: false }
+            });
+        }
+
+        function atualizarGraficos() {
+            if (!graficoDistribuicao) return;
+            graficoDistribuicao.data.datasets[0].data = [clientes.filter(c => c.status === 'ativo').length, clientes.filter(c => c.status === 'bloqueado').length];
+            graficoDistribuicao.update();
+        }
+
+        function atualizarGraficoFaturamento() {
+            if (!graficoFaturamento) return;
+            graficoFaturamento.data.datasets[0].data = [0,0,0,0,0,pedidos.reduce((a,b)=>a+(b.total||0),0)];
+            graficoFaturamento.update();
+        }
+
+        // --- OUTRAS FUNÇÕES ORIGINAIS ---
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section + '-section').classList.remove('hidden');
+            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+            document.getElementById('menu-' + section).classList.add('active');
+        }
+
         function novoCliente() {
             document.getElementById('modal-titulo').innerText = 'Nova Loja';
             document.getElementById('cliente-id').value = '';
-            document.getElementById('campo-nome').value = '';
-            document.getElementById('campo-responsavel').value = '';
-            document.getElementById('campo-whatsapp').value = '';
-            document.getElementById('campo-email').value = '';
-            document.getElementById('campo-plano').value = 'Mensal';
-            
-            const hoje = new Date().toISOString().split('T')[0];
-            document.getElementById('campo-data-inicio').value = hoje;
-            const venc = new Date(); venc.setDate(venc.getDate() + 30);
-            document.getElementById('campo-data-vencimento').value = venc.toISOString().split('T')[0];
-            
-            document.getElementById('campo-status').value = 'ativo';
-            
             document.getElementById('modal-cliente').classList.remove('hidden');
         }
 
         function editarCliente(id) {
-            const c = clientes.find(c => c.id === id);
-            if (!c) return;
-            
+            const c = clientes.find(x => x.id === id);
             document.getElementById('modal-titulo').innerText = 'Editar Loja';
             document.getElementById('cliente-id').value = id;
-            document.getElementById('campo-nome').value = c.nome || '';
-            document.getElementById('campo-responsavel').value = c.responsavel || '';
-            document.getElementById('campo-whatsapp').value = c.whatsapp || '';
-            document.getElementById('campo-email').value = c.email || '';
-            document.getElementById('campo-plano').value = c.plano || 'Mensal';
-            document.getElementById('campo-data-inicio').value = c.dataInicio || '';
-            document.getElementById('campo-data-vencimento').value = c.dataVencimento || '';
-            document.getElementById('campo-status').value = c.status || 'ativo';
-            
+            document.getElementById('campo-nome').value = c.nome;
+            document.getElementById('campo-responsavel').value = c.responsavel;
+            document.getElementById('campo-whatsapp').value = c.whatsapp;
+            document.getElementById('campo-email').value = c.email;
             document.getElementById('modal-cliente').classList.remove('hidden');
         }
 
-        function fecharModal() {
-            document.getElementById('modal-cliente').classList.add('hidden');
-        }
+        function fecharModal() { document.getElementById('modal-cliente').classList.add('hidden'); }
 
         async function salvarCliente() {
-            const { db, doc, updateDoc, addDoc, collection, Timestamp } = getFirebase();
-            
             const id = document.getElementById('cliente-id').value;
-            const nome = document.getElementById('campo-nome').value.trim();
-            if (!nome) {
-                Swal.fire('Atenção', 'Nome da loja é obrigatório', 'warning');
-                return;
-            }
-            
-            const link = nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-            
-            const dataInicio = document.getElementById('campo-data-inicio').value;
-            const dataVencimento = document.getElementById('campo-data-vencimento').value;
-            
             const dados = {
-                nome,
+                nome: document.getElementById('campo-nome').value,
                 responsavel: document.getElementById('campo-responsavel').value,
                 whatsapp: document.getElementById('campo-whatsapp').value,
                 email: document.getElementById('campo-email').value,
                 plano: document.getElementById('campo-plano').value,
-                link,
-                status: document.getElementById('campo-status').value,
-                dataInicio: dataInicio ? Timestamp.fromDate(new Date(dataInicio + 'T00:00:00')) : null,
-                dataVencimento: dataVencimento ? Timestamp.fromDate(new Date(dataVencimento + 'T00:00:00')) : null
+                dataInicio: document.getElementById('campo-data-inicio').value,
+                dataVencimento: document.getElementById('campo-data-vencimento').value,
+                status: document.getElementById('campo-status').value
             };
-            
             try {
-                if (id) {
-                    await updateDoc(doc(db, "clientes", id), dados);
-                    Swal.fire('Sucesso', 'Loja atualizada!', 'success');
-                } else {
-                    await addDoc(collection(db, "clientes"), dados);
-                    Swal.fire('Sucesso', 'Loja cadastrada!', 'success');
-                }
-                fecharModal();
-            } catch (error) {
-                console.error(error);
-                Swal.fire('Erro', 'Não foi possível salvar', 'error');
-            }
+                if (id) await updateDoc(doc(db, "clientes", id), dados);
+                else await addDoc(collection(db, "clientes"), dados);
+                fecharModal(); Swal.fire('Sucesso', 'Loja salva!', 'success');
+            } catch (e) { Swal.fire('Erro', e.message, 'error'); }
         }
 
-        // ==================== AÇÕES ====================
-        async function toggleBloqueio(id, statusAtual) {
-            const novoStatus = statusAtual === 'ativo' ? 'bloqueado' : 'ativo';
-            const { db, doc, updateDoc } = getFirebase();
-            try {
-                await updateDoc(doc(db, "clientes", id), { status: novoStatus });
-                Swal.fire('Sucesso', `Loja ${novoStatus === 'ativo' ? 'desbloqueada' : 'bloqueada'}!`, 'success');
-            } catch (error) {
-                Swal.fire('Erro', 'Erro ao alterar status', 'error');
-            }
-        }
-
-        function enviarCobranca(id) {
-            const cliente = clientes.find(c => c.id === id);
-            if (!cliente || !cliente.whatsapp) {
-                Swal.fire('Atenção', 'Cliente sem WhatsApp cadastrado', 'warning');
-                return;
-            }
-            
-            const venc = cliente.dataVencimento ? new Date(cliente.dataVencimento + 'T00:00:00') : null;
-            const diff = venc ? Math.ceil((venc - new Date()) / (1000*60*60*24)) : '?';
-            const mensagem = `Olá ${cliente.responsavel || cliente.nome}! A mensalidade do seu cardápio digital vence em ${diff} dias. Para evitar bloqueio, realize o pagamento. Qualquer dúvida, estamos à disposição.`;
-            
-            const url = `https://wa.me/${cliente.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(mensagem)}`;
-            window.open(url, '_blank');
-        }
-
-        async function excluirCliente(id) {
-            const result = await Swal.fire({
-                title: 'Confirmar exclusão',
-                text: 'Esta ação não poderá ser desfeita!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                confirmButtonText: 'Excluir',
-                cancelButtonText: 'Cancelar'
-            });
-            
-            if (!result.isConfirmed) return;
-            
-            const { db, doc, deleteDoc } = getFirebase();
-            try {
-                await deleteDoc(doc(db, "clientes", id));
-                Swal.fire('Excluído!', 'Cliente removido.', 'success');
-            } catch (error) {
-                Swal.fire('Erro', 'Erro ao excluir', 'error');
-            }
-        }
-
-        // ==================== ALERTAS ====================
-        function atualizarAlertas() {
-            const hoje = new Date(); hoje.setHours(0,0,0,0);
-            const alertas = clientes.filter(c => {
-                if (!c.dataVencimento || c.status !== 'ativo') return false;
-                const venc = new Date(c.dataVencimento + 'T00:00:00');
-                const diff = Math.ceil((venc - hoje) / (1000*60*60*24));
-                return diff >= 0 && diff <= diasAviso;
-            }).sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
-            
-            const container = document.getElementById('alerta-lista');
-            if (!container) return;
-            
-            if (alertas.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum alerta próximo.</p>';
-                return;
-            }
-            
-            let html = '';
-            alertas.forEach(c => {
-                const venc = new Date(c.dataVencimento + 'T00:00:00');
-                const diff = Math.ceil((venc - hoje) / (1000*60*60*24));
-                html += `
-                <div class="flex items-center justify-between p-4 bg-amber-50 rounded-xl">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-exclamation-triangle text-amber-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-gray-800">${c.nome}</p>
-                            <p class="text-sm text-gray-600">Vence em <span class="font-bold ${diff <= 1 ? 'text-red-600' : 'text-amber-600'}">${diff} dia(s)</span></p>
-                        </div>
-                    </div>
-                    <button onclick="enviarCobranca('${c.id}')" class="btn-primary text-sm py-2 px-4">
-                        <i class="fab fa-whatsapp mr-2"></i>
-                        Cobrar
-                    </button>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        // ==================== SOLICITAÇÕES (APROVAR/REJEITAR) ====================
-        function gerarLojaId(nome) {
-            const base = nome.toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/(^-|-$)/g, '');
-            const sufixo = Math.floor(Math.random() * 1000);
-            return `${base}-${sufixo}`;
-        }
-
-        async function aprovarSolicitacao(id) {
-            const result = await Swal.fire({
-                title: 'Aprovar loja?',
-                text: 'Ao aprovar, um usuário será criado no Authentication e a loja estará disponível.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: coresPersonalizadas.primary,
-                confirmButtonText: 'Sim, aprovar',
-                cancelButtonText: 'Cancelar'
-            });
-            if (!result.isConfirmed) return;
-
-            try {
-                const { db, auth, authModules, doc, updateDoc, setDoc, collection, Timestamp, getDoc } = getFirebase();
-
-                const solicRef = doc(db, "solicitacoes_lojas", id);
-                const solicSnap = await getDoc(solicRef);
-                if (!solicSnap.exists()) throw new Error("Solicitação não encontrada");
-                const dados = solicSnap.data();
-
-                // 1. Criar usuário no Authentication
-                const userCredential = await authModules.createUserWithEmailAndPassword(auth, dados.email, dados.senha);
-                const uid = userCredential.user.uid;
-
-                // 2. Gerar lojaId
-                const lojaId = gerarLojaId(dados.nome_loja);
-
-                // 3. Criar documento em clientes
-                const hoje = new Date();
-                const venc = new Date(); venc.setDate(venc.getDate() + 30);
-
-                await setDoc(doc(db, "clientes", uid), {
-                    lojaId: lojaId,
-                    nome: dados.nome_loja,
-                    responsavel: dados.responsavel,
-                    email: dados.email,
-                    whatsapp: dados.whatsapp,
-                    status: "ativo",
-                    plano: "Mensal",
-                    dataInicio: Timestamp.fromDate(hoje),
-                    dataVencimento: Timestamp.fromDate(venc),
-                    link: lojaId
-                });
-
-                // 4. Criar documento da loja
-                await setDoc(doc(db, "lojas", lojaId), {
-                    nome_loja: dados.nome_loja,
-                    responsavel: dados.responsavel,
-                    whatsapp: dados.whatsapp,
-                    email: dados.email,
-                    status: "ativo",
-                    usa_montador: true,
-                    data_criacao: Timestamp.now()
-                });
-
-                // 5. Criar configurações iniciais
-                await setDoc(doc(db, "lojas", lojaId, "configuracoes", "geral"), {
-                    nome_pizzaria: dados.nome_loja,
-                    loja_aberta: true,
-                    taxa_base: 6,
-                    preco_km: 2.5,
-                    pedido_minimo: 35,
-                    logo_url: ""
-                });
-
-                // 6. Atualizar solicitação
-                await updateDoc(solicRef, { 
-                    status: "aprovado", 
-                    aprovadoEm: Timestamp.now(),
-                    uid: uid,
-                    lojaId: lojaId
-                });
-
-                Swal.fire({
-                    title: 'Aprovado!',
-                    html: `Loja criada com sucesso.<br>Link do cardápio:<br><strong>${dominioBase}${lojaId}</strong>`,
-                    icon: 'success'
-                });
-            } catch (error) {
-                console.error("Erro ao aprovar solicitação:", error);
-                if (error.code === 'auth/email-already-in-use') {
-                    Swal.fire('Erro', 'Este e-mail já está em uso por outro usuário.', 'error');
-                } else {
-                    Swal.fire('Erro', 'Não foi possível aprovar a solicitação: ' + error.message, 'error');
-                }
-            }
-        }
-
-        async function rejeitarSolicitacao(id) {
-            const result = await Swal.fire({
-                title: 'Rejeitar solicitação?',
-                text: 'Esta ação não poderá ser desfeita.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Rejeitar',
-                cancelButtonText: 'Cancelar'
-            });
-            if (!result.isConfirmed) return;
-
-            try {
-                const { db, doc, updateDoc, Timestamp } = getFirebase();
-                await updateDoc(doc(db, "solicitacoes_lojas", id), {
-                    status: "rejeitado",
-                    rejeitadoEm: Timestamp.now()
-                });
-                Swal.fire('Rejeitado!', 'Solicitação rejeitada.', 'success');
-            } catch (error) {
-                console.error("Erro ao rejeitar solicitação:", error);
-                Swal.fire('Erro', 'Não foi possível rejeitar a solicitação.', 'error');
-            }
-        }
-
-        // ==================== CONFIGURAÇÕES ====================
         function carregarConfiguracoes() {
             const saved = localStorage.getItem('saasConfig');
             if (saved) {
                 const cfg = JSON.parse(saved);
                 mensalidadePadrao = cfg.mensalidade || 97.00;
-                diasAviso = cfg.diasAviso || 3;
-                dominioBase = cfg.dominio || "https://danamorim1347-max.github.io/lamen/?loja=";
+                dominioBase = cfg.dominio || "";
             }
             document.getElementById('config-mensalidade').value = mensalidadePadrao;
-            document.getElementById('config-dias-aviso').value = diasAviso;
             document.getElementById('config-dominio').value = dominioBase;
         }
 
         function salvarConfiguracoes() {
-            mensalidadePadrao = parseFloat(document.getElementById('config-mensalidade').value) || 97.00;
-            diasAviso = parseInt(document.getElementById('config-dias-aviso').value) || 3;
-            dominioBase = document.getElementById('config-dominio').value || "https://danamorim1347-max.github.io/lamen/?loja=";
-            
-            localStorage.setItem('saasConfig', JSON.stringify({
-                mensalidade: mensalidadePadrao,
-                diasAviso: diasAviso,
-                dominio: dominioBase
-            }));
-            
-            Swal.fire('Configurações salvas!', '', 'success');
-            atualizarDashboard();
-            atualizarTabelaClientes();
+            mensalidadePadrao = parseFloat(document.getElementById('config-mensalidade').value);
+            dominioBase = document.getElementById('config-dominio').value;
+            localStorage.setItem('saasConfig', JSON.stringify({ mensalidade: mensalidadePadrao, dominio: dominioBase }));
+            Swal.fire('Salvo!', '', 'success');
         }
 
-        // ==================== FUNÇÕES AUXILIARES ====================
-        function verDetalhesLoja(id) {
-            const loja = clientes.find(c => c.id === id);
-            if (!loja) return;
-            
-            const link = `${dominioBase}${loja.link || ''}`;
-            
-            Swal.fire({
-                title: loja.nome,
-                html: `
-                    <div class="text-left space-y-2">
-                        <p><strong>Responsável:</strong> ${loja.responsavel || '-'}</p>
-                        <p><strong>WhatsApp:</strong> ${loja.whatsapp || '-'}</p>
-                        <p><strong>E-mail:</strong> ${loja.email || '-'}</p>
-                        <p><strong>Plano:</strong> ${loja.plano || 'Mensal'}</p>
-                        <p><strong>Status:</strong> ${loja.status || 'ativo'}</p>
-                        <p><strong>Data de início:</strong> ${loja.dataInicio || '-'}</p>
-                        <p><strong>Data de vencimento:</strong> ${loja.dataVencimento || '-'}</p>
-                        <p><strong>Link do cardápio:</strong><br>
-                        <a href="${link}" target="_blank" class="text-emerald-600 break-all">${link}</a></p>
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonColor: coresPersonalizadas.primary,
-                width: 600
-            });
+        function selecionarCor(tipo, hex) {
+            coresPersonalizadas[tipo] = hex;
+            document.getElementById('logo-part1').style.color = hex;
+            document.querySelectorAll('.btn-primary').forEach(b => b.style.background = hex);
         }
 
-        function verPedido(id) {
-            const pedido = pedidos.find(p => p.id === id);
-            if (!pedido) return;
-            
-            const loja = clientes.find(c => c.id === pedido.lojaId) || { nome: 'Desconhecida' };
-            const data = pedido.created_at ? new Date(pedido.created_at.seconds * 1000).toLocaleString('pt-BR') : '-';
-            
-            let itensHtml = '';
-            if (pedido.itens_quantidade) {
-                itensHtml = Object.entries(pedido.itens_quantidade)
-                    .map(([item, qtd]) => `<li>${qtd}x ${item}</li>`)
-                    .join('');
-            }
-            
-            Swal.fire({
-                title: `Pedido #${id.slice(-8)}`,
-                html: `
-                    <div class="text-left space-y-2">
-                        <p><strong>Loja:</strong> ${loja.nome}</p>
-                        <p><strong>Cliente:</strong> ${pedido.cliente_nome || '-'}</p>
-                        <p><strong>WhatsApp:</strong> ${pedido.cliente_whatsapp || '-'}</p>
-                        <p><strong>Endereço:</strong> ${pedido.rua || ''}, ${pedido.numero || ''} - ${pedido.bairro || ''}</p>
-                        <p><strong>Total:</strong> R$ ${(pedido.total || 0).toFixed(2).replace('.',',')}</p>
-                        <p><strong>Status:</strong> ${pedido.status || 'Novo'}</p>
-                        <p><strong>Data:</strong> ${data}</p>
-                        ${itensHtml ? `<div><strong>Itens:</strong><ul class="list-disc pl-5">${itensHtml}</ul></div>` : ''}
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonColor: coresPersonalizadas.primary,
-                width: 600
-            });
-        }
+        function resetarCores() { location.reload(); }
+        function salvarPersonalizacao() { localStorage.setItem('painelCores', JSON.stringify(coresPersonalizadas)); Swal.fire('Aplicado!', '', 'success'); }
 
-        async function sairAdmin() {
-            const { auth, authModules } = getFirebase();
-            await authModules.signOut(auth);
-            window.location.reload();
-        }
+        async function sairAdmin() { await signOut(auth); window.location.reload(); }
 
-        function exportarRelatorio() {
-            Swal.fire({
-                title: 'Exportar relatório',
-                text: 'Funcionalidade em desenvolvimento',
-                icon: 'info',
-                confirmButtonColor: coresPersonalizadas.primary
-            });
-        }
-
-        // ==================== EXPORTAR FUNÇÕES ====================
-        window.showSection = showSection;
-        window.novoCliente = novoCliente;
-        window.editarCliente = editarCliente;
-        window.fecharModal = fecharModal;
-        window.salvarCliente = salvarCliente;
-        window.toggleBloqueio = toggleBloqueio;
-        window.enviarCobranca = enviarCobranca;
-        window.excluirCliente = excluirCliente;
-        window.salvarConfiguracoes = salvarConfiguracoes;
-        window.aprovarSolicitacao = aprovarSolicitacao;
-        window.rejeitarSolicitacao = rejeitarSolicitacao;
-        window.verDetalhesLoja = verDetalhesLoja;
-        window.verPedido = verPedido;
+        // --- EXPORTAR PARA WINDOW ---
+        window.showSection = showSection; window.novoCliente = novoCliente; window.fecharModal = fecharModal;
+        window.salvarCliente = salvarCliente; window.toggleBloqueio = toggleBloqueio; window.editarCliente = editarCliente;
+        window.aprovarSolicitacao = aprovarSolicitacao; window.salvarConfiguracoes = salvarConfiguracoes;
+        window.selecionarCor = selecionarCor; window.resetarCores = resetarCores; window.salvarPersonalizacao = salvarPersonalizacao;
         window.sairAdmin = sairAdmin;
-        window.exportarRelatorio = exportarRelatorio;
-        
-        // Funções de personalização
-        window.selecionarCor = selecionarCor;
-        window.salvarPersonalizacao = salvarPersonalizacao;
-        window.resetarCores = resetarCores;
-        window.aplicarTema = aplicarTema;
     </script>
 </body>
 </html>
