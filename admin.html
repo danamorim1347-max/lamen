@@ -29,12 +29,25 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        window.db = db; window.auth = auth; window.onAuthStateChanged = onAuthStateChanged;
-        window.signOut = signOut; window.doc = doc; window.getDoc = getDoc;
-        window.updateDoc = updateDoc; window.setDoc = setDoc; window.addDoc = addDoc;
-        window.collection = collection; window.onSnapshot = onSnapshot; window.query = query;
-        window.where = where; window.orderBy = orderBy; window.limit = limit;
-        window.Timestamp = Timestamp; window.authModules = { createUserWithEmailAndPassword };
+        // EXPOR TODAS AS FUNÇÕES DO FIREBASE NO ESCOPO GLOBAL
+        window.db = db; 
+        window.auth = auth; 
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut; 
+        window.doc = doc; 
+        window.getDoc = getDoc;
+        window.updateDoc = updateDoc; 
+        window.setDoc = setDoc; 
+        window.addDoc = addDoc;
+        window.collection = collection; 
+        window.onSnapshot = onSnapshot; 
+        window.query = query;
+        window.where = where; 
+        window.orderBy = orderBy; 
+        window.limit = limit;
+        window.Timestamp = Timestamp; 
+        window.deleteDoc = deleteDoc; // <-- ESSENCIAL PARA O BOTÃO EXCLUIR
+        window.authModules = { createUserWithEmailAndPassword };
 
         if (window.startApp) window.startApp();
     </script>
@@ -51,6 +64,9 @@
         .btn-secondary { background: white; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 12px; font-size: 0.8rem; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        .badge-success { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge-warning { background: #fed7aa; color: #92400e; padding: 4px 10px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge-danger { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
     </style>
 </head>
 <body>
@@ -101,9 +117,17 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="text-left text-gray-500"><th>Loja</th><th>WhatsApp</th><th>Plano/Venc</th><th>Status</th><th>Ações</th></tr>
+                            <tr class="text-left text-gray-500">
+                                <th>Loja</th>
+                                <th>WhatsApp</th>
+                                <th>Plano/Venc</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
                         </thead>
-                        <tbody id="clientes-tbody"></tbody>
+                        <tbody id="clientes-tbody">
+                            <tr><td colspan="5" class="text-center py-8 text-gray-400">Carregando...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -112,7 +136,10 @@
         <!-- SOLICITAÇÕES -->
         <div id="solicitacoes-section" class="section hidden fade-in">
             <div class="bg-white rounded-3xl p-4 shadow-sm border">
-                <h3 class="font-bold text-gray-800 mb-6">Solicitações Pendentes <span id="solicitacoes-count" class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs ml-2">0</span></h3>
+                <h3 class="font-bold text-gray-800 mb-6">
+                    Solicitações Pendentes 
+                    <span id="solicitacoes-count" class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs ml-2">0</span>
+                </h3>
                 <div id="solicitacoes-lista" class="space-y-4"></div>
             </div>
         </div>
@@ -124,9 +151,18 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="text-left text-gray-500"><th>ID</th><th>Loja</th><th>Cliente</th><th>Total</th><th>Status</th><th>Ações</th></tr>
+                            <tr class="text-left text-gray-500">
+                                <th>ID</th>
+                                <th>Loja</th>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
                         </thead>
-                        <tbody id="pedidos-tbody"></tbody>
+                        <tbody id="pedidos-tbody">
+                            <tr><td colspan="6" class="text-center py-8 text-gray-400">Carregando...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -138,8 +174,14 @@
                 <div class="stat-card">
                     <h3 class="font-bold mb-6">Configurações Gerais</h3>
                     <div class="space-y-4">
-                        <div><label class="text-xs font-bold text-gray-500">Mensalidade Padrão (R$)</label><input type="number" id="config-mensalidade" class="w-full p-3 border rounded-xl"></div>
-                        <div><label class="text-xs font-bold text-gray-500">URL Base do Cardápio</label><input type="text" id="config-dominio" class="w-full p-3 border rounded-xl"></div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">Mensalidade Padrão (R$)</label>
+                            <input type="number" id="config-mensalidade" class="w-full p-3 border rounded-xl" value="97.00">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500">URL Base do Cardápio</label>
+                            <input type="text" id="config-dominio" class="w-full p-3 border rounded-xl" value="https://danamorim1347-max.github.io/lamen/?loja=">
+                        </div>
                         <button onclick="salvarConfiguracoes()" class="btn-primary w-full">Salvar</button>
                     </div>
                 </div>
@@ -148,7 +190,7 @@
                     <div class="space-y-4">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold">Cor Primária</span>
-                            <input type="color" id="cor-primary-custom" onchange="selecionarCor('primary', this.value)" class="w-10 h-10 rounded-lg border-2 cursor-pointer">
+                            <input type="color" id="cor-primary-custom" onchange="selecionarCor('primary', this.value)" class="w-10 h-10 rounded-lg border-2 cursor-pointer" value="#059669">
                         </div>
                         <button onclick="resetarCores()" class="btn-secondary w-full">Resetar Padrão</button>
                         <button onclick="salvarPersonalizacao()" class="btn-primary w-full">Aplicar Cores</button>
@@ -204,7 +246,22 @@
                     setText('admin-email', user.email);
                     carregarConfiguracoes();
                     iniciarListeners();
-                } else { window.location.href = "login.html"; }
+                } else { 
+                    console.log("Usuário não logado - modo demonstração");
+                    // Dados de demonstração
+                    setTimeout(() => {
+                        clientes = [
+                            { id: '1', nome: 'Pizzaria Demo', responsavel: 'João', whatsapp: '11999999999', plano: 'Mensal', dataVencimento: '2024-12-31', status: 'ativo', lojaId: 'demo' },
+                            { id: '2', nome: 'Pizza Express', responsavel: 'Maria', whatsapp: '11988888888', plano: 'Anual', dataVencimento: '2025-06-30', status: 'ativo', lojaId: 'express' }
+                        ];
+                        pedidos = [
+                            { id: 'abc123', loja: 'Pizzaria Demo', cliente_nome: 'Carlos', total: 45.90, status: 'entregue' },
+                            { id: 'def456', loja: 'Pizza Express', cliente_nome: 'Ana', total: 32.50, status: 'pendente' }
+                        ];
+                        atualizarTabelaLojas();
+                        atualizarTabelaPedidos();
+                    }, 1000);
+                }
             });
         };
 
@@ -223,27 +280,66 @@
             });
         }
 
-        // --- TABELA DE LOJAS (COM BOTÃO EXCLUIR) ---
+        // --- TABELA DE LOJAS ---
         function atualizarTabelaLojas() {
             const tbody = document.getElementById('clientes-tbody');
             if (!tbody) return;
-            tbody.innerHTML = clientes.map(c => `
+            
+            if (clientes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Nenhuma loja cadastrada</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = clientes.map(c => {
+                // Formatar data de vencimento
+                let dataVenc = '-';
+                if (c.dataVencimento) {
+                    try {
+                        if (c.dataVencimento.toDate) {
+                            dataVenc = c.dataVencimento.toDate().toLocaleDateString('pt-BR');
+                        } else {
+                            dataVenc = new Date(c.dataVencimento).toLocaleDateString('pt-BR');
+                        }
+                    } catch (e) {
+                        dataVenc = c.dataVencimento;
+                    }
+                }
+                
+                return `
                 <tr class="hover:bg-gray-50 border-b">
-                    <td class="py-2"><div class="font-bold text-sm">${c.nome}</div><div class="text-[10px] text-gray-400">${c.responsavel || ''}</div></td>
-                    <td class="text-xs">${c.whatsapp || ''}</td>
-                    <td><div class="text-xs font-bold">${c.plano || 'Mensal'}</div><div class="text-[10px] text-red-500">${c.dataVencimento || '-'}</div></td>
-                    <td><span class="px-2 py-1 rounded-full text-[9px] font-bold ${c.status === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${c.status}</span></td>
+                    <td class="py-2">
+                        <div class="font-bold text-sm">${c.nome || ''}</div>
+                        <div class="text-[10px] text-gray-400">${c.responsavel || ''}</div>
+                    </td>
+                    <td class="text-xs">${c.whatsapp || '-'}</td>
+                    <td>
+                        <div class="text-xs font-bold">${c.plano || 'Mensal'}</div>
+                        <div class="text-[10px] text-red-500">${dataVenc}</div>
+                    </td>
+                    <td>
+                        <span class="px-2 py-1 rounded-full text-[9px] font-bold ${c.status === 'ativo' ? 'bg-green-100 text-green-700' : c.status === 'inadimplente' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
+                            ${c.status || 'ativo'}
+                        </span>
+                    </td>
                     <td class="flex gap-1 py-2">
-                        <button onclick="editarCliente('${c.id}')" class="p-2 bg-gray-100 rounded-lg" title="Editar"><i class="fas fa-edit"></i></button>
-                        <button onclick="toggleBloqueio('${c.id}', '${c.status}')" class="p-2 bg-gray-100 rounded-lg" title="Bloquear/Desbloquear"><i class="fas fa-power-off"></i></button>
-                        <button onclick="enviarCobranca('${c.id}')" class="p-2 bg-green-100 text-green-600 rounded-lg" title="Cobrar via WhatsApp"><i class="fab fa-whatsapp"></i></button>
-                        <button onclick="excluirCliente('${c.id}')" class="p-2 bg-red-100 text-red-600 rounded-lg" title="Excluir loja"><i class="fas fa-trash"></i></button>
+                        <button onclick="editarCliente('${c.id}')" class="p-2 bg-gray-100 rounded-lg hover:bg-gray-200" title="Editar">
+                            <i class="fas fa-edit text-xs"></i>
+                        </button>
+                        <button onclick="toggleBloqueio('${c.id}', '${c.status}')" class="p-2 bg-gray-100 rounded-lg hover:bg-gray-200" title="Bloquear/Desbloquear">
+                            <i class="fas fa-power-off text-xs"></i>
+                        </button>
+                        <button onclick="enviarCobranca('${c.id}')" class="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200" title="Cobrar via WhatsApp">
+                            <i class="fab fa-whatsapp text-xs"></i>
+                        </button>
+                        <button onclick="excluirCliente('${c.id}')" class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200" title="Excluir loja">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
-        // --- EXCLUIR LOJA (NOVA FUNÇÃO) ---
+        // --- EXCLUIR LOJA (CORRIGIDO) ---
         async function excluirCliente(id) {
             const cliente = clientes.find(c => c.id === id);
             if (!cliente) return;
@@ -260,16 +356,37 @@
             });
             if (!result.isConfirmed) return;
 
+            // Feedback visual no botão
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
             try {
-                // Remove da coleção clientes
-                await deleteDoc(doc(db, "clientes", id));
-                // Se houver lojaId vinculado, remove também da coleção lojas
-                if (cliente.lojaId) {
-                    await deleteDoc(doc(db, "lojas", cliente.lojaId)).catch(() => {}); // ignora se não existir
+                // Verificar se está no modo demonstração (sem Firebase)
+                if (!window.db) {
+                    // Modo demonstração - apenas remover da lista local
+                    clientes = clientes.filter(c => c.id !== id);
+                    atualizarTabelaLojas();
+                    Swal.fire('Excluído!', 'Loja removida (modo demonstração).', 'success');
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
                 }
+
+                // Modo Firebase real
+                await deleteDoc(doc(db, "clientes", id));
+                if (cliente.lojaId) {
+                    await deleteDoc(doc(db, "lojas", cliente.lojaId)).catch(() => {});
+                }
+                
                 Swal.fire('Excluído!', 'Loja removida com sucesso.', 'success');
             } catch (e) {
-                Swal.fire('Erro', e.message, 'error');
+                console.error("Erro ao excluir:", e);
+                Swal.fire('Erro', e.message || 'Erro ao excluir loja', 'error');
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
             }
         }
 
@@ -277,22 +394,54 @@
         function atualizarTabelaPedidos() {
             const tbody = document.getElementById('pedidos-tbody');
             if (!tbody) return;
-            tbody.innerHTML = pedidos.map(p => `
+            
+            if (pedidos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-400">Nenhum pedido encontrado</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = pedidos.map(p => {
+                const lojaNome = (typeof p.loja === 'string') ? p.loja : (p.lojaId ? clientes.find(c => c.lojaId === p.lojaId)?.nome : '—');
+                
+                return `
                 <tr class="hover:bg-gray-50 border-b">
-                    <td class="py-2 text-xs">${p.id.slice(0,6)}...</td>
-                    <td class="text-xs">${p.loja || '—'}</td>
-                    <td class="text-xs">${p.cliente || '—'}</td>
-                    <td class="text-xs font-bold">R$ ${(p.total || 0).toFixed(2)}</td>
-                    <td><span class="px-2 py-1 rounded-full text-[9px] font-bold ${p.status === 'entregue' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${p.status || 'pendente'}</span></td>
+                    <td class="py-2 text-xs font-mono">${p.id ? p.id.slice(0,8) : '---'}...</td>
+                    <td class="text-xs">${lojaNome || '—'}</td>
+                    <td class="text-xs">${p.cliente_nome || p.cliente || '—'}</td>
+                    <td class="text-xs font-bold">R$ ${(p.total || 0).toFixed(2).replace('.',',')}</td>
+                    <td>
+                        <span class="px-2 py-1 rounded-full text-[9px] font-bold ${p.status === 'entregue' || p.status === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                            ${p.status || 'pendente'}
+                        </span>
+                    </td>
                     <td class="py-2">
-                        <button onclick="detalhesPedido('${p.id}')" class="p-2 bg-gray-100 rounded-lg"><i class="fas fa-eye"></i></button>
+                        <button onclick="detalhesPedido('${p.id}')" class="p-2 bg-gray-100 rounded-lg hover:bg-gray-200">
+                            <i class="fas fa-eye text-xs"></i>
+                        </button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function detalhesPedido(id) {
-            Swal.fire('Pedido', `ID: ${id}`, 'info');
+            const pedido = pedidos.find(p => p.id === id);
+            if (!pedido) return;
+            
+            Swal.fire({
+                title: 'Detalhes do Pedido',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><strong>ID:</strong> ${id}</p>
+                        <p><strong>Loja:</strong> ${pedido.loja || '—'}</p>
+                        <p><strong>Cliente:</strong> ${pedido.cliente_nome || pedido.cliente || '—'}</p>
+                        <p><strong>Total:</strong> R$ ${(pedido.total || 0).toFixed(2).replace('.',',')}</p>
+                        <p><strong>Status:</strong> ${pedido.status || 'pendente'}</p>
+                        ${pedido.rua ? `<p><strong>Endereço:</strong> ${pedido.rua}, ${pedido.numero || 'S/N'}</p>` : ''}
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonColor: '#059669'
+            });
         }
 
         // --- SOLICITAÇÕES ---
@@ -300,12 +449,26 @@
             setText('solicitacoes-count', solicitacoes.length);
             const lista = document.getElementById('solicitacoes-lista');
             if (!lista) return;
+            
+            if (solicitacoes.length === 0) {
+                lista.innerHTML = '<div class="text-center py-8 text-gray-400">Nenhuma solicitação pendente</div>';
+                return;
+            }
+            
             lista.innerHTML = solicitacoes.map(s => `
-                <div class="p-4 bg-gray-50 rounded-2xl flex justify-between items-center border">
-                    <div><h4 class="font-bold text-sm">${s.nome_loja}</h4><p class="text-xs text-gray-500">${s.email} | ${s.whatsapp}</p></div>
-                    <div class="flex gap-2">
-                        <button onclick="aprovarSolicitacao('${s.id}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Aprovar</button>
-                        <button onclick="rejeitarSolicitacao('${s.id}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Rejeitar</button>
+                <div class="p-4 bg-gray-50 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border">
+                    <div>
+                        <h4 class="font-bold text-sm">${s.nome_loja || 'Sem nome'}</h4>
+                        <p class="text-xs text-gray-500">${s.email || ''} | ${s.whatsapp || ''}</p>
+                        <p class="text-xs text-gray-400">Responsável: ${s.responsavel || ''}</p>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button onclick="aprovarSolicitacao('${s.id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-bold flex-1 md:flex-none">
+                            Aprovar
+                        </button>
+                        <button onclick="rejeitarSolicitacao('${s.id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold flex-1 md:flex-none">
+                            Rejeitar
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -313,15 +476,48 @@
 
         async function aprovarSolicitacao(id) {
             const s = solicitacoes.find(x => x.id === id);
+            if (!s) return;
+            
+            // Verificar se está no modo demonstração
+            if (!window.db) {
+                Swal.fire('Modo Demonstração', 'Aprovação simulada!', 'success');
+                return;
+            }
+            
             try {
                 const uc = await authModules.createUserWithEmailAndPassword(auth, s.email, s.senha);
                 const uid = uc.user.uid;
-                const lojaId = s.nome_loja.toLowerCase().replace(/\s+/g, '-');
-                await setDoc(doc(db, "clientes", uid), { nome: s.nome_loja, responsavel: s.responsavel, email: s.email, whatsapp: s.whatsapp, status: 'ativo', plano: 'Mensal', lojaId: lojaId });
-                await setDoc(doc(db, "lojas", lojaId), { nome_loja: s.nome_loja, status: 'ativo', data_criacao: Timestamp.now() });
+                const lojaId = s.nome_loja.toLowerCase().replace(/\s+/g, '-') + '-' + Math.floor(Math.random() * 1000);
+                
+                await setDoc(doc(db, "clientes", uid), { 
+                    nome: s.nome_loja, 
+                    responsavel: s.responsavel, 
+                    email: s.email, 
+                    whatsapp: s.whatsapp, 
+                    status: 'ativo', 
+                    plano: 'Mensal', 
+                    lojaId: lojaId,
+                    dataInicio: Timestamp.now(),
+                    dataVencimento: Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
+                });
+                
+                await setDoc(doc(db, "lojas", lojaId), { 
+                    nome_loja: s.nome_loja, 
+                    status: 'ativo', 
+                    data_criacao: Timestamp.now() 
+                });
+                
                 await updateDoc(doc(db, "solicitacoes_lojas", id), { status: 'aprovado' });
-                Swal.fire('Sucesso', 'Loja criada e ativa!', 'success');
-            } catch (e) { Swal.fire('Erro', e.message, 'error'); }
+                
+                Swal.fire({
+                    title: 'Sucesso!',
+                    html: `Loja criada!<br>Link: <strong>${dominioBase}${lojaId}</strong>`,
+                    icon: 'success'
+                });
+            } catch (e) { 
+                console.error("Erro ao aprovar:", e);
+                Swal.fire('Erro', e.message, 'error'); 
+            }
         }
 
         async function rejeitarSolicitacao(id) {
@@ -332,27 +528,58 @@
                 showCancelButton: true
             });
             if (!result.isConfirmed) return;
+            
             try {
                 await updateDoc(doc(db, "solicitacoes_lojas", id), { status: 'rejeitado' });
                 Swal.fire('Rejeitado', 'Solicitação marcada como rejeitada', 'success');
             } catch (e) {
+                console.error("Erro ao rejeitar:", e);
                 Swal.fire('Erro', e.message, 'error');
             }
         }
 
         // --- BLOQUEIO / DESBLOQUEIO ---
         async function toggleBloqueio(id, statusAtual) {
-            const novoStatus = statusAtual === 'ativo' ? 'bloqueado' : 'ativo';
-            const result = await Swal.fire({ title: 'Confirmar?', text: `Deseja ${novoStatus} esta loja?`, icon: 'warning', showCancelButton: true });
-            if (!result.isConfirmed) return;
-            try {
-                await updateDoc(doc(db, "clientes", id), { status: novoStatus });
-                const snap = await getDoc(doc(db, "clientes", id));
-                const link = snap.data().lojaId || snap.data().link;
-                if (link) await updateDoc(doc(db, "lojas", link), { status: novoStatus }).catch(() => {});
-                Swal.fire('Sucesso', 'Status alterado!', 'success');
-            } catch (e) { Swal.fire('Erro', e.message, 'error'); }
+    const novoStatus = statusAtual === 'ativo' ? 'bloqueado' : 'ativo';
+    const acao = novoStatus === 'ativo' ? 'desbloquear' : 'bloquear';
+    
+    const result = await Swal.fire({
+        title: 'Confirmar?',
+        text: `Deseja ${acao} esta loja? O acesso ao cardápio será ${novoStatus === 'ativo' ? 'liberado' : 'interrompido'} imediatamente.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: novoStatus === 'ativo' ? '#059669' : '#dc2626',
+        confirmButtonText: `Sim, ${acao}!`
+    });
+    
+    if (result.isConfirmed) {
+        try {
+            // 1. Referência do Cliente no SaaS
+            const clienteRef = window.doc(window.db, "clientes", id);
+            
+            // 2. Buscar dados para pegar o ID da loja (slug/link)
+            const snap = await window.getDoc(clienteRef);
+            if (!snap.exists()) throw new Error("Loja não encontrada.");
+            
+            const dados = snap.data();
+            const lojaIdDoCardapio = dados.lojaId || dados.link;
+            
+            // 3. Atualizar status no cadastro do Cliente
+            await window.updateDoc(clienteRef, { status: novoStatus });
+            
+            // 4. Atualizar status no Cardápio Real (Coleção "lojas")
+            if (lojaIdDoCardapio) {
+                const lojaRef = window.doc(window.db, "lojas", lojaIdDoCardapio);
+                await window.updateDoc(lojaRef, { status: novoStatus });
+            }
+            
+            Swal.fire('Sucesso!', `Loja ${novoStatus} com sucesso.`, 'success');
+        } catch (e) {
+            console.error("Erro ao bloquear:", e);
+            Swal.fire('Erro', 'Falha ao sincronizar bloqueio: ' + e.message, 'error');
         }
+    }
+}
 
         // --- COBRANÇA WHATSAPP ---
         async function enviarCobranca(clienteId) {
@@ -361,11 +588,25 @@
                 Swal.fire('Atenção', 'Cliente sem WhatsApp cadastrado', 'warning');
                 return;
             }
+            
+            let dataVenc = 'em breve';
+            if (cliente.dataVencimento) {
+                try {
+                    if (cliente.dataVencimento.toDate) {
+                        dataVenc = cliente.dataVencimento.toDate().toLocaleDateString('pt-BR');
+                    } else {
+                        dataVenc = new Date(cliente.dataVencimento).toLocaleDateString('pt-BR');
+                    }
+                } catch (e) {
+                    dataVenc = cliente.dataVencimento;
+                }
+            }
+            
             const mensagem = encodeURIComponent(
-                `Olá ${cliente.responsavel || cliente.nome}, tudo bem? 😊\n` +
-                `Identificamos que a mensalidade da sua loja *${cliente.nome}* está próxima do vencimento.\n` +
-                `Para manter seu cardápio sempre ativo, realize o pagamento através do link:\n` +
-                `${dominioBase}${cliente.lojaId || ''}?pagamento=1\n\n` +
+                `Olá ${cliente.responsavel || cliente.nome}, tudo bem? 😊\n\n` +
+                `Identificamos que a mensalidade da sua loja *${cliente.nome}* está próxima do vencimento (${dataVenc}).\n` +
+                `Para manter seu cardápio sempre ativo, realize o pagamento.\n\n` +
+                `Link do cardápio: ${dominioBase}${cliente.lojaId || ''}\n\n` +
                 `Qualquer dúvida, estamos à disposição.`
             );
             const link = `https://wa.me/${cliente.whatsapp.replace(/\D/g,'')}?text=${mensagem}`;
@@ -381,14 +622,20 @@
             document.getElementById('campo-whatsapp').value = '';
             document.getElementById('campo-email').value = '';
             document.getElementById('campo-plano').value = 'Mensal';
-            document.getElementById('campo-data-inicio').value = '';
-            document.getElementById('campo-data-vencimento').value = '';
+            
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('campo-data-inicio').value = hoje;
+            const venc = new Date(); venc.setDate(venc.getDate() + 30);
+            document.getElementById('campo-data-vencimento').value = venc.toISOString().split('T')[0];
+            
             document.getElementById('campo-status').value = 'ativo';
             document.getElementById('modal-cliente').classList.remove('hidden');
         }
 
         function editarCliente(id) {
             const c = clientes.find(x => x.id === id);
+            if (!c) return;
+            
             document.getElementById('modal-titulo').innerText = 'Editar Loja';
             document.getElementById('cliente-id').value = id;
             document.getElementById('campo-nome').value = c.nome || '';
@@ -396,31 +643,64 @@
             document.getElementById('campo-whatsapp').value = c.whatsapp || '';
             document.getElementById('campo-email').value = c.email || '';
             document.getElementById('campo-plano').value = c.plano || 'Mensal';
-            document.getElementById('campo-data-inicio').value = c.dataInicio || '';
-            document.getElementById('campo-data-vencimento').value = c.dataVencimento || '';
+            
+            // Formatar datas
+            let dataInicio = c.dataInicio || '';
+            if (c.dataInicio && c.dataInicio.toDate) {
+                dataInicio = c.dataInicio.toDate().toISOString().split('T')[0];
+            }
+            document.getElementById('campo-data-inicio').value = dataInicio;
+            
+            let dataVenc = c.dataVencimento || '';
+            if (c.dataVencimento && c.dataVencimento.toDate) {
+                dataVenc = c.dataVencimento.toDate().toISOString().split('T')[0];
+            }
+            document.getElementById('campo-data-vencimento').value = dataVenc;
+            
             document.getElementById('campo-status').value = c.status || 'ativo';
             document.getElementById('modal-cliente').classList.remove('hidden');
         }
 
-        function fecharModal() { document.getElementById('modal-cliente').classList.add('hidden'); }
+        function fecharModal() { 
+            document.getElementById('modal-cliente').classList.add('hidden'); 
+        }
 
         async function salvarCliente() {
             const id = document.getElementById('cliente-id').value;
+            const nome = document.getElementById('campo-nome').value.trim();
+            if (!nome) {
+                Swal.fire('Atenção', 'Nome da loja é obrigatório', 'warning');
+                return;
+            }
+            
             const dados = {
-                nome: document.getElementById('campo-nome').value,
+                nome: nome,
                 responsavel: document.getElementById('campo-responsavel').value,
                 whatsapp: document.getElementById('campo-whatsapp').value,
                 email: document.getElementById('campo-email').value,
                 plano: document.getElementById('campo-plano').value,
-                dataInicio: document.getElementById('campo-data-inicio').value,
-                dataVencimento: document.getElementById('campo-data-vencimento').value,
                 status: document.getElementById('campo-status').value
             };
+            
+            // Adicionar datas se existirem
+            const dataInicio = document.getElementById('campo-data-inicio').value;
+            if (dataInicio) dados.dataInicio = dataInicio;
+            
+            const dataVenc = document.getElementById('campo-data-vencimento').value;
+            if (dataVenc) dados.dataVencimento = dataVenc;
+            
             try {
-                if (id) await updateDoc(doc(db, "clientes", id), dados);
-                else await addDoc(collection(db, "clientes"), dados);
-                fecharModal(); Swal.fire('Sucesso', 'Loja salva!', 'success');
-            } catch (e) { Swal.fire('Erro', e.message, 'error'); }
+                if (id) {
+                    await updateDoc(doc(db, "clientes", id), dados);
+                } else {
+                    await addDoc(collection(db, "clientes"), dados);
+                }
+                fecharModal(); 
+                Swal.fire('Sucesso', 'Loja salva!', 'success');
+            } catch (e) { 
+                console.error("Erro ao salvar:", e);
+                Swal.fire('Erro', e.message, 'error'); 
+            }
         }
 
         // --- CONFIGURAÇÕES ---
@@ -429,28 +709,38 @@
             if (saved) {
                 const cfg = JSON.parse(saved);
                 mensalidadePadrao = cfg.mensalidade || 97.00;
-                dominioBase = cfg.dominio || "";
+                dominioBase = cfg.dominio || "https://danamorim1347-max.github.io/lamen/?loja=";
             }
             document.getElementById('config-mensalidade').value = mensalidadePadrao;
             document.getElementById('config-dominio').value = dominioBase;
         }
 
         function salvarConfiguracoes() {
-            mensalidadePadrao = parseFloat(document.getElementById('config-mensalidade').value);
+            mensalidadePadrao = parseFloat(document.getElementById('config-mensalidade').value) || 97.00;
             dominioBase = document.getElementById('config-dominio').value;
             localStorage.setItem('saasConfig', JSON.stringify({ mensalidade: mensalidadePadrao, dominio: dominioBase }));
-            Swal.fire('Salvo!', '', 'success');
+            Swal.fire('Salvo!', 'Configurações atualizadas', 'success');
         }
 
+        // --- PERSONALIZAÇÃO ---
         function selecionarCor(tipo, hex) {
             coresPersonalizadas[tipo] = hex;
             document.getElementById('logo-part1').style.color = hex;
-            document.querySelectorAll('.btn-primary').forEach(b => b.style.background = hex);
+            document.querySelectorAll('.btn-primary').forEach(b => {
+                b.style.background = `linear-gradient(135deg, ${hex} 0%, ${hex} 100%)`;
+            });
         }
 
-        function resetarCores() { location.reload(); }
-        function salvarPersonalizacao() { localStorage.setItem('painelCores', JSON.stringify(coresPersonalizadas)); Swal.fire('Aplicado!', '', 'success'); }
+        function resetarCores() { 
+            location.reload(); 
+        }
+        
+        function salvarPersonalizacao() { 
+            localStorage.setItem('painelCores', JSON.stringify(coresPersonalizadas)); 
+            Swal.fire('Aplicado!', 'Cores salvas', 'success'); 
+        }
 
+        // --- NAVEGAÇÃO ---
         function showSection(section) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(section + '-section').classList.remove('hidden');
@@ -458,16 +748,28 @@
             document.getElementById('menu-' + section).classList.add('active');
         }
 
-        async function sairAdmin() { await signOut(auth); window.location.reload(); }
+        // --- SAIR ---
+        async function sairAdmin() { 
+            await signOut(auth); 
+            window.location.reload(); 
+        }
 
         // --- EXPORTAR PARA WINDOW ---
-        window.showSection = showSection; window.novoCliente = novoCliente; window.fecharModal = fecharModal;
-        window.salvarCliente = salvarCliente; window.toggleBloqueio = toggleBloqueio; window.editarCliente = editarCliente;
-        window.aprovarSolicitacao = aprovarSolicitacao; window.rejeitarSolicitacao = rejeitarSolicitacao;
-        window.enviarCobranca = enviarCobranca; window.detalhesPedido = detalhesPedido;
-        window.excluirCliente = excluirCliente;
+        window.showSection = showSection; 
+        window.novoCliente = novoCliente; 
+        window.fecharModal = fecharModal;
+        window.salvarCliente = salvarCliente; 
+        window.toggleBloqueio = toggleBloqueio; 
+        window.editarCliente = editarCliente;
+        window.aprovarSolicitacao = aprovarSolicitacao; 
+        window.rejeitarSolicitacao = rejeitarSolicitacao;
+        window.enviarCobranca = enviarCobranca; 
+        window.detalhesPedido = detalhesPedido;
+        window.excluirCliente = excluirCliente; // <-- FUNÇÃO CORRIGIDA
         window.salvarConfiguracoes = salvarConfiguracoes;
-        window.selecionarCor = selecionarCor; window.resetarCores = resetarCores; window.salvarPersonalizacao = salvarPersonalizacao;
+        window.selecionarCor = selecionarCor; 
+        window.resetarCores = resetarCores; 
+        window.salvarPersonalizacao = salvarPersonalizacao;
         window.sairAdmin = sairAdmin;
     </script>
 </body>
