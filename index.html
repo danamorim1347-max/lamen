@@ -860,30 +860,59 @@
         }
 
         // FUNÇÃO PARA MONITORAR O STATUS DA LOJA
-        function monitorarStatusLoja() {
+        // COPIE A PARTIR DAQUI
+function monitorarStatusLoja() {
     if (!lojaIdAtual) return;
     const { db, firestore } = getFirebaseRefs();
     const lojaRef = firestore.doc(db, "lojas", lojaIdAtual);
     
-    // Esse código fica vigiando o banco de dados. Se você mudar no painel, ele age aqui na hora.
+    // Ouvinte em tempo real: se mudar no Admin, muda aqui no ato
     lojaUnsubscribe = firestore.onSnapshot(lojaRef, (doc) => {
         if (doc.exists()) {
             const statusNoBanco = doc.data().status;
             
             if (statusNoBanco === 'bloqueado') {
                 lojaBloqueada = true;
-                mostrarTelaBloqueio(); // Chama a tela de cadeado
+                mostrarTelaBloqueio();
             } else {
-                // Se estava bloqueado e você desbloqueou, ele libera a tela
+                // Se você desbloquear no Admin, o cardápio volta a funcionar
                 if (lojaBloqueada) {
                     lojaBloqueada = false;
-                    document.getElementById('view-bloqueado').classList.add('hidden');
-                    document.getElementById('view-cliente').classList.remove('hidden');
+                    document.getElementById('view-bloqueado')?.classList.add('hidden');
+                    document.getElementById('view-cliente')?.classList.remove('hidden');
+                    location.reload(); // Recarrega para limpar as travas
                 }
             }
         }
+    }, (error) => {
+        console.error("Erro ao monitorar loja:", error);
     });
 }
+
+function mostrarTelaBloqueio() {
+    // Esconde todas as partes do site
+    document.getElementById('view-cliente')?.classList.add('hidden');
+    document.getElementById('view-admin')?.classList.add('hidden');
+    document.getElementById('modal-carrinho')?.classList.add('hidden');
+    document.getElementById('modal-checkout')?.classList.add('hidden');
+    document.getElementById('modal-montador-pizza')?.classList.add('hidden');
+    document.getElementById('cart-fixed')?.classList.add('hidden');
+    
+    // Mostra a tela de bloqueio (aquela com o cadeado)
+    const telaBloqueio = document.getElementById('view-bloqueado');
+    if (telaBloqueio) {
+        telaBloqueio.classList.remove('hidden');
+    } else {
+        // Se por acaso a div de bloqueio sumiu, ele cria uma na hora
+        document.body.innerHTML = `
+                    <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; background:#fff; padding:20px;">
+                        <h1 style="font-size:80px; margin:0;">🔒</h1>
+                        <h2 style="color:#333;">Acesso Suspenso</h2>
+                        <p style="color:#666;">Esta loja está temporariamente bloqueada.<br>Entre em contato com o suporte.</p>
+                    </div>`;
+    }
+}
+// TERMINA AQUI A SUBSTITUIÇÃO DO CARDÁPIO
 
 // Função para esconder tudo e mostrar o aviso de bloqueio
 function mostrarTelaBloqueio() {
