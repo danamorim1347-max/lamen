@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Pizza Pro | Painel Administrativo</title>
     
+    <!-- Tailwind + Font Awesome + Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+    <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -29,735 +33,961 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // EXPOR TODAS AS FUNÇÕES DO FIREBASE NO ESCOPO GLOBAL
-        window.db = db; 
-        window.auth = auth; 
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.signOut = signOut; 
-        window.doc = doc; 
-        window.getDoc = getDoc;
-        window.updateDoc = updateDoc; 
-        window.setDoc = setDoc; 
+        window.db = db;
+        window.auth = auth;
+        window.authModules = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut };
+        window.collection = collection;
         window.addDoc = addDoc;
-        window.collection = collection; 
-        window.onSnapshot = onSnapshot; 
-        window.query = query;
-        window.where = where; 
-        window.orderBy = orderBy; 
-        window.limit = limit;
-        window.Timestamp = Timestamp; 
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.setDoc = setDoc;
+        window.updateDoc = updateDoc;
         window.deleteDoc = deleteDoc;
-        window.authModules = { createUserWithEmailAndPassword };
+        window.onSnapshot = onSnapshot;
+        window.query = query;
+        window.where = where;
+        window.orderBy = orderBy;
+        window.limit = limit;
+        window.Timestamp = Timestamp;
 
-        console.log("✅ Firebase inicializado");
+        console.log("🔥 Firebase inicializado (admin-5b03c)");
         
         if (window.startApp) window.startApp();
     </script>
 
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #f3f4f6; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .sidebar-link { transition: all 0.2s; color: #94a3b8; border-radius: 12px; white-space: nowrap; }
-        .sidebar-link:hover { background: rgba(255,255,255,0.1); color: white; }
-        .sidebar-link.active { background: #059669; color: white; }
-        .stat-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
-        .btn-primary { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; padding: 10px 20px; border-radius: 12px; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
-        .btn-secondary { background: white; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 12px; font-size: 0.8rem; }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-        .badge-success { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .badge-warning { background: #fed7aa; color: #92400e; padding: 4px 10px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .badge-danger { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #f3f4f6;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #1f2937;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+        }
+        
+        .action-button {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .action-button i {
+            font-size: 0.9rem;
+        }
+        
+        .action-edit {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+        
+        .action-edit:hover {
+            background: #dbeafe;
+        }
+        
+        .action-view {
+            background: #ecfdf5;
+            color: #065f46;
+        }
+        
+        .action-view:hover {
+            background: #d1fae5;
+        }
+        
+        .action-block {
+            background: #fffbeb;
+            color: #92400e;
+        }
+        
+        .action-block:hover {
+            background: #fef3c7;
+        }
+        
+        .action-whatsapp {
+            background: #f0fdf4;
+            color: #166534;
+        }
+        
+        .action-whatsapp:hover {
+            background: #dcfce7;
+        }
+        
+        .action-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .action-delete:hover {
+            background: #fecaca;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #f1f5f9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 16px;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+        
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .actions-footer {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-warning {
+            background: #fed7aa;
+            color: #92400e;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #64748b;
+            border-radius: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        
+        .tab-active {
+            background: #059669;
+            color: white;
+        }
+        
+        .tab-active:hover {
+            background: #047857;
+            color: white;
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #94a3b8;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        
+        .sidebar-link:hover {
+            background: #1e293b;
+            color: white;
+        }
+        
+        .sidebar-link.active {
+            background: #059669;
+            color: white;
+        }
+        
+        .solicitacao-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .solicitacao-card:hover {
+            border-color: #059669;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.1);
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #059669;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
-<body>
+<body class="bg-gray-50">
+    <!-- Loading inicial -->
+    <div id="initial-loading" class="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="text-center fade-in">
+            <div class="loading-spinner mx-auto mb-6"></div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Carregando painel</h2>
+            <p class="text-gray-500">Aguarde um instante...</p>
+        </div>
+    </div>
 
-    <!-- MENU SUPERIOR FIXO -->
-    <header class="fixed top-0 left-0 right-0 bg-gray-900 text-white z-50 shadow-xl">
-        <div class="p-2">
-            <div class="flex justify-between items-center px-2 mb-2">
-                <h1 class="text-lg font-black tracking-tighter">
-                    <span id="logo-part1" class="text-emerald-400">Master</span><span id="logo-part2" class="text-white">Pizza</span>
-                </h1>
-                <div class="flex items-center gap-3">
-                    <div class="text-right leading-tight">
-                        <p id="admin-name" class="text-[10px] font-bold">Admin</p>
-                        <p id="admin-email" class="text-[8px] text-gray-400">admin@pizza.com</p>
+    <!-- Estrutura principal -->
+    <div id="app" class="hidden flex min-h-screen bg-gray-50">
+        <!-- Sidebar fixa -->
+        <aside class="w-72 bg-gray-900 text-white fixed left-0 top-0 h-screen overflow-y-auto shadow-2xl" style="z-index: 40;">
+            <div class="p-6">
+                <!-- Logo -->
+                <div class="mb-10">
+                    <h1 class="text-3xl font-black">
+                        <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Master</span>
+                        <span class="text-white">Pizza</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 mt-2 font-medium">Painel Administrativo</p>
+                </div>
+                
+                <!-- Menu -->
+                <nav class="space-y-2">
+                    <a href="#" onclick="showSection('clientes')" id="menu-clientes" class="sidebar-link active">
+                        <i class="fas fa-store w-6 text-lg"></i>
+                        <span>Lojas</span>
+                    </a>
+                    <a href="#" onclick="showSection('solicitacoes')" id="menu-solicitacoes" class="sidebar-link">
+                        <i class="fas fa-user-plus w-6 text-lg"></i>
+                        <span>Solicitações</span>
+                    </a>
+                    <a href="#" onclick="showSection('pedidos')" id="menu-pedidos" class="sidebar-link">
+                        <i class="fas fa-shopping-bag w-6 text-lg"></i>
+                        <span>Pedidos</span>
+                    </a>
+                    <a href="#" onclick="showSection('configuracoes')" id="menu-configuracoes" class="sidebar-link">
+                        <i class="fas fa-cog w-6 text-lg"></i>
+                        <span>Configurações</span>
+                    </a>
+                </nav>
+                
+                <!-- Perfil e logout -->
+                <div class="absolute bottom-6 left-6 right-6">
+                    <div class="bg-gray-800/50 backdrop-blur-sm p-5 rounded-2xl border border-gray-700">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg" id="admin-avatar">
+                                A
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-white" id="admin-name">Administrador</p>
+                                <p class="text-xs text-gray-400" id="admin-email">admin@pizza.com</p>
+                            </div>
+                        </div>
+                        <button onclick="sairAdmin()" class="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-medium text-sm transition flex items-center justify-center gap-2">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sair
+                        </button>
                     </div>
-                    <button onclick="sairAdmin()" class="text-[10px] bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-full font-black uppercase transition-all shadow-md">
-                        Sair
+                </div>
+            </div>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="flex-1 ml-72 p-8">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 id="page-title" class="text-3xl font-black text-gray-800">Lojas</h2>
+                    <p class="text-gray-500 mt-1">Gerenciamento de lojas</p>
+                </div>
+                <div class="top-actions">
+                    <button onclick="novoCliente()" class="btn-primary flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Nova Loja
                     </button>
-                </div>
-            </div>
-            <nav class="flex gap-1 overflow-x-auto no-scrollbar px-1 pb-1">
-                <a href="#" onclick="showSection('clientes')" id="menu-clientes" class="sidebar-link active flex flex-col items-center min-w-[75px] py-1.5">
-                    <i class="fas fa-store text-sm"></i><span class="text-[9px] font-bold">Lojas</span>
-                </a>
-                <a href="#" onclick="showSection('solicitacoes')" id="menu-solicitacoes" class="sidebar-link flex flex-col items-center min-w-[75px] py-1.5">
-                    <i class="fas fa-user-plus text-sm"></i><span class="text-[9px] font-bold">Solicit</span>
-                </a>
-                <a href="#" onclick="showSection('pedidos')" id="menu-pedidos" class="sidebar-link flex flex-col items-center min-w-[75px] py-1.5">
-                    <i class="fas fa-shopping-bag text-sm"></i><span class="text-[9px] font-bold">Vendas</span>
-                </a>
-                <a href="#" onclick="showSection('configuracoes')" id="menu-configuracoes" class="sidebar-link flex flex-col items-center min-w-[75px] py-1.5">
-                    <i class="fas fa-cog text-sm"></i><span class="text-[9px] font-bold">Config</span>
-                </a>
-            </nav>
-        </div>
-    </header>
-
-    <main class="mt-32 p-4 max-w-7xl mx-auto pb-10">
-        
-        <!-- LOJAS -->
-        <div id="clientes-section" class="section fade-in">
-            <div class="bg-white rounded-3xl p-4 shadow-sm border">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold text-gray-800">Lojas Cadastradas</h3>
-                    <button onclick="novoCliente()" class="btn-primary">Nova Loja</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-gray-500">
-                                <th>Loja</th>
-                                <th>WhatsApp</th>
-                                <th>Plano/Venc</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clientes-tbody">
-                            <tr><td colspan="5" class="text-center py-8 text-gray-400">Carregando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- SOLICITAÇÕES -->
-        <div id="solicitacoes-section" class="section hidden fade-in">
-            <div class="bg-white rounded-3xl p-4 shadow-sm border">
-                <h3 class="font-bold text-gray-800 mb-6">
-                    Solicitações Pendentes 
-                    <span id="solicitacoes-count" class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs ml-2">0</span>
-                </h3>
-                <div id="solicitacoes-lista" class="space-y-4">
-                    <div class="text-center py-8 text-gray-400">Carregando solicitações...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PEDIDOS / VENDAS -->
-        <div id="pedidos-section" class="section hidden fade-in">
-            <div class="bg-white rounded-3xl p-4 shadow-sm border">
-                <h3 class="font-bold text-gray-800 mb-6">Últimas Vendas</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-gray-500">
-                                <th>ID</th>
-                                <th>Loja</th>
-                                <th>Cliente</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pedidos-tbody">
-                            <tr><td colspan="6" class="text-center py-8 text-gray-400">Carregando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- CONFIGURAÇÕES -->
-        <div id="configuracoes-section" class="section hidden fade-in">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="stat-card">
-                    <h3 class="font-bold mb-6">Configurações Gerais</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-500">Mensalidade Padrão (R$)</label>
-                            <input type="number" id="config-mensalidade" class="w-full p-3 border rounded-xl" value="97.00">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-500">URL Base do Cardápio</label>
-                            <input type="text" id="config-dominio" class="w-full p-3 border rounded-xl" value="https://danamorim1347-max.github.io/lamen/?loja=">
-                        </div>
-                        <button onclick="salvarConfiguracoes()" class="btn-primary w-full">Salvar</button>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <h3 class="font-bold mb-6">Personalização Visual</h3>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold">Cor Primária</span>
-                            <input type="color" id="cor-primary-custom" onchange="selecionarCor('primary', this.value)" class="w-10 h-10 rounded-lg border-2 cursor-pointer" value="#059669">
-                        </div>
-                        <button onclick="resetarCores()" class="btn-secondary w-full">Resetar Padrão</button>
-                        <button onclick="salvarPersonalizacao()" class="btn-primary w-full">Aplicar Cores</button>
+                    <div class="relative">
+                        <button class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg" id="header-avatar">
+                            A
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- MODAL LOJA -->
-    <div id="modal-cliente" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 id="modal-titulo" class="text-xl font-bold mb-4">Nova Loja</h3>
+            <!-- Seções dinâmicas -->
+
+            <!-- Seção de Lojas (inicialmente visível) -->
+            <div id="clientes-section" class="section fade-in">
+                <div class="table-container">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Lojas cadastradas</h3>
+                        <button onclick="novoCliente()" class="btn-primary flex items-center gap-2">
+                            <i class="fas fa-plus"></i>
+                            Nova Loja
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Loja</th>
+                                    <th>Responsável</th>
+                                    <th>WhatsApp</th>
+                                    <th>Plano</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientes-tbody">
+                                <!-- Lojas serão carregadas aqui -->
+                                <tr>
+                                    <td colspan="7" class="text-center py-8 text-gray-500">
+                                        Carregando lojas...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Solicitações -->
+            <div id="solicitacoes-section" class="section hidden fade-in">
+                <div class="table-container">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Solicitações de cadastro</h3>
+                        <span class="badge-info" id="solicitacoes-count">0 pendentes</span>
+                    </div>
+                    <div id="solicitacoes-lista" class="space-y-4">
+                        <!-- Solicitações serão carregadas aqui -->
+                        <div class="text-center py-12 bg-gray-50 rounded-2xl">
+                            <p class="text-gray-500">Carregando solicitações...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Pedidos -->
+            <div id="pedidos-section" class="section hidden fade-in">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Últimos pedidos</h3>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pedido</th>
+                                    <th>Loja</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pedidos-tbody">
+                                <!-- Pedidos serão carregados aqui -->
+                                <tr>
+                                    <td colspan="7" class="text-center py-8 text-gray-500">
+                                        Carregando pedidos...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Configurações -->
+            <div id="configuracoes-section" class="section hidden fade-in">
+                <div class="stat-card p-6 bg-white rounded-2xl shadow-md">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <i class="fas fa-sliders-h text-emerald-500"></i>
+                        Configurações Gerais
+                    </h3>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Valor da mensalidade (R$)
+                            </label>
+                            <input type="number" id="config-mensalidade" value="97.00" step="0.01" min="0"
+                                   class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Dias de aviso prévio
+                            </label>
+                            <input type="number" id="config-dias-aviso" value="3" min="1" max="30"
+                                   class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Domínio dos cardápios
+                            </label>
+                            <input type="text" id="config-dominio" value="https://danamorim1347-max.github.io/lamen/?loja=" 
+                                   class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                        </div>
+                        <button onclick="salvarConfiguracoes()" class="btn-primary w-full">
+                            Salvar configurações
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de cadastro/edição de loja -->
+    <div id="modal-cliente" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800" id="modal-titulo">Nova Loja</h3>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
             <input type="hidden" id="cliente-id">
-            <div class="space-y-3">
-                <input type="text" id="campo-nome" placeholder="Nome da Loja" class="w-full p-3 border rounded-xl">
-                <input type="text" id="campo-responsavel" placeholder="Responsável" class="w-full p-3 border rounded-xl">
-                <input type="text" id="campo-whatsapp" placeholder="WhatsApp" class="w-full p-3 border rounded-xl">
-                <input type="email" id="campo-email" placeholder="E-mail" class="w-full p-3 border rounded-xl">
-                <select id="campo-plano" class="w-full p-3 border rounded-xl">
-                    <option value="Mensal">Mensal - R$ 97</option>
-                    <option value="Trimestral">Trimestral</option>
-                    <option value="Anual">Anual</option>
-                </select>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="date" id="campo-data-inicio" class="p-3 border rounded-xl">
-                    <input type="date" id="campo-data-vencimento" class="p-3 border rounded-xl">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome da loja</label>
+                    <input type="text" id="campo-nome" placeholder="Ex: Pizzaria do João" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
                 </div>
-                <select id="campo-status" class="w-full p-3 border rounded-xl">
-                    <option value="ativo">Ativo</option>
-                    <option value="bloqueado">Bloqueado</option>
-                    <option value="inadimplente">Inadimplente</option>
-                </select>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome do responsável</label>
+                    <input type="text" id="campo-responsavel" placeholder="Ex: João Silva" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
+                    <input type="text" id="campo-whatsapp" placeholder="Ex: 11999999999" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+                    <input type="email" id="campo-email" placeholder="Ex: contato@loja.com" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Plano</label>
+                    <select id="campo-plano" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                        <option value="Mensal">Mensal - R$ 97/mês</option>
+                        <option value="Trimestral">Trimestral - R$ 87/mês (R$ 261)</option>
+                        <option value="Anual">Anual - R$ 77/mês (R$ 924)</option>
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data de início</label>
+                        <input type="date" id="campo-data-inicio" 
+                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Vencimento</label>
+                        <input type="date" id="campo-data-vencimento" 
+                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="campo-status" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                        <option value="ativo">Ativo</option>
+                        <option value="bloqueado">Bloqueado</option>
+                        <option value="inadimplente">Inadimplente</option>
+                    </select>
+                </div>
             </div>
-            <div class="flex gap-2 mt-6">
-                <button onclick="salvarCliente()" class="btn-primary flex-1">Salvar</button>
-                <button onclick="fecharModal()" class="btn-secondary flex-1">Cancelar</button>
+            
+            <div class="flex gap-4 mt-8">
+                <button onclick="salvarCliente()" class="btn-primary flex-1">
+                    Salvar
+                </button>
+                <button onclick="fecharModal()" class="btn-secondary flex-1">
+                    Cancelar
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- UTILITÁRIOS ---
-        const setText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
-        let clientes = [], pedidos = [], solicitacoes = [], coresPersonalizadas = { primary: '#059669' };
-        let mensalidadePadrao = 97.00, dominioBase = "https://danamorim1347-max.github.io/lamen/?loja=";
+        // ==================== VARIÁVEIS GLOBAIS ====================
+        let clientes = [];
+        let pedidos = [];
+        let solicitacoes = [];
+        let clientesUnsubscribe = null;
+        let pedidosUnsubscribe = null;
         let solicitacoesUnsubscribe = null;
+        let mensalidadePadrao = 97.00;
+        let diasAviso = 3;
+        let dominioBase = "https://danamorim1347-max.github.io/lamen/?loja=";
 
-        // --- INICIALIZAÇÃO ---
+        // ==================== INICIALIZAÇÃO ====================
         window.startApp = function() {
-            console.log("Iniciando aplicação...");
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    console.log("Usuário logado:", user.email);
-                    setText('admin-name', user.displayName || "Administrador");
-                    setText('admin-email', user.email);
-                    carregarConfiguracoes();
-                    iniciarListeners();
-                } else { 
-                    console.log("Usuário não logado - modo demonstração");
-                    setText('admin-name', "Demonstração");
-                    setText('admin-email', "demo@masterpizza.com");
-                    
-                    // Dados de demonstração
-                    setTimeout(() => {
-                        clientes = [
-                            { id: '1', nome: 'Pizzaria Demo', responsavel: 'João', whatsapp: '11999999999', plano: 'Mensal', dataVencimento: '2024-12-31', status: 'ativo', lojaId: 'demo' },
-                            { id: '2', nome: 'Pizza Express', responsavel: 'Maria', whatsapp: '11988888888', plano: 'Anual', dataVencimento: '2025-06-30', status: 'ativo', lojaId: 'express' },
-                            { id: '3', nome: 'Bella Pizza', responsavel: 'Carlos', whatsapp: '11977777777', plano: 'Trimestral', dataVencimento: '2024-10-15', status: 'inadimplente', lojaId: 'bella' }
-                        ];
-                        pedidos = [
-                            { id: 'abc123', loja: 'Pizzaria Demo', cliente_nome: 'Carlos', total: 45.90, status: 'entregue' },
-                            { id: 'def456', loja: 'Pizza Express', cliente_nome: 'Ana', total: 32.50, status: 'pendente' }
-                        ];
-                        // Dados de demonstração para solicitações
-                        solicitacoes = [
-                            { 
-                                id: 'sol1', 
-                                nome_loja: 'Pizzaria Teste', 
-                                responsavel: 'Roberto', 
-                                email: 'roberto@teste.com', 
-                                whatsapp: '11966666666',
-                                data_cadastro: { seconds: Date.now() / 1000 }
-                            },
-                            { 
-                                id: 'sol2', 
-                                nome_loja: 'Hamburgueria Express', 
-                                responsavel: 'Patrícia', 
-                                email: 'patricia@express.com', 
-                                whatsapp: '11955555555',
-                                data_cadastro: { seconds: Date.now() / 1000 - 86400 }
-                            }
-                        ];
-                        atualizarTabelaLojas();
-                        atualizarTabelaPedidos();
-                        atualizarSolicitacoes();
-                    }, 1000);
-                }
-            });
+            document.getElementById('initial-loading').style.display = 'none';
+            document.getElementById('app').classList.remove('hidden');
+            
+            carregarConfiguracoes();
+            iniciarListeners();
+            
+            // Mostrar a seção de lojas por padrão
+            showSection('clientes');
         };
 
+        // ==================== LISTENERS ====================
         function iniciarListeners() {
-            try {
-                // Listener de clientes
-                onSnapshot(query(collection(db, "clientes"), orderBy("nome")), (snap) => {
-                    clientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    atualizarTabelaLojas();
-                });
-                
-                // Listener de pedidos
-                onSnapshot(query(collection(db, "pedidos"), orderBy("created_at", "desc"), limit(50)), (snap) => {
-                    pedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    atualizarTabelaPedidos();
-                });
-                
-                // Listener de solicitações - CORRIGIDO
-                const qSolicitacoes = query(
-                    collection(db, "solicitacoes_lojas"), 
-                    where("status", "==", "pendente"),
-                    orderBy("data_cadastro", "desc")
-                );
-                
-                solicitacoesUnsubscribe = onSnapshot(qSolicitacoes, (snap) => {
-                    console.log("Solicitações recebidas:", snap.docs.length);
-                    solicitacoes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    atualizarSolicitacoes();
-                }, (error) => {
-                    console.error("Erro no listener de solicitações:", error);
-                    // Se der erro, usar dados de demonstração
-                    if (solicitacoes.length === 0) {
-                        solicitacoes = [
-                            { 
-                                id: 'demo1', 
-                                nome_loja: 'Pizzaria Demo (erro Firebase)', 
-                                responsavel: 'João', 
-                                email: 'joao@demo.com', 
-                                whatsapp: '11999999999',
-                                data_cadastro: { seconds: Date.now() / 1000 }
-                            }
-                        ];
-                        atualizarSolicitacoes();
-                    }
-                });
-            } catch (e) {
-                console.error("Erro ao iniciar listeners:", e);
-                // Se não conseguir conectar ao Firebase, usar dados de demonstração
-                setTimeout(() => {
-                    solicitacoes = [
-                        { 
-                            id: 'demo1', 
-                            nome_loja: 'Pizzaria Demo (offline)', 
-                            responsavel: 'João', 
-                            email: 'joao@demo.com', 
-                            whatsapp: '11999999999',
-                            data_cadastro: { seconds: Date.now() / 1000 }
-                        }
-                    ];
-                    atualizarSolicitacoes();
-                }, 2000);
-            }
+            const { db, collection, onSnapshot, query, orderBy, where } = getFirebase();
+            
+            // Listener de clientes
+            const qClientes = query(collection(db, "clientes"), orderBy("nome"));
+            clientesUnsubscribe = onSnapshot(qClientes, (snapshot) => {
+                clientes = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                tratarDatasClientes();
+                atualizarTabelaClientes();
+            }, (error) => {
+                console.error("Erro ao carregar clientes:", error);
+            });
+
+            // Listener de pedidos (últimos 100)
+            const qPedidos = query(collection(db, "pedidos"), orderBy("created_at", "desc"), limit(100));
+            pedidosUnsubscribe = onSnapshot(qPedidos, (snapshot) => {
+                pedidos = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                atualizarTabelaPedidos();
+            }, (error) => {
+                console.error("Erro ao carregar pedidos:", error);
+            });
+
+            // Listener de solicitações pendentes
+            const qSolicitacoes = query(collection(db, "solicitacoes_lojas"), where("status", "==", "pendente"));
+            solicitacoesUnsubscribe = onSnapshot(qSolicitacoes, (snapshot) => {
+                solicitacoes = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                atualizarListaSolicitacoes();
+            }, (error) => {
+                console.error("Erro ao carregar solicitações:", error);
+            });
         }
 
-        // --- TABELA DE LOJAS ---
-        function atualizarTabelaLojas() {
-            const tbody = document.getElementById('clientes-tbody');
-            if (!tbody) return;
+        function tratarDatasClientes() {
+            clientes.forEach(c => {
+                if (c.dataInicio && typeof c.dataInicio.toDate === 'function') {
+                    c.dataInicio = c.dataInicio.toDate().toISOString().split('T')[0];
+                }
+                if (c.dataVencimento && typeof c.dataVencimento.toDate === 'function') {
+                    c.dataVencimento = c.dataVencimento.toDate().toISOString().split('T')[0];
+                }
+            });
+        }
+
+        // ==================== FIREBASE HELPER ====================
+        function getFirebase() {
+            return {
+                db: window.db,
+                auth: window.auth,
+                authModules: window.authModules,
+                collection: window.collection,
+                addDoc: window.addDoc,
+                getDocs: window.getDocs,
+                doc: window.doc,
+                getDoc: window.getDoc,
+                setDoc: window.setDoc,
+                updateDoc: window.updateDoc,
+                deleteDoc: window.deleteDoc,
+                onSnapshot: window.onSnapshot,
+                query: window.query,
+                where: window.where,
+                orderBy: window.orderBy,
+                limit: window.limit,
+                Timestamp: window.Timestamp
+            };
+        }
+
+        // ==================== NAVEGAÇÃO ====================
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section + '-section').classList.remove('hidden');
             
+            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+            document.getElementById('menu-' + section).classList.add('active');
+            
+            const titles = {
+                clientes: 'Lojas',
+                solicitacoes: 'Solicitações',
+                pedidos: 'Pedidos',
+                configuracoes: 'Configurações'
+            };
+            document.getElementById('page-title').innerText = titles[section] || 'Lojas';
+        }
+
+        // ==================== TABELA DE LOJAS ====================
+        function atualizarTabelaClientes() {
+            const hoje = new Date(); hoje.setHours(0,0,0,0);
+            
+            let html = '';
             if (clientes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">Nenhuma loja cadastrada</td></tr>';
+                html = `<tr><td colspan="7" class="text-center py-8 text-gray-500">Nenhuma loja cadastrada</td></tr>`;
+            } else {
+                clientes.forEach(c => {
+                    const venc = c.dataVencimento ? new Date(c.dataVencimento + 'T00:00:00') : null;
+                    const diff = venc ? Math.ceil((venc - hoje) / (1000*60*60*24)) : null;
+                    let diasClasse = '', diasTexto = '';
+                    
+                    if (diff !== null) {
+                        if (diff < 0) { diasClasse = 'badge-danger'; diasTexto = 'Vencido'; }
+                        else if (diff === 0) { diasClasse = 'badge-danger'; diasTexto = 'Vence hoje'; }
+                        else if (diff <= 3) { diasClasse = 'badge-warning'; diasTexto = `${diff} dias`; }
+                        else { diasClasse = 'badge-success'; diasTexto = `${diff} dias`; }
+                    }
+                    
+                    let statusClasse = '';
+                    let statusTexto = c.status || 'ativo';
+                    if (c.status === 'ativo') statusClasse = 'badge-success';
+                    else if (c.status === 'inadimplente') statusClasse = 'badge-warning';
+                    else statusClasse = 'badge-danger';
+                    
+                    const link = `${dominioBase}${c.link || c.nome?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'loja'}`;
+                    
+                    html += `
+                    <tr class="hover:bg-gray-50 transition" data-cliente-id="${c.id}" data-loja-id="${c.lojaId || ''}">
+                        <td class="font-semibold">${c.nome || '-'}</td>
+                        <td>${c.responsavel || '-'}</td>
+                        <td>${c.whatsapp || '-'}</td>
+                        <td>${c.plano || 'Mensal'}</td>
+                        <td>
+                            <span class="${diasClasse}">${diasTexto}</span>
+                            <div class="text-xs text-gray-400 mt-1">${c.dataVencimento || ''}</div>
+                        </td>
+                        <td>
+                            <span class="${statusClasse}">${statusTexto}</span>
+                        </td>
+                        <td>
+                            <div class="actions-footer">
+                                <button onclick="editarCliente('${c.id}')" class="action-button action-edit" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                    Editar
+                                </button>
+                                <button onclick="verDetalhesLoja('${c.id}')" class="action-button action-view" title="Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                    Detalhes
+                                </button>
+                                <button onclick="toggleBloqueioLoja('${c.lojaId || c.id}')" class="action-button action-block" title="Bloquear/Desbloquear Loja">
+                                    <i class="fas fa-ban"></i>
+                                    Bloquear
+                                </button>
+                                <button onclick="enviarCobranca('${c.id}')" class="action-button action-whatsapp" title="Enviar cobrança">
+                                    <i class="fab fa-whatsapp"></i>
+                                    WhatsApp
+                                </button>
+                                <button onclick="excluirCliente('${c.id}')" class="action-button action-delete" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                    Excluir
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('clientes-tbody').innerHTML = html;
+        }
+
+        // ==================== FUNÇÃO DE BLOQUEIO/DESBLOQUEIO DE LOJA ====================
+        async function toggleBloqueioLoja(lojaId) {
+            if (!lojaId) {
+                Swal.fire('Erro', 'ID da loja não encontrado.', 'error');
                 return;
             }
-            
-            tbody.innerHTML = clientes.map(c => {
-                // Formatar data de vencimento
-                let dataVenc = '-';
-                if (c.dataVencimento) {
-                    try {
-                        if (c.dataVencimento && typeof c.dataVencimento.toDate === 'function') {
-                            dataVenc = c.dataVencimento.toDate().toLocaleDateString('pt-BR');
-                        } else if (c.dataVencimento) {
-                            dataVenc = new Date(c.dataVencimento).toLocaleDateString('pt-BR');
-                        }
-                    } catch (e) {
-                        dataVenc = c.dataVencimento;
-                    }
-                }
-                
-                return `
-                <tr class="hover:bg-gray-50 border-b" data-id="${c.id}">
-                    <td class="py-2">
-                        <div class="font-bold text-sm">${c.nome || ''}</div>
-                        <div class="text-[10px] text-gray-400">${c.responsavel || ''}</div>
-                    </td>
-                    <td class="text-xs">${c.whatsapp || '-'}</td>
-                    <td>
-                        <div class="text-xs font-bold">${c.plano || 'Mensal'}</div>
-                        <div class="text-[10px] text-red-500">${dataVenc}</div>
-                    </td>
-                    <td>
-                        <span class="px-2 py-1 rounded-full text-[9px] font-bold ${c.status === 'ativo' ? 'bg-green-100 text-green-700' : c.status === 'inadimplente' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
-                            ${c.status || 'ativo'}
-                        </span>
-                    </td>
-                    <td class="flex gap-1 py-2">
-                        <button onclick="editarCliente('${c.id}')" class="p-2 bg-gray-100 rounded-lg hover:bg-gray-200" title="Editar">
-                            <i class="fas fa-edit text-xs"></i>
-                        </button>
-                        <button onclick="toggleBloqueio('${c.id}', '${c.status}')" class="p-2 bg-gray-100 rounded-lg hover:bg-gray-200" title="Bloquear/Desbloquear">
-                            <i class="fas fa-power-off text-xs"></i>
-                        </button>
-                        <button onclick="enviarCobranca('${c.id}')" class="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200" title="Cobrar via WhatsApp">
-                            <i class="fab fa-whatsapp text-xs"></i>
-                        </button>
-                        <button onclick="excluirCliente('${c.id}', this)" class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200" title="Excluir loja">
-                            <i class="fas fa-trash text-xs"></i>
-                        </button>
-                    </td>
-                </tr>
-            `}).join('');
-        }
-
-        // --- EXCLUIR LOJA ---
-        async function excluirCliente(id, botao) {
-            const cliente = clientes.find(c => c.id === id);
-            if (!cliente) return;
-
-            const result = await Swal.fire({
-                title: 'Excluir loja?',
-                text: `Tem certeza que deseja excluir a loja "${cliente.nome}"? Esta ação não poderá ser desfeita.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sim, excluir!',
-                cancelButtonText: 'Cancelar'
-            });
-            if (!result.isConfirmed) return;
-
-            // Feedback visual no botão
-            const originalHTML = botao.innerHTML;
-            botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            botao.disabled = true;
-
+            const { db, doc, getDoc, updateDoc } = getFirebase();
             try {
-                // Verificar se está no modo demonstração
-                if (!window.db || !auth.currentUser) {
-                    // Modo demonstração - apenas remover da lista local
-                    clientes = clientes.filter(c => c.id !== id);
-                    atualizarTabelaLojas();
-                    
-                    setTimeout(() => {
-                        Swal.fire('Excluído!', 'Loja removida (modo demonstração).', 'success');
-                        botao.innerHTML = originalHTML;
-                        botao.disabled = false;
-                    }, 500);
+                const lojaRef = doc(db, "lojas", lojaId);
+                const lojaSnap = await getDoc(lojaRef);
+                if (!lojaSnap.exists()) {
+                    Swal.fire('Erro', 'Loja não encontrada.', 'error');
                     return;
                 }
-
-                // Modo Firebase real
-                console.log("Excluindo loja:", id);
-                
-                // 1. Excluir da coleção clientes
-                await deleteDoc(doc(db, "clientes", id));
-                
-                // 2. Se tiver lojaId, excluir também da coleção lojas
-                if (cliente.lojaId) {
-                    try {
-                        await deleteDoc(doc(db, "lojas", cliente.lojaId));
-                    } catch (e) {
-                        console.log("Erro ao excluir lojas, mas continuando:", e);
-                    }
-                }
-                
-                // 3. Feedback de sucesso
-                Swal.fire('Excluído!', 'Loja removida com sucesso.', 'success');
-                
-            } catch (e) {
-                console.error("Erro ao excluir:", e);
-                Swal.fire('Erro', e.message || 'Erro ao excluir loja. Verifique as permissões do Firestore.', 'error');
-            } finally {
-                botao.innerHTML = originalHTML;
-                botao.disabled = false;
+                const loja = lojaSnap.data();
+                const novoStatus = loja.status === 'ativo' ? 'bloqueado' : 'ativo';
+                const acao = novoStatus === 'ativo' ? 'desbloquear' : 'bloquear';
+                const result = await Swal.fire({
+                    title: `Confirmar ${acao}`,
+                    text: `Tem certeza que deseja ${acao} esta loja?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: novoStatus === 'ativo' ? '#10b981' : '#ef4444',
+                    confirmButtonText: `Sim, ${acao}`,
+                    cancelButtonText: 'Cancelar'
+                });
+                if (!result.isConfirmed) return;
+                await updateDoc(lojaRef, { status: novoStatus });
+                Swal.fire({
+                    title: 'Sucesso!',
+                    text: `Loja ${novoStatus === 'ativo' ? 'desbloqueada' : 'bloqueada'} com sucesso.`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                console.error("Erro ao alterar status:", error);
+                Swal.fire('Erro', 'Não foi possível alterar o status. Verifique as permissões do Firestore.', 'error');
             }
         }
 
-        // --- TABELA DE PEDIDOS ---
+        // ==================== TABELA DE PEDIDOS ====================
         function atualizarTabelaPedidos() {
             const tbody = document.getElementById('pedidos-tbody');
             if (!tbody) return;
             
             if (pedidos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-400">Nenhum pedido encontrado</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500">Nenhum pedido encontrado</td></tr>`;
                 return;
             }
             
-            tbody.innerHTML = pedidos.map(p => {
-                const lojaNome = (typeof p.loja === 'string') ? p.loja : (p.lojaId ? clientes.find(c => c.lojaId === p.lojaId)?.nome : '—');
+            let html = '';
+            pedidos.slice(0, 10).forEach(p => {
+                const loja = clientes.find(c => c.id === p.lojaId) || { nome: 'Desconhecida' };
+                const data = p.created_at ? new Date(p.created_at.seconds * 1000).toLocaleString('pt-BR') : '-';
                 
-                return `
-                <tr class="hover:bg-gray-50 border-b">
-                    <td class="py-2 text-xs font-mono">${p.id ? p.id.slice(0,8) : '---'}...</td>
-                    <td class="text-xs">${lojaNome || '—'}</td>
-                    <td class="text-xs">${p.cliente_nome || p.cliente || '—'}</td>
-                    <td class="text-xs font-bold">R$ ${(p.total || 0).toFixed(2).replace('.',',')}</td>
+                html += `
+                <tr>
+                    <td class="font-mono text-xs">#${p.id.slice(-8)}</td>
+                    <td>${loja.nome}</td>
+                    <td>${p.cliente_nome || '-'}</td>
+                    <td class="font-bold">R$ ${(p.total || 0).toFixed(2).replace('.',',')}</td>
+                    <td><span class="badge-info">${p.status || 'Novo'}</span></td>
+                    <td class="text-sm">${data}</td>
                     <td>
-                        <span class="px-2 py-1 rounded-full text-[9px] font-bold ${p.status === 'entregue' || p.status === 'Finalizado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
-                            ${p.status || 'pendente'}
-                        </span>
-                    </td>
-                    <td class="py-2">
-                        <button onclick="detalhesPedido('${p.id}')" class="p-2 bg-gray-100 rounded-lg hover:bg-gray-200">
-                            <i class="fas fa-eye text-xs"></i>
+                        <button onclick="verPedido('${p.id}')" class="action-button action-view">
+                            <i class="fas fa-eye"></i>
+                            Ver
                         </button>
                     </td>
-                </tr>
-            `}).join('');
-        }
-
-        function detalhesPedido(id) {
-            const pedido = pedidos.find(p => p.id === id);
-            if (!pedido) return;
-            
-            Swal.fire({
-                title: 'Detalhes do Pedido',
-                html: `
-                    <div class="text-left text-sm">
-                        <p><strong>ID:</strong> ${id}</p>
-                        <p><strong>Loja:</strong> ${pedido.loja || '—'}</p>
-                        <p><strong>Cliente:</strong> ${pedido.cliente_nome || pedido.cliente || '—'}</p>
-                        <p><strong>Total:</strong> R$ ${(pedido.total || 0).toFixed(2).replace('.',',')}</p>
-                        <p><strong>Status:</strong> ${pedido.status || 'pendente'}</p>
-                        ${pedido.rua ? `<p><strong>Endereço:</strong> ${pedido.rua}, ${pedido.numero || 'S/N'}</p>` : ''}
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonColor: '#059669'
+                </tr>`;
             });
+            tbody.innerHTML = html;
         }
 
-        // --- SOLICITAÇÕES (CORRIGIDO) ---
-        function atualizarSolicitacoes() {
-            console.log("Atualizando solicitações:", solicitacoes.length);
-            setText('solicitacoes-count', solicitacoes.length);
+        // ==================== SOLICITAÇÕES ====================
+        function atualizarListaSolicitacoes() {
+            const container = document.getElementById('solicitacoes-lista');
+            const countSpan = document.getElementById('solicitacoes-count');
             
-            const lista = document.getElementById('solicitacoes-lista');
-            if (!lista) return;
+            if (!container) return;
             
+            countSpan.innerText = `${solicitacoes.length} pendente${solicitacoes.length !== 1 ? 's' : ''}`;
+
             if (solicitacoes.length === 0) {
-                lista.innerHTML = '<div class="text-center py-12 bg-gray-50 rounded-2xl"><p class="text-gray-500">Nenhuma solicitação pendente</p></div>';
+                container.innerHTML = '<div class="text-center py-12 bg-gray-50 rounded-2xl"><p class="text-gray-500">Nenhuma solicitação pendente</p></div>';
                 return;
             }
-            
-            lista.innerHTML = solicitacoes.map(s => {
-                // Formatar data
-                let dataCadastro = 'Data não informada';
-                if (s.data_cadastro) {
-                    try {
-                        if (s.data_cadastro && typeof s.data_cadastro.toDate === 'function') {
-                            dataCadastro = s.data_cadastro.toDate().toLocaleString('pt-BR');
-                        } else if (s.data_cadastro.seconds) {
-                            dataCadastro = new Date(s.data_cadastro.seconds * 1000).toLocaleString('pt-BR');
-                        }
-                    } catch (e) {
-                        dataCadastro = 'Data inválida';
-                    }
-                }
-                
-                return `
-                <div class="p-5 bg-gray-50 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border hover:border-green-200 transition">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            <h4 class="font-bold text-base text-gray-800">${s.nome_loja || 'Sem nome'}</h4>
-                            <span class="badge-warning text-[9px]">Pendente</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                            <div class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-user w-4"></i>
-                                <span>${s.responsavel || 'Não informado'}</span>
+
+            let html = '';
+            solicitacoes.forEach(s => {
+                const data = s.data_cadastro ? new Date(s.data_cadastro.seconds * 1000).toLocaleString('pt-BR') : 'Data não informada';
+                html += `
+                <div class="solicitacao-card">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h4 class="font-bold text-lg text-gray-800">${s.nome_loja}</h4>
+                                <span class="badge-warning">Pendente</span>
                             </div>
-                            <div class="flex items-center gap-2 text-gray-600">
-                                <i class="fab fa-whatsapp w-4"></i>
-                                <span>${s.whatsapp || 'Não informado'}</span>
-                            </div>
-                            <div class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-envelope w-4"></i>
-                                <span>${s.email || 'Não informado'}</span>
-                            </div>
-                            <div class="flex items-center gap-2 text-gray-600">
-                                <i class="fas fa-calendar w-4"></i>
-                                <span>${dataCadastro}</span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <i class="fas fa-user w-5"></i>
+                                    <span>${s.responsavel || 'Não informado'}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <i class="fab fa-whatsapp w-5"></i>
+                                    <span>${s.whatsapp || 'Não informado'}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <i class="fas fa-envelope w-5"></i>
+                                    <span>${s.email || 'Não informado'}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <i class="fas fa-calendar w-5"></i>
+                                    <span>${data}</span>
+                                </div>
                             </div>
                         </div>
+                        <div class="flex gap-3">
+                            <button onclick="aprovarSolicitacao('${s.id}')" class="btn-primary flex items-center gap-2">
+                                <i class="fas fa-check"></i>
+                                Aprovar
+                            </button>
+                            <button onclick="rejeitarSolicitacao('${s.id}')" class="btn-danger flex items-center gap-2">
+                                <i class="fas fa-times"></i>
+                                Rejeitar
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <button onclick="aprovarSolicitacao('${s.id}')" class="flex-1 md:flex-none bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-2">
-                            <i class="fas fa-check"></i>
-                            Aprovar
-                        </button>
-                        <button onclick="rejeitarSolicitacao('${s.id}')" class="flex-1 md:flex-none bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-2">
-                            <i class="fas fa-times"></i>
-                            Rejeitar
-                        </button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        async function aprovarSolicitacao(id) {
-            const s = solicitacoes.find(x => x.id === id);
-            if (!s) return;
-            
-            // Verificar se está no modo demonstração
-            if (!window.db || !auth.currentUser) {
-                Swal.fire({
-                    title: 'Modo Demonstração',
-                    text: 'Aprovação simulada!',
-                    icon: 'success',
-                    timer: 2000
-                });
-                // Remover da lista local
-                solicitacoes = solicitacoes.filter(x => x.id !== id);
-                atualizarSolicitacoes();
-                return;
-            }
-            
-            try {
-                const uc = await authModules.createUserWithEmailAndPassword(auth, s.email, s.senha);
-                const uid = uc.user.uid;
-                const lojaId = s.nome_loja.toLowerCase().replace(/\s+/g, '-') + '-' + Math.floor(Math.random() * 1000);
-                
-                await setDoc(doc(db, "clientes", uid), { 
-                    nome: s.nome_loja, 
-                    responsavel: s.responsavel, 
-                    email: s.email, 
-                    whatsapp: s.whatsapp, 
-                    status: 'ativo', 
-                    plano: 'Mensal', 
-                    lojaId: lojaId,
-                    dataInicio: Timestamp.now(),
-                    dataVencimento: Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
-                });
-                
-                await setDoc(doc(db, "lojas", lojaId), { 
-                    nome_loja: s.nome_loja, 
-                    status: 'ativo', 
-                    data_criacao: Timestamp.now() 
-                });
-                
-                await updateDoc(doc(db, "solicitacoes_lojas", id), { status: 'aprovado' });
-                
-                Swal.fire({
-                    title: 'Sucesso!',
-                    html: `Loja criada!<br>Link: <strong>${dominioBase}${lojaId}</strong>`,
-                    icon: 'success'
-                });
-            } catch (e) { 
-                console.error("Erro ao aprovar:", e);
-                Swal.fire('Erro', e.message, 'error'); 
-            }
-        }
-
-        async function rejeitarSolicitacao(id) {
-            const result = await Swal.fire({
-                title: 'Rejeitar solicitação?',
-                text: 'Essa ação não poderá ser desfeita.',
-                icon: 'warning',
-                showCancelButton: true
+                </div>`;
             });
-            if (!result.isConfirmed) return;
-            
-            // Verificar se está no modo demonstração
-            if (!window.db || !auth.currentUser) {
-                solicitacoes = solicitacoes.filter(x => x.id !== id);
-                atualizarSolicitacoes();
-                Swal.fire('Rejeitado', 'Solicitação rejeitada (modo demonstração)', 'success');
-                return;
-            }
-            
-            try {
-                await updateDoc(doc(db, "solicitacoes_lojas", id), { status: 'rejeitado' });
-                Swal.fire('Rejeitado', 'Solicitação marcada como rejeitada', 'success');
-            } catch (e) {
-                console.error("Erro ao rejeitar:", e);
-                Swal.fire('Erro', e.message, 'error');
-            }
+            container.innerHTML = html;
         }
 
-        // --- BLOQUEIO / DESBLOQUEIO ---
-        async function toggleBloqueio(id, statusAtual) {
-            const novoStatus = statusAtual === 'ativo' ? 'bloqueado' : 'ativo';
-            const acao = novoStatus === 'ativo' ? 'desbloquear' : 'bloquear';
-            
-            const result = await Swal.fire({
-                title: 'Confirmar?',
-                text: `Deseja ${acao} esta loja? O acesso ao cardápio será ${novoStatus === 'ativo' ? 'liberado' : 'interrompido'} imediatamente.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: novoStatus === 'ativo' ? '#059669' : '#dc2626',
-                confirmButtonText: `Sim, ${acao}!`
-            });
-            
-            if (result.isConfirmed) {
-                try {
-                    // 1. Referência do Cliente no SaaS
-                    const clienteRef = window.doc(window.db, "clientes", id);
-                    
-                    // 2. Buscar dados para pegar o ID da loja (slug/link)
-                    const snap = await window.getDoc(clienteRef);
-                    if (!snap.exists()) throw new Error("Loja não encontrada.");
-                    
-                    const dados = snap.data();
-                    const lojaIdDoCardapio = dados.lojaId || dados.link;
-                    
-                    // 3. Atualizar status no cadastro do Cliente
-                    await window.updateDoc(clienteRef, { status: novoStatus });
-                    
-                    // 4. Atualizar status no Cardápio Real (Coleção "lojas")
-                    if (lojaIdDoCardapio) {
-                        const lojaRef = window.doc(window.db, "lojas", lojaIdDoCardapio);
-                        await window.updateDoc(lojaRef, { status: novoStatus });
-                    }
-                    
-                    Swal.fire('Sucesso!', `Loja ${novoStatus} com sucesso.`, 'success');
-                } catch (e) {
-                    console.error("Erro ao bloquear:", e);
-                    Swal.fire('Erro', 'Falha ao sincronizar bloqueio: ' + e.message, 'error');
-                }
-            }
-        }
-
-        // --- COBRANÇA WHATSAPP ---
-        async function enviarCobranca(clienteId) {
-            const cliente = clientes.find(c => c.id === clienteId);
-            if (!cliente || !cliente.whatsapp) {
-                Swal.fire('Atenção', 'Cliente sem WhatsApp cadastrado', 'warning');
-                return;
-            }
-            
-            let dataVenc = 'em breve';
-            if (cliente.dataVencimento) {
-                try {
-                    if (cliente.dataVencimento && typeof cliente.dataVencimento.toDate === 'function') {
-                        dataVenc = cliente.dataVencimento.toDate().toLocaleDateString('pt-BR');
-                    } else {
-                        dataVenc = new Date(cliente.dataVencimento).toLocaleDateString('pt-BR');
-                    }
-                } catch (e) {
-                    dataVenc = cliente.dataVencimento;
-                }
-            }
-            
-            const mensagem = encodeURIComponent(
-                `Olá ${cliente.responsavel || cliente.nome}, tudo bem? 😊\n\n` +
-                `Identificamos que a mensalidade da sua loja *${cliente.nome}* está próxima do vencimento (${dataVenc}).\n` +
-                `Para manter seu cardápio sempre ativo, realize o pagamento.\n\n` +
-                `Link do cardápio: ${dominioBase}${cliente.lojaId || ''}\n\n` +
-                `Qualquer dúvida, estamos à disposição.`
-            );
-            const link = `https://wa.me/${cliente.whatsapp.replace(/\D/g,'')}?text=${mensagem}`;
-            window.open(link, '_blank');
-        }
-
-        // --- CRUD LOJA (MODAL) ---
+        // ==================== MODAL CLIENTE ====================
         function novoCliente() {
             document.getElementById('modal-titulo').innerText = 'Nova Loja';
             document.getElementById('cliente-id').value = '';
@@ -773,11 +1003,12 @@
             document.getElementById('campo-data-vencimento').value = venc.toISOString().split('T')[0];
             
             document.getElementById('campo-status').value = 'ativo';
+            
             document.getElementById('modal-cliente').classList.remove('hidden');
         }
 
         function editarCliente(id) {
-            const c = clientes.find(x => x.id === id);
+            const c = clientes.find(c => c.id === id);
             if (!c) return;
             
             document.getElementById('modal-titulo').innerText = 'Editar Loja';
@@ -787,29 +1018,20 @@
             document.getElementById('campo-whatsapp').value = c.whatsapp || '';
             document.getElementById('campo-email').value = c.email || '';
             document.getElementById('campo-plano').value = c.plano || 'Mensal';
-            
-            // Formatar datas
-            let dataInicio = c.dataInicio || '';
-            if (c.dataInicio && typeof c.dataInicio.toDate === 'function') {
-                dataInicio = c.dataInicio.toDate().toISOString().split('T')[0];
-            }
-            document.getElementById('campo-data-inicio').value = dataInicio;
-            
-            let dataVenc = c.dataVencimento || '';
-            if (c.dataVencimento && typeof c.dataVencimento.toDate === 'function') {
-                dataVenc = c.dataVencimento.toDate().toISOString().split('T')[0];
-            }
-            document.getElementById('campo-data-vencimento').value = dataVenc;
-            
+            document.getElementById('campo-data-inicio').value = c.dataInicio || '';
+            document.getElementById('campo-data-vencimento').value = c.dataVencimento || '';
             document.getElementById('campo-status').value = c.status || 'ativo';
+            
             document.getElementById('modal-cliente').classList.remove('hidden');
         }
 
-        function fecharModal() { 
-            document.getElementById('modal-cliente').classList.add('hidden'); 
+        function fecharModal() {
+            document.getElementById('modal-cliente').classList.add('hidden');
         }
 
         async function salvarCliente() {
+            const { db, doc, updateDoc, addDoc, collection, Timestamp } = getFirebase();
+            
             const id = document.getElementById('cliente-id').value;
             const nome = document.getElementById('campo-nome').value.trim();
             if (!nome) {
@@ -817,108 +1039,310 @@
                 return;
             }
             
+            const link = nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            
+            const dataInicio = document.getElementById('campo-data-inicio').value;
+            const dataVencimento = document.getElementById('campo-data-vencimento').value;
+            
             const dados = {
-                nome: nome,
+                nome,
                 responsavel: document.getElementById('campo-responsavel').value,
                 whatsapp: document.getElementById('campo-whatsapp').value,
                 email: document.getElementById('campo-email').value,
                 plano: document.getElementById('campo-plano').value,
-                status: document.getElementById('campo-status').value
+                link,
+                status: document.getElementById('campo-status').value,
+                dataInicio: dataInicio ? Timestamp.fromDate(new Date(dataInicio + 'T00:00:00')) : null,
+                dataVencimento: dataVencimento ? Timestamp.fromDate(new Date(dataVencimento + 'T00:00:00')) : null
             };
-            
-            // Adicionar datas se existirem
-            const dataInicio = document.getElementById('campo-data-inicio').value;
-            if (dataInicio) dados.dataInicio = dataInicio;
-            
-            const dataVenc = document.getElementById('campo-data-vencimento').value;
-            if (dataVenc) dados.dataVencimento = dataVenc;
             
             try {
                 if (id) {
                     await updateDoc(doc(db, "clientes", id), dados);
+                    Swal.fire('Sucesso', 'Loja atualizada!', 'success');
                 } else {
                     await addDoc(collection(db, "clientes"), dados);
+                    Swal.fire('Sucesso', 'Loja cadastrada!', 'success');
                 }
-                fecharModal(); 
-                Swal.fire('Sucesso', 'Loja salva!', 'success');
-            } catch (e) { 
-                console.error("Erro ao salvar:", e);
-                Swal.fire('Erro', e.message, 'error'); 
+                fecharModal();
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Erro', 'Não foi possível salvar', 'error');
             }
         }
 
-        // --- CONFIGURAÇÕES ---
+        // ==================== AÇÕES ====================
+        function enviarCobranca(id) {
+            const cliente = clientes.find(c => c.id === id);
+            if (!cliente || !cliente.whatsapp) {
+                Swal.fire('Atenção', 'Cliente sem WhatsApp cadastrado', 'warning');
+                return;
+            }
+            
+            const venc = cliente.dataVencimento ? new Date(cliente.dataVencimento + 'T00:00:00') : null;
+            const diff = venc ? Math.ceil((venc - new Date()) / (1000*60*60*24)) : '?';
+            const mensagem = `Olá ${cliente.responsavel || cliente.nome}! A mensalidade do seu cardápio digital vence em ${diff} dias. Para evitar bloqueio, realize o pagamento. Qualquer dúvida, estamos à disposição.`;
+            
+            const url = `https://wa.me/${cliente.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(mensagem)}`;
+            window.open(url, '_blank');
+        }
+
+        async function excluirCliente(id) {
+            const result = await Swal.fire({
+                title: 'Confirmar exclusão',
+                text: 'Esta ação não poderá ser desfeita!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'Excluir',
+                cancelButtonText: 'Cancelar'
+            });
+            
+            if (!result.isConfirmed) return;
+            
+            const { db, doc, deleteDoc } = getFirebase();
+            try {
+                await deleteDoc(doc(db, "clientes", id));
+                Swal.fire('Excluído!', 'Cliente removido.', 'success');
+            } catch (error) {
+                Swal.fire('Erro', 'Erro ao excluir', 'error');
+            }
+        }
+
+        // ==================== SOLICITAÇÕES (APROVAR/REJEITAR) ====================
+        function gerarLojaId(nome) {
+            const base = nome.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+            const sufixo = Math.floor(Math.random() * 1000);
+            return `${base}-${sufixo}`;
+        }
+
+        async function aprovarSolicitacao(id) {
+            const result = await Swal.fire({
+                title: 'Aprovar loja?',
+                text: 'Ao aprovar, um usuário será criado no Authentication e a loja estará disponível.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#059669',
+                confirmButtonText: 'Sim, aprovar',
+                cancelButtonText: 'Cancelar'
+            });
+            if (!result.isConfirmed) return;
+
+            try {
+                const { db, auth, authModules, doc, updateDoc, setDoc, collection, Timestamp, getDoc } = getFirebase();
+
+                const solicRef = doc(db, "solicitacoes_lojas", id);
+                const solicSnap = await getDoc(solicRef);
+                if (!solicSnap.exists()) throw new Error("Solicitação não encontrada");
+                const dados = solicSnap.data();
+
+                // 1. Criar usuário no Authentication
+                const userCredential = await authModules.createUserWithEmailAndPassword(auth, dados.email, dados.senha);
+                const uid = userCredential.user.uid;
+
+                // 2. Gerar lojaId
+                const lojaId = gerarLojaId(dados.nome_loja);
+
+                // 3. Criar documento em clientes
+                const hoje = new Date();
+                const venc = new Date(); venc.setDate(venc.getDate() + 30);
+
+                await setDoc(doc(db, "clientes", uid), {
+                    lojaId: lojaId,
+                    nome: dados.nome_loja,
+                    responsavel: dados.responsavel,
+                    email: dados.email,
+                    whatsapp: dados.whatsapp,
+                    status: "ativo",
+                    plano: "Mensal",
+                    dataInicio: Timestamp.fromDate(hoje),
+                    dataVencimento: Timestamp.fromDate(venc),
+                    link: lojaId
+                });
+
+                // 4. Criar documento da loja
+                await setDoc(doc(db, "lojas", lojaId), {
+                    nome_loja: dados.nome_loja,
+                    responsavel: dados.responsavel,
+                    whatsapp: dados.whatsapp,
+                    email: dados.email,
+                    status: "ativo",
+                    usa_montador: true,
+                    data_criacao: Timestamp.now()
+                });
+
+                // 5. Criar configurações iniciais
+                await setDoc(doc(db, "lojas", lojaId, "configuracoes", "geral"), {
+                    nome_pizzaria: dados.nome_loja,
+                    loja_aberta: true,
+                    taxa_base: 6,
+                    preco_km: 2.5,
+                    pedido_minimo: 35,
+                    logo_url: ""
+                });
+
+                // 6. Atualizar solicitação
+                await updateDoc(solicRef, { 
+                    status: "aprovado", 
+                    aprovadoEm: Timestamp.now(),
+                    uid: uid,
+                    lojaId: lojaId
+                });
+
+                Swal.fire({
+                    title: 'Aprovado!',
+                    html: `Loja criada com sucesso.<br>Link do cardápio:<br><strong>${dominioBase}${lojaId}</strong>`,
+                    icon: 'success'
+                });
+            } catch (error) {
+                console.error("Erro ao aprovar solicitação:", error);
+                if (error.code === 'auth/email-already-in-use') {
+                    Swal.fire('Erro', 'Este e-mail já está em uso por outro usuário.', 'error');
+                } else {
+                    Swal.fire('Erro', 'Não foi possível aprovar a solicitação: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function rejeitarSolicitacao(id) {
+            const result = await Swal.fire({
+                title: 'Rejeitar solicitação?',
+                text: 'Esta ação não poderá ser desfeita.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Rejeitar',
+                cancelButtonText: 'Cancelar'
+            });
+            if (!result.isConfirmed) return;
+
+            try {
+                const { db, doc, updateDoc, Timestamp } = getFirebase();
+                await updateDoc(doc(db, "solicitacoes_lojas", id), {
+                    status: "rejeitado",
+                    rejeitadoEm: Timestamp.now()
+                });
+                Swal.fire('Rejeitado!', 'Solicitação rejeitada.', 'success');
+            } catch (error) {
+                console.error("Erro ao rejeitar solicitação:", error);
+                Swal.fire('Erro', 'Não foi possível rejeitar a solicitação.', 'error');
+            }
+        }
+
+        // ==================== CONFIGURAÇÕES ====================
         function carregarConfiguracoes() {
             const saved = localStorage.getItem('saasConfig');
             if (saved) {
                 const cfg = JSON.parse(saved);
                 mensalidadePadrao = cfg.mensalidade || 97.00;
+                diasAviso = cfg.diasAviso || 3;
                 dominioBase = cfg.dominio || "https://danamorim1347-max.github.io/lamen/?loja=";
             }
             document.getElementById('config-mensalidade').value = mensalidadePadrao;
+            document.getElementById('config-dias-aviso').value = diasAviso;
             document.getElementById('config-dominio').value = dominioBase;
         }
 
         function salvarConfiguracoes() {
             mensalidadePadrao = parseFloat(document.getElementById('config-mensalidade').value) || 97.00;
-            dominioBase = document.getElementById('config-dominio').value;
-            localStorage.setItem('saasConfig', JSON.stringify({ mensalidade: mensalidadePadrao, dominio: dominioBase }));
-            Swal.fire('Salvo!', 'Configurações atualizadas', 'success');
+            diasAviso = parseInt(document.getElementById('config-dias-aviso').value) || 3;
+            dominioBase = document.getElementById('config-dominio').value || "https://danamorim1347-max.github.io/lamen/?loja=";
+            
+            localStorage.setItem('saasConfig', JSON.stringify({
+                mensalidade: mensalidadePadrao,
+                diasAviso: diasAviso,
+                dominio: dominioBase
+            }));
+            
+            Swal.fire('Configurações salvas!', '', 'success');
         }
 
-        // --- PERSONALIZAÇÃO ---
-        function selecionarCor(tipo, hex) {
-            coresPersonalizadas[tipo] = hex;
-            document.getElementById('logo-part1').style.color = hex;
-            document.querySelectorAll('.btn-primary').forEach(b => {
-                b.style.background = `linear-gradient(135deg, ${hex} 0%, ${hex} 100%)`;
+        // ==================== FUNÇÕES AUXILIARES ====================
+        function verDetalhesLoja(id) {
+            const loja = clientes.find(c => c.id === id);
+            if (!loja) return;
+            
+            const link = `${dominioBase}${loja.link || ''}`;
+            
+            Swal.fire({
+                title: loja.nome,
+                html: `
+                    <div class="text-left space-y-2">
+                        <p><strong>Responsável:</strong> ${loja.responsavel || '-'}</p>
+                        <p><strong>WhatsApp:</strong> ${loja.whatsapp || '-'}</p>
+                        <p><strong>E-mail:</strong> ${loja.email || '-'}</p>
+                        <p><strong>Plano:</strong> ${loja.plano || 'Mensal'}</p>
+                        <p><strong>Status:</strong> ${loja.status || 'ativo'}</p>
+                        <p><strong>Data de início:</strong> ${loja.dataInicio || '-'}</p>
+                        <p><strong>Data de vencimento:</strong> ${loja.dataVencimento || '-'}</p>
+                        <p><strong>Link do cardápio:</strong><br>
+                        <a href="${link}" target="_blank" class="text-emerald-600 break-all">${link}</a></p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonColor: '#059669',
+                width: 600
             });
         }
 
-        function resetarCores() { 
-            location.reload(); 
-        }
-        
-        function salvarPersonalizacao() { 
-            localStorage.setItem('painelCores', JSON.stringify(coresPersonalizadas)); 
-            Swal.fire('Aplicado!', 'Cores salvas', 'success'); 
-        }
-
-        // --- NAVEGAÇÃO ---
-        function showSection(section) {
-            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(section + '-section').classList.remove('hidden');
-            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-            document.getElementById('menu-' + section).classList.add('active');
-        }
-
-        // --- SAIR ---
-        async function sairAdmin() { 
-            try {
-                await signOut(auth); 
-                window.location.reload(); 
-            } catch (e) {
-                console.error("Erro ao sair:", e);
-                window.location.reload();
+        function verPedido(id) {
+            const pedido = pedidos.find(p => p.id === id);
+            if (!pedido) return;
+            
+            const loja = clientes.find(c => c.id === pedido.lojaId) || { nome: 'Desconhecida' };
+            const data = pedido.created_at ? new Date(pedido.created_at.seconds * 1000).toLocaleString('pt-BR') : '-';
+            
+            let itensHtml = '';
+            if (pedido.itens_quantidade) {
+                itensHtml = Object.entries(pedido.itens_quantidade)
+                    .map(([item, qtd]) => `<li>${qtd}x ${item}</li>`)
+                    .join('');
             }
+            
+            Swal.fire({
+                title: `Pedido #${id.slice(-8)}`,
+                html: `
+                    <div class="text-left space-y-2">
+                        <p><strong>Loja:</strong> ${loja.nome}</p>
+                        <p><strong>Cliente:</strong> ${pedido.cliente_nome || '-'}</p>
+                        <p><strong>WhatsApp:</strong> ${pedido.cliente_whatsapp || '-'}</p>
+                        <p><strong>Endereço:</strong> ${pedido.rua || ''}, ${pedido.numero || ''} - ${pedido.bairro || ''}</p>
+                        <p><strong>Total:</strong> R$ ${(pedido.total || 0).toFixed(2).replace('.',',')}</p>
+                        <p><strong>Status:</strong> ${pedido.status || 'Novo'}</p>
+                        <p><strong>Data:</strong> ${data}</p>
+                        ${itensHtml ? `<div><strong>Itens:</strong><ul class="list-disc pl-5">${itensHtml}</ul></div>` : ''}
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonColor: '#059669',
+                width: 600
+            });
         }
 
-        // --- EXPORTAR PARA WINDOW ---
-        window.showSection = showSection; 
-        window.novoCliente = novoCliente; 
-        window.fecharModal = fecharModal;
-        window.salvarCliente = salvarCliente; 
-        window.toggleBloqueio = toggleBloqueio; 
+        async function sairAdmin() {
+            const { auth, authModules } = getFirebase();
+            await authModules.signOut(auth);
+            window.location.reload();
+        }
+
+        // ==================== EXPORTAR FUNÇÕES ====================
+        window.showSection = showSection;
+        window.novoCliente = novoCliente;
         window.editarCliente = editarCliente;
-        window.aprovarSolicitacao = aprovarSolicitacao; 
-        window.rejeitarSolicitacao = rejeitarSolicitacao;
-        window.enviarCobranca = enviarCobranca; 
-        window.detalhesPedido = detalhesPedido;
+        window.fecharModal = fecharModal;
+        window.salvarCliente = salvarCliente;
+        window.toggleBloqueioLoja = toggleBloqueioLoja;
+        window.enviarCobranca = enviarCobranca;
         window.excluirCliente = excluirCliente;
         window.salvarConfiguracoes = salvarConfiguracoes;
-        window.selecionarCor = selecionarCor; 
-        window.resetarCores = resetarCores; 
-        window.salvarPersonalizacao = salvarPersonalizacao;
+        window.aprovarSolicitacao = aprovarSolicitacao;
+        window.rejeitarSolicitacao = rejeitarSolicitacao;
+        window.verDetalhesLoja = verDetalhesLoja;
+        window.verPedido = verPedido;
         window.sairAdmin = sairAdmin;
     </script>
 </body>
