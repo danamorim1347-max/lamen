@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão SaaS - Cardápios Digitais</title>
+    <title>Master Pizza Pro | Painel Administrativo</title>
     
+    <!-- Tailwind + Font Awesome + Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+    <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZwWklTlIDsB4HJENTsL0CLKI4rOKwMQg",
@@ -44,264 +48,1021 @@
         window.query = query;
         window.where = where;
         window.orderBy = orderBy;
+        window.limit = limit;
         window.Timestamp = Timestamp;
 
-        console.log("🔥 Firebase inicializado (admin-5b03c) com Auth");
+        console.log("🔥 Firebase inicializado (admin-5b03c)");
         
         if (window.startApp) window.startApp();
     </script>
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f5f7fb; }
-        .sidebar-link { @apply flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white rounded-xl transition-all duration-200; }
-        .sidebar-link.active { @apply bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg; }
-        .stat-card { @apply bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1; }
-        .badge-success { @apply bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-semibold; }
-        .badge-warning { @apply bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full text-xs font-semibold; }
-        .badge-danger { @apply bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold; }
-        .badge-neutral { @apply bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full text-xs font-semibold; }
-        .hidden { display: none !important; }
-        .table-hover tbody tr:hover { @apply bg-gray-50; }
-        .btn-action { @apply p-2 rounded-lg text-gray-600 hover:text-white hover:bg-teal-500 transition-all duration-200; }
+        * {
+            font-family: 'Inter', sans-serif;
+        }
         
-        .sidebar-transition { transition: width 0.3s ease; }
+        body {
+            background: #f3f4f6;
+        }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Cards e botões */
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s;
+            border: 1px solid #f1f5f9;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #1f2937;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Botões de ação */
+        .action-button {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .action-button i {
+            font-size: 0.9rem;
+        }
+        
+        .action-edit {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+        
+        .action-edit:hover {
+            background: #dbeafe;
+        }
+        
+        .action-view {
+            background: #ecfdf5;
+            color: #065f46;
+        }
+        
+        .action-view:hover {
+            background: #d1fae5;
+        }
+        
+        .action-block {
+            background: #fffbeb;
+            color: #92400e;
+        }
+        
+        .action-block:hover {
+            background: #fef3c7;
+        }
+        
+        .action-whatsapp {
+            background: #f0fdf4;
+            color: #166534;
+        }
+        
+        .action-whatsapp:hover {
+            background: #dcfce7;
+        }
+        
+        .action-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .action-delete:hover {
+            background: #fecaca;
+        }
+        
+        /* Tabela */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #f1f5f9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 16px;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+        
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        /* Container de ações */
+        .actions-footer {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        /* Badges */
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-warning {
+            background: #fed7aa;
+            color: #92400e;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        /* Tabs */
+        .tab {
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #64748b;
+            border-radius: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        
+        .tab-active {
+            background: #059669;
+            color: white;
+        }
+        
+        .tab-active:hover {
+            background: #047857;
+            color: white;
+        }
+        
+        /* Sidebar */
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #94a3b8;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        
+        .sidebar-link:hover {
+            background: #1e293b;
+            color: white;
+        }
+        
+        .sidebar-link.active {
+            background: #059669;
+            color: white;
+        }
+        
+        /* Cards de solicitação */
+        .solicitacao-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .solicitacao-card:hover {
+            border-color: #059669;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.1);
+        }
+        
+        /* Loading */
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #059669;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        /* Personalização - Cores customizáveis */
+        .custom-primary {
+            background: var(--primary-color, #059669);
+        }
+        
+        .custom-secondary {
+            background: var(--secondary-color, #10b981);
+        }
+        
+        .custom-accent {
+            background: var(--accent-color, #f59e0b);
+        }
+        
+        /* Preview de cores */
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .color-preview:hover {
+            transform: scale(1.1);
+            border-color: #059669;
+        }
+        
+        .color-preview.selected {
+            border: 3px solid #059669;
+            box-shadow: 0 0 0 2px white;
+        }
+
+        /* Botões no topo */
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
-
-    <div id="initial-loading" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div class="text-center">
-            <div class="w-20 h-20 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <h2 class="text-2xl font-bold text-gray-800">Carregando painel...</h2>
-            <p class="text-gray-500">Aguarde um instante</p>
+    <!-- Loading inicial -->
+    <div id="initial-loading" class="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="text-center fade-in">
+            <div class="loading-spinner mx-auto mb-6"></div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Carregando painel</h2>
+            <p class="text-gray-500">Aguarde um instante...</p>
         </div>
     </div>
 
-    <div id="app" class="hidden flex min-h-screen">
-        <aside id="sidebar" class="bg-gray-900 text-white h-screen fixed left-0 top-0 overflow-hidden sidebar-transition z-30" style="width: 0;">
-            <div class="w-72 p-6">
+    <!-- Estrutura principal -->
+    <div id="app" class="hidden flex min-h-screen bg-gray-50">
+        <!-- Sidebar fixa -->
+        <aside class="w-72 bg-gray-900 text-white fixed left-0 top-0 h-screen overflow-y-auto shadow-2xl" style="z-index: 40;">
+            <div class="p-6">
+                <!-- Logo com cores dinâmicas -->
                 <div class="mb-10">
-                    <h1 class="text-3xl font-black bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">Menu<span class="text-white">SaaS</span></h1>
-                    <p class="text-xs text-gray-400 mt-2">Gestão de Cardápios Digitais</p>
+                    <h1 class="text-3xl font-black">
+                        <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent" id="logo-part1">Master</span>
+                        <span class="text-white" id="logo-part2">Pizza</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 mt-2 font-medium">Painel Administrativo</p>
                 </div>
                 
+                <!-- Menu -->
                 <nav class="space-y-2">
-                    <a href="#" onclick="showSection('dashboard')" id="menu-dashboard" class="sidebar-link active"><i class="fas fa-tachometer-alt w-6"></i> Dashboard</a>
-                    <a href="#" onclick="showSection('clientes')" id="menu-clientes" class="sidebar-link"><i class="fas fa-store w-6"></i> Clientes</a>
-                    <a href="#" onclick="showSection('pagamentos')" id="menu-pagamentos" class="sidebar-link"><i class="fas fa-credit-card w-6"></i> Pagamentos</a>
-                    <a href="#" onclick="showSection('alertas')" id="menu-alertas" class="sidebar-link"><i class="fas fa-bell w-6"></i> Alertas</a>
-                    <a href="#" onclick="showSection('relatorios')" id="menu-relatorios" class="sidebar-link"><i class="fas fa-chart-line w-6"></i> Relatórios</a>
-                    <a href="#" onclick="showSection('configuracoes')" id="menu-configuracoes" class="sidebar-link"><i class="fas fa-cog w-6"></i> Configurações</a>
-                    <a href="#" onclick="showSection('solicitacoes')" id="menu-solicitacoes" class="sidebar-link"><i class="fas fa-user-plus w-6"></i> Solicitações</a>
+                    <a href="#" onclick="showSection('dashboard')" id="menu-dashboard" class="sidebar-link active">
+                        <i class="fas fa-chart-pie w-6 text-lg"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" onclick="showSection('clientes')" id="menu-clientes" class="sidebar-link">
+                        <i class="fas fa-store w-6 text-lg"></i>
+                        <span>Lojas</span>
+                    </a>
+                    <a href="#" onclick="showSection('solicitacoes')" id="menu-solicitacoes" class="sidebar-link">
+                        <i class="fas fa-user-plus w-6 text-lg"></i>
+                        <span>Solicitações</span>
+                    </a>
+                    <a href="#" onclick="showSection('pedidos')" id="menu-pedidos" class="sidebar-link">
+                        <i class="fas fa-shopping-bag w-6 text-lg"></i>
+                        <span>Pedidos</span>
+                    </a>
+                    <a href="#" onclick="showSection('financeiro')" id="menu-financeiro" class="sidebar-link">
+                        <i class="fas fa-dollar-sign w-6 text-lg"></i>
+                        <span>Financeiro</span>
+                    </a>
+                    <a href="#" onclick="showSection('configuracoes')" id="menu-configuracoes" class="sidebar-link">
+                        <i class="fas fa-cog w-6 text-lg"></i>
+                        <span>Configurações</span>
+                    </a>
                 </nav>
                 
+                <!-- Perfil e logout -->
                 <div class="absolute bottom-6 left-6 right-6">
                     <div class="bg-gray-800/50 backdrop-blur-sm p-5 rounded-2xl border border-gray-700">
-                        <p class="text-xs text-gray-400 mb-1">Assinatura Pro</p>
-                        <p class="text-sm font-bold text-white">Gestão ilimitada</p>
-                        <div class="w-full bg-gray-700 h-1.5 rounded-full mt-3">
-                            <div class="w-3/4 bg-gradient-to-r from-teal-400 to-emerald-400 h-1.5 rounded-full"></div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg" id="admin-avatar">
+                                A
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-white" id="admin-name">Administrador</p>
+                                <p class="text-xs text-gray-400" id="admin-email">admin@pizza.com</p>
+                            </div>
                         </div>
+                        <button onclick="sairAdmin()" class="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-medium text-sm transition flex items-center justify-center gap-2">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sair
+                        </button>
                     </div>
                 </div>
             </div>
         </aside>
 
-        <main id="main-content" class="flex-1 transition-all duration-300 p-8" style="margin-left: 0;">
+        <!-- Conteúdo principal -->
+        <main class="flex-1 ml-72 p-8">
+            <!-- Header com botões no topo -->
             <div class="flex justify-between items-center mb-8">
-                <div class="flex items-center gap-4">
-                    <button id="menu-toggle" class="text-2xl text-gray-600 hover:text-teal-500 transition">
-                        <i class="fas fa-bars"></i>
-                    </button>
+                <div>
                     <h2 id="page-title" class="text-3xl font-black text-gray-800">Dashboard</h2>
+                    <p class="text-gray-500 mt-1">Visão geral do sistema</p>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="novoCliente()" class="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-6 py-3 rounded-xl font-semibold text-sm hover:shadow-lg transition-all duration-300 flex items-center gap-2">
-                        <i class="fas fa-plus"></i> Novo Cliente
+                <div class="top-actions">
+                    <button onclick="novoCliente()" class="btn-primary flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Nova Loja
                     </button>
-                    <div class="w-10 h-10 bg-gray-300 rounded-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80')"></div>
+                    <button onclick="exportarRelatorio()" class="btn-secondary flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                    <div class="relative">
+                        <button class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg" id="header-avatar">
+                            A
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div id="dashboard-section" class="section">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8" id="stats-cards"></div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md">
-                        <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fas fa-chart-bar text-teal-500 mr-2"></i> Faturamento dos últimos meses</h3>
-                        <div class="h-48 flex items-end justify-around gap-2">
-                            <div class="w-12 bg-teal-200 rounded-t-lg" style="height: 60px;"></div>
-                            <div class="w-12 bg-teal-300 rounded-t-lg" style="height: 80px;"></div>
-                            <div class="w-12 bg-teal-400 rounded-t-lg" style="height: 100px;"></div>
-                            <div class="w-12 bg-teal-500 rounded-t-lg" style="height: 140px;"></div>
-                            <div class="w-12 bg-emerald-400 rounded-t-lg" style="height: 120px;"></div>
-                            <div class="w-12 bg-emerald-500 rounded-t-lg" style="height: 160px;"></div>
-                        </div>
-                        <div class="flex justify-around mt-2 text-xs text-gray-500">
-                            <span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span><span>Jun</span>
-                        </div>
-                    </div>
-                    <div class="bg-gradient-to-br from-teal-500 to-emerald-600 p-6 rounded-2xl shadow-md text-white">
-                        <h3 class="font-bold text-lg mb-2">Faturamento mensal</h3>
-                        <p class="text-4xl font-black mb-2" id="faturamento-mes">R$ 0,00</p>
-                        <p class="text-sm opacity-90">Baseado em clientes ativos</p>
-                        <div class="mt-4 flex items-center gap-2">
-                            <i class="fas fa-arrow-up text-green-300"></i>
-                            <span class="text-sm">+12% em relação ao mês passado</span>
-                        </div>
-                    </div>
+            <!-- Seções dinâmicas -->
+            <div id="dashboard-section" class="section fade-in">
+                <!-- Cards de estatísticas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="stats-cards">
+                    <!-- Estatísticas serão carregadas via JS -->
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i> Clientes que vencem em breve</h3>
-                    <div id="alerta-lista" class="space-y-3"></div>
+
+                <!-- Alertas de vencimento -->
+                <div class="stat-card">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <i class="fas fa-exclamation-triangle text-amber-500"></i>
+                        Lojas com vencimento próximo
+                    </h3>
+                    <div id="alerta-lista" class="space-y-3">
+                        <!-- Alertas serão carregados aqui -->
+                    </div>
                 </div>
             </div>
 
-            <div id="clientes-section" class="section hidden">
-                <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <!-- Seção de Lojas -->
+            <div id="clientes-section" class="section hidden fade-in">
+                <div class="table-container">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Lojas cadastradas</h3>
+                        <button onclick="novoCliente()" class="btn-primary flex items-center gap-2">
+                            <i class="fas fa-plus"></i>
+                            Nova Loja
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm table-hover">
-                            <thead class="bg-gray-100 text-gray-700">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <th class="p-4 text-left">Estabelecimento</th>
-                                    <th class="p-4 text-left">WhatsApp</th>
-                                    <th class="p-4 text-left">Plano</th>
-                                    <th class="p-4 text-left">Link</th>
-                                    <th class="p-4 text-left">Vencimento</th>
-                                    <th class="p-4 text-left">Status</th>
-                                    <th class="p-4 text-left">Ações</th>
+                                    <th>Loja</th>
+                                    <th>Responsável</th>
+                                    <th>WhatsApp</th>
+                                    <th>Plano</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="clientes-tbody" class="divide-y divide-gray-100"></tbody>
+                            <tbody id="clientes-tbody">
+                                <!-- Lojas serão carregadas aqui -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div id="pagamentos-section" class="section hidden">
-                <div class="bg-white p-8 rounded-2xl shadow-md text-center">
-                    <i class="fas fa-credit-card text-5xl text-gray-300 mb-4"></i>
-                    <h3 class="text-xl font-bold text-gray-700">Histórico de pagamentos</h3>
-                    <p class="text-gray-500 mt-2">Em breve você poderá visualizar todos os pagamentos aqui.</p>
+            <!-- Seção de Solicitações -->
+            <div id="solicitacoes-section" class="section hidden fade-in">
+                <div class="table-container">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Solicitações de cadastro</h3>
+                        <span class="badge-info" id="solicitacoes-count">0 pendentes</span>
+                    </div>
+                    <div id="solicitacoes-lista" class="space-y-4">
+                        <!-- Solicitações serão carregadas aqui -->
+                    </div>
                 </div>
             </div>
 
-            <div id="alertas-section" class="section hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fas fa-bell text-teal-500 mr-2"></i> Alertas de vencimento</h3>
-                    <div id="alertas-completo" class="space-y-3"></div>
+            <!-- Seção de Pedidos -->
+            <div id="pedidos-section" class="section hidden fade-in">
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Últimos pedidos</h3>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pedido</th>
+                                    <th>Loja</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pedidos-tbody">
+                                <!-- Pedidos serão carregados aqui -->
+                                <tr>
+                                    <td colspan="7" class="text-center py-8 text-gray-500">
+                                        Carregando pedidos...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div id="relatorios-section" class="section hidden">
-                <div class="bg-white p-8 rounded-2xl shadow-md text-center">
-                    <i class="fas fa-chart-pie text-5xl text-gray-300 mb-4"></i>
-                    <h3 class="text-xl font-bold text-gray-700">Relatórios detalhados</h3>
-                    <p class="text-gray-500 mt-2">Em construção. Em breve você poderá gerar relatórios completos.</p>
+            <!-- Seção Financeiro -->
+            <div id="financeiro-section" class="section hidden fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="stat-card">
+                        <p class="text-gray-500 text-sm mb-1">Faturamento do mês</p>
+                        <p class="text-3xl font-black text-gray-800" id="faturamento-mes">R$ 0,00</p>
+                        <p class="text-sm text-green-600 mt-2">+12% em relação ao mês passado</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="text-gray-500 text-sm mb-1">Receita prevista</p>
+                        <p class="text-3xl font-black text-gray-800" id="receita-prevista">R$ 0,00</p>
+                        <p class="text-sm text-blue-600 mt-2">Próximos 30 dias</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="text-gray-500 text-sm mb-1">Inadimplência</p>
+                        <p class="text-3xl font-black text-gray-800" id="inadimplencia">0%</p>
+                        <p class="text-sm text-red-600 mt-2">Lojas com pagamento atrasado</p>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Histórico de pagamentos</h3>
+                    <div id="pagamentos-lista" class="text-center py-8 text-gray-500">
+                        Em breve...
+                    </div>
                 </div>
             </div>
 
-            <div id="configuracoes-section" class="section hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fas fa-sliders-h text-teal-500 mr-2"></i> Configurações Gerais</h3>
-                        <div class="space-y-4">
+            <!-- Seção Configurações com Personalização -->
+            <div id="configuracoes-section" class="section hidden fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Configurações Gerais -->
+                    <div class="stat-card">
+                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+                            <i class="fas fa-sliders-h text-emerald-500"></i>
+                            Configurações Gerais
+                        </h3>
+                        <div class="space-y-5">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Valor da mensalidade (R$)</label>
-                                <input type="number" id="config-mensalidade" value="97.00" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Valor da mensalidade (R$)
+                                </label>
+                                <input type="number" id="config-mensalidade" value="97.00" step="0.01" min="0"
+                                       class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">Dias de aviso prévio</label>
-                                <input type="number" id="config-dias-aviso" value="3" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Dias de aviso prévio
+                                </label>
+                                <input type="number" id="config-dias-aviso" value="3" min="1" max="30"
+                                       class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">Domínio dos cardápios</label>
-                                <input type="text" id="config-dominio" value="https://seudominio.com/cardapio/" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Domínio dos cardápios
+                                </label>
+                                <input type="text" id="config-dominio" value="https://danamorim1347-max.github.io/lamen/?loja=" 
+                                       class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
                             </div>
-                            <button onclick="salvarConfiguracoes()" class="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-5 py-3 rounded-xl font-semibold w-full hover:shadow-lg transition">Salvar configurações</button>
+                            <button onclick="salvarConfiguracoes()" class="btn-primary w-full">
+                                Salvar configurações
+                            </button>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fas fa-palette text-teal-500 mr-2"></i> Personalização</h3>
-                        <p class="text-gray-500 text-sm">Em breve você poderá customizar cores e logotipo.</p>
+                    
+                    <!-- Personalização Ativada -->
+                    <div class="stat-card">
+                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+                            <i class="fas fa-palette text-emerald-500"></i>
+                            Personalização
+                        </h3>
+                        
+                        <!-- Cores principais -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Cor Primária
+                            </label>
+                            <div class="flex gap-3 flex-wrap">
+                                <div class="color-preview" style="background: #059669;" onclick="selecionarCor('primary', '#059669')" title="Verde Esmeralda"></div>
+                                <div class="color-preview" style="background: #2563eb;" onclick="selecionarCor('primary', '#2563eb')" title="Azul"></div>
+                                <div class="color-preview" style="background: #7c3aed;" onclick="selecionarCor('primary', '#7c3aed')" title="Roxo"></div>
+                                <div class="color-preview" style="background: #db2777;" onclick="selecionarCor('primary', '#db2777')" title="Rosa"></div>
+                                <div class="color-preview" style="background: #ea580c;" onclick="selecionarCor('primary', '#ea580c')" title="Laranja"></div>
+                                <div class="color-preview" style="background: #dc2626;" onclick="selecionarCor('primary', '#dc2626')" title="Vermelho"></div>
+                            </div>
+                            <input type="color" id="cor-primary-custom" class="mt-3 w-full h-12 rounded-xl border border-gray-200" value="#059669" onchange="selecionarCor('primary', this.value)">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Cor Secundária
+                            </label>
+                            <div class="flex gap-3 flex-wrap">
+                                <div class="color-preview" style="background: #10b981;" onclick="selecionarCor('secondary', '#10b981')" title="Verde Claro"></div>
+                                <div class="color-preview" style="background: #3b82f6;" onclick="selecionarCor('secondary', '#3b82f6')" title="Azul Claro"></div>
+                                <div class="color-preview" style="background: #8b5cf6;" onclick="selecionarCor('secondary', '#8b5cf6')" title="Roxo Claro"></div>
+                                <div class="color-preview" style="background: #ec4899;" onclick="selecionarCor('secondary', '#ec4899')" title="Rosa Claro"></div>
+                                <div class="color-preview" style="background: #f97316;" onclick="selecionarCor('secondary', '#f97316')" title="Laranja Claro"></div>
+                                <div class="color-preview" style="background: #ef4444;" onclick="selecionarCor('secondary', '#ef4444')" title="Vermelho Claro"></div>
+                            </div>
+                            <input type="color" id="cor-secondary-custom" class="mt-3 w-full h-12 rounded-xl border border-gray-200" value="#10b981" onchange="selecionarCor('secondary', this.value)">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Cor de Destaque
+                            </label>
+                            <div class="flex gap-3 flex-wrap">
+                                <div class="color-preview" style="background: #f59e0b;" onclick="selecionarCor('accent', '#f59e0b')" title="Âmbar"></div>
+                                <div class="color-preview" style="background: #f43f5e;" onclick="selecionarCor('accent', '#f43f5e')" title="Rosa Forte"></div>
+                                <div class="color-preview" style="background: #14b8a6;" onclick="selecionarCor('accent', '#14b8a6')" title="Verde Água"></div>
+                                <div class="color-preview" style="background: #a855f7;" onclick="selecionarCor('accent', '#a855f7')" title="Roxo Médio"></div>
+                                <div class="color-preview" style="background: #f97316;" onclick="selecionarCor('accent', '#f97316')" title="Laranja"></div>
+                                <div class="color-preview" style="background: #06b6d4;" onclick="selecionarCor('accent', '#06b6d4')" title="Ciano"></div>
+                            </div>
+                            <input type="color" id="cor-accent-custom" class="mt-3 w-full h-12 rounded-xl border border-gray-200" value="#f59e0b" onchange="selecionarCor('accent', this.value)">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Modo de Tema
+                            </label>
+                            <select id="tema-modo" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition" onchange="aplicarTema()">
+                                <option value="light">Claro</option>
+                                <option value="dark">Escuro</option>
+                                <option value="system">Sistema</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="resetarCores()" class="btn-secondary w-full">
+                                <i class="fas fa-undo mr-2"></i>
+                                Resetar
+                            </button>
+                            <button onclick="salvarPersonalizacao()" class="btn-primary w-full">
+                                <i class="fas fa-save mr-2"></i>
+                                Salvar
+                            </button>
+                        </div>
+                        
+                        <!-- Preview -->
+                        <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                            <p class="text-sm font-medium text-gray-700 mb-3">Preview</p>
+                            <div class="flex gap-2">
+                                <button class="btn-primary text-sm px-3 py-2">Botão Primário</button>
+                                <button class="btn-secondary text-sm px-3 py-2">Botão Secundário</button>
+                                <span class="badge-warning">Destaque</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- SEÇÃO: SOLICITAÇÕES DE LOJAS -->
-            <div id="solicitacoes-section" class="section hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-md">
-                    <h3 class="font-bold text-lg mb-4 flex items-center">
-                        <i class="fas fa-user-plus text-teal-500 mr-2"></i> Solicitações de cadastro de lojas
-                    </h3>
-                    <div id="solicitacoes-lista" class="space-y-3"></div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Modal de cadastro/edição de loja -->
     <div id="modal-cliente" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate__animated animate__fadeInDown">
-            <h3 class="text-2xl font-bold mb-4" id="modal-titulo">Novo Cliente</h3>
-            <input type="hidden" id="cliente-id">
-            
-            <div class="space-y-3">
-                <input type="text" id="campo-nome" placeholder="Nome do estabelecimento" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
-                <input type="text" id="campo-responsavel" placeholder="Nome do responsável" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
-                <input type="text" id="campo-whatsapp" placeholder="WhatsApp (com DDD)" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
-                <input type="text" id="campo-cidade" placeholder="Cidade" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
-                <select id="campo-plano" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
-                    <option value="Mensal">Mensal</option>
-                    <option value="Trimestral">Trimestral</option>
-                    <option value="Anual">Anual</option>
-                </select>
-                <input type="date" id="campo-data-inicio" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
-                <input type="date" id="campo-data-vencimento" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
-                <select id="campo-status" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-300 outline-none">
-                    <option value="ativo">Ativo</option>
-                    <option value="bloqueado">Bloqueado</option>
-                </select>
+        <div class="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800" id="modal-titulo">Nova Loja</h3>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
             
-            <div class="flex gap-3 mt-6">
-                <button onclick="salvarCliente()" class="flex-1 bg-gradient-to-r from-teal-500 to-emerald-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">Salvar</button>
-                <button onclick="fecharModal()" class="flex-1 bg-gray-200 py-3 rounded-xl font-semibold hover:bg-gray-300 transition">Cancelar</button>
+            <input type="hidden" id="cliente-id">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome da loja</label>
+                    <input type="text" id="campo-nome" placeholder="Ex: Pizzaria do João" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome do responsável</label>
+                    <input type="text" id="campo-responsavel" placeholder="Ex: João Silva" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
+                    <input type="text" id="campo-whatsapp" placeholder="Ex: 11999999999" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+                    <input type="email" id="campo-email" placeholder="Ex: contato@loja.com" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Plano</label>
+                    <select id="campo-plano" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                        <option value="Mensal">Mensal - R$ 97/mês</option>
+                        <option value="Trimestral">Trimestral - R$ 87/mês (R$ 261)</option>
+                        <option value="Anual">Anual - R$ 77/mês (R$ 924)</option>
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data de início</label>
+                        <input type="date" id="campo-data-inicio" 
+                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Vencimento</label>
+                        <input type="date" id="campo-data-vencimento" 
+                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="campo-status" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                        <option value="ativo">Ativo</option>
+                        <option value="bloqueado">Bloqueado</option>
+                        <option value="inadimplente">Inadimplente</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex gap-4 mt-8">
+                <button onclick="salvarCliente()" class="btn-primary flex-1">
+                    Salvar
+                </button>
+                <button onclick="fecharModal()" class="btn-secondary flex-1">
+                    Cancelar
+                </button>
             </div>
         </div>
     </div>
 
     <script>
+        // ==================== VARIÁVEIS GLOBAIS ====================
         let clientes = [];
+        let pedidos = [];
+        let solicitacoes = [];
         let clientesUnsubscribe = null;
+        let pedidosUnsubscribe = null;
+        let solicitacoesUnsubscribe = null;
         let mensalidadePadrao = 97.00;
         let diasAviso = 3;
-        let dominioBase = "https://seudominio.com/cardapio/";
-        let solicitacoesUnsubscribe = null;
+        let dominioBase = "https://danamorim1347-max.github.io/lamen/?loja=";
 
+        // Cores personalizadas
+        let coresPersonalizadas = {
+            primary: '#059669',
+            secondary: '#10b981',
+            accent: '#f59e0b'
+        };
+
+        // ==================== INICIALIZAÇÃO ====================
         window.startApp = function() {
             document.getElementById('initial-loading').style.display = 'none';
             document.getElementById('app').classList.remove('hidden');
             
             carregarConfiguracoes();
-            iniciarListenerClientes();
+            carregarPersonalizacao();
+            iniciarListeners();
+            aplicarCoresSalvas();
             
-            document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
+            // Garantir que o dashboard seja a seção ativa
+            showSection('dashboard');
         };
 
-        let sidebarOpen = false;
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const main = document.getElementById('main-content');
-            if (!sidebarOpen) {
-                sidebar.style.width = '288px';
-                main.style.marginLeft = '288px';
-                sidebarOpen = true;
-            } else {
-                sidebar.style.width = '0';
-                main.style.marginLeft = '0';
-                sidebarOpen = false;
+        // ==================== PERSONALIZAÇÃO ====================
+        function carregarPersonalizacao() {
+            const saved = localStorage.getItem('painelCores');
+            if (saved) {
+                coresPersonalizadas = JSON.parse(saved);
+                aplicarCores();
             }
         }
 
+        function selecionarCor(tipo, cor) {
+            coresPersonalizadas[tipo] = cor;
+            
+            // Atualizar input color
+            document.getElementById(`cor-${tipo}-custom`).value = cor;
+            
+            // Aplicar preview
+            aplicarCoresPreview();
+        }
+
+        function aplicarCoresPreview() {
+            // Atualizar variáveis CSS
+            document.documentElement.style.setProperty('--primary-color', coresPersonalizadas.primary);
+            document.documentElement.style.setProperty('--secondary-color', coresPersonalizadas.secondary);
+            document.documentElement.style.setProperty('--accent-color', coresPersonalizadas.accent);
+            
+            // Atualizar botões primários
+            document.querySelectorAll('.btn-primary').forEach(btn => {
+                btn.style.background = `linear-gradient(135deg, ${coresPersonalizadas.primary} 0%, ${coresPersonalizadas.secondary} 100%)`;
+            });
+            
+            // Atualizar elementos com gradiente
+            document.querySelectorAll('.bg-gradient-to-br.from-emerald-500.to-teal-500').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${coresPersonalizadas.primary} 0%, ${coresPersonalizadas.secondary} 100%)`;
+            });
+            
+            // Atualizar logo gradiente
+            const logoPart1 = document.getElementById('logo-part1');
+            if (logoPart1) {
+                logoPart1.style.backgroundImage = `linear-gradient(135deg, ${coresPersonalizadas.primary} 0%, ${coresPersonalizadas.secondary} 100%)`;
+            }
+        }
+
+        function aplicarCores() {
+            aplicarCoresPreview();
+            
+            // Salvar no localStorage
+            localStorage.setItem('painelCores', JSON.stringify(coresPersonalizadas));
+        }
+
+        function aplicarCoresSalvas() {
+            const saved = localStorage.getItem('painelCores');
+            if (saved) {
+                coresPersonalizadas = JSON.parse(saved);
+                aplicarCoresPreview();
+            }
+        }
+
+        function salvarPersonalizacao() {
+            aplicarCores();
+            Swal.fire({
+                title: 'Personalização salva!',
+                text: 'As cores foram aplicadas com sucesso.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function resetarCores() {
+            coresPersonalizadas = {
+                primary: '#059669',
+                secondary: '#10b981',
+                accent: '#f59e0b'
+            };
+            
+            document.getElementById('cor-primary-custom').value = coresPersonalizadas.primary;
+            document.getElementById('cor-secondary-custom').value = coresPersonalizadas.secondary;
+            document.getElementById('cor-accent-custom').value = coresPersonalizadas.accent;
+            
+            aplicarCores();
+            
+            Swal.fire({
+                title: 'Cores resetadas!',
+                text: 'As cores voltaram ao padrão.',
+                icon: 'info',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function aplicarTema() {
+            const tema = document.getElementById('tema-modo').value;
+            
+            if (tema === 'dark') {
+                document.body.classList.add('dark');
+                document.body.style.background = '#1f2937';
+            } else if (tema === 'light') {
+                document.body.classList.remove('dark');
+                document.body.style.background = '#f3f4f6';
+            } else {
+                // Sistema - verificar preferência do sistema
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('dark');
+                    document.body.style.background = '#1f2937';
+                } else {
+                    document.body.classList.remove('dark');
+                    document.body.style.background = '#f3f4f6';
+                }
+            }
+            
+            localStorage.setItem('painelTema', tema);
+        }
+
+        // ==================== LISTENERS ====================
+        function iniciarListeners() {
+            const { db, collection, onSnapshot, query, orderBy, where } = getFirebase();
+            
+            // Listener de clientes
+            const qClientes = query(collection(db, "clientes"), orderBy("nome"));
+            clientesUnsubscribe = onSnapshot(qClientes, (snapshot) => {
+                clientes = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                tratarDatasClientes();
+                atualizarDashboard();
+                atualizarTabelaClientes();
+                atualizarAlertas();
+            }, (error) => {
+                console.error("Erro ao carregar clientes:", error);
+            });
+
+            // Listener de pedidos
+            const qPedidos = query(collection(db, "pedidos"), orderBy("created_at", "desc"), limit(100));
+            pedidosUnsubscribe = onSnapshot(qPedidos, (snapshot) => {
+                pedidos = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                atualizarTabelaPedidos();
+                atualizarFaturamentoFinanceiro(); // Atualiza os cards do financeiro
+            }, (error) => {
+                console.error("Erro ao carregar pedidos:", error);
+            });
+
+            // Listener de solicitações
+            const qSolicitacoes = query(collection(db, "solicitacoes_lojas"), where("status", "==", "pendente"));
+            solicitacoesUnsubscribe = onSnapshot(qSolicitacoes, (snapshot) => {
+                solicitacoes = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                atualizarListaSolicitacoes();
+            }, (error) => {
+                console.error("Erro ao carregar solicitações:", error);
+            });
+        }
+
+        function tratarDatasClientes() {
+            clientes.forEach(c => {
+                if (c.dataInicio && typeof c.dataInicio.toDate === 'function') {
+                    c.dataInicio = c.dataInicio.toDate().toISOString().split('T')[0];
+                }
+                if (c.dataVencimento && typeof c.dataVencimento.toDate === 'function') {
+                    c.dataVencimento = c.dataVencimento.toDate().toISOString().split('T')[0];
+                }
+            });
+        }
+
+        // ==================== FIREBASE HELPER ====================
         function getFirebase() {
             return {
                 db: window.db,
@@ -319,34 +1080,12 @@
                 query: window.query,
                 where: window.where,
                 orderBy: window.orderBy,
+                limit: window.limit,
                 Timestamp: window.Timestamp
             };
         }
 
-        function iniciarListenerClientes() {
-            const { db, collection, onSnapshot, query, orderBy } = getFirebase();
-            const q = query(collection(db, "clientes"), orderBy("nome"));
-            
-            clientesUnsubscribe = onSnapshot(q, (snapshot) => {
-                clientes = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                clientes.forEach(c => {
-                    if (c.dataInicio && typeof c.dataInicio.toDate === 'function') {
-                        c.dataInicio = c.dataInicio.toDate().toISOString().split('T')[0];
-                    }
-                    if (c.dataVencimento && typeof c.dataVencimento.toDate === 'function') {
-                        c.dataVencimento = c.dataVencimento.toDate().toISOString().split('T')[0];
-                    }
-                });
-                
-                atualizarDashboard();
-                atualizarTabelaClientes();
-                atualizarAlertas();
-            });
-        }
-
+        // ==================== NAVEGAÇÃO ====================
         function showSection(section) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(section + '-section').classList.remove('hidden');
@@ -355,144 +1094,272 @@
             document.getElementById('menu-' + section).classList.add('active');
             
             const titles = {
-                dashboard: 'Dashboard', clientes: 'Clientes', pagamentos: 'Pagamentos',
-                alertas: 'Alertas', relatorios: 'Relatórios', configuracoes: 'Configurações',
-                solicitacoes: 'Solicitações de Lojas'
+                dashboard: 'Dashboard',
+                clientes: 'Lojas',
+                solicitacoes: 'Solicitações',
+                pedidos: 'Pedidos',
+                financeiro: 'Financeiro',
+                configuracoes: 'Configurações'
             };
             document.getElementById('page-title').innerText = titles[section] || 'Dashboard';
-            
-            if (section === 'alertas') atualizarAlertasCompleto();
-            
-            if (section === 'solicitacoes') {
-                if (!solicitacoesUnsubscribe) {
-                    iniciarListenerSolicitacoes();
-                }
-            }
         }
 
+        // ==================== DASHBOARD ====================
         function atualizarDashboard() {
             const total = clientes.length;
             const ativos = clientes.filter(c => c.status === 'ativo').length;
             const bloqueados = clientes.filter(c => c.status === 'bloqueado').length;
-            
-            const hoje = new Date(); hoje.setHours(0,0,0,0);
-            const fimMes = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0);
-            
-            const vencendoEsteMes = clientes.filter(c => {
-                if (!c.dataVencimento) return false;
-                const venc = new Date(c.dataVencimento + 'T00:00:00');
-                return venc >= hoje && venc <= fimMes;
-            }).length;
-            
-            const vencidos = clientes.filter(c => {
-                if (!c.dataVencimento) return false;
-                const venc = new Date(c.dataVencimento + 'T00:00:00');
-                return venc < hoje;
-            }).length;
-            
-            const faturamento = ativos * mensalidadePadrao;
+            const inadimplentes = clientes.filter(c => c.status === 'inadimplente').length;
             
             document.getElementById('stats-cards').innerHTML = `
-                <div class="stat-card"><i class="fas fa-store text-3xl text-teal-500 mb-3"></i><p class="text-gray-500 text-sm">Total</p><p class="text-3xl font-black">${total}</p></div>
-                <div class="stat-card"><i class="fas fa-check-circle text-3xl text-green-500 mb-3"></i><p class="text-gray-500 text-sm">Ativos</p><p class="text-3xl font-black text-green-600">${ativos}</p></div>
-                <div class="stat-card"><i class="fas fa-ban text-3xl text-red-500 mb-3"></i><p class="text-gray-500 text-sm">Bloqueados</p><p class="text-3xl font-black text-red-600">${bloqueados}</p></div>
-                <div class="stat-card"><i class="fas fa-calendar-exclamation text-3xl text-yellow-500 mb-3"></i><p class="text-gray-500 text-sm">Vencendo este mês</p><p class="text-3xl font-black text-yellow-600">${vencendoEsteMes}</p></div>
-                <div class="stat-card"><i class="fas fa-clock text-3xl text-red-500 mb-3"></i><p class="text-gray-500 text-sm">Vencidos</p><p class="text-3xl font-black text-red-600">${vencidos}</p></div>
-                <div class="stat-card"><i class="fas fa-dollar-sign text-3xl text-teal-500 mb-3"></i><p class="text-gray-500 text-sm">Faturamento mensal</p><p class="text-3xl font-black text-teal-600">R$ ${faturamento.toFixed(2)}</p></div>
+                <div class="stat-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: ${coresPersonalizadas.primary}20;">
+                            <i class="fas fa-store text-2xl" style="color: ${coresPersonalizadas.primary};"></i>
+                        </div>
+                        <span class="text-3xl font-black text-gray-800">${total}</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">Total de lojas</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: ${coresPersonalizadas.primary}20;">
+                            <i class="fas fa-check-circle text-2xl" style="color: ${coresPersonalizadas.primary};"></i>
+                        </div>
+                        <span class="text-3xl font-black" style="color: ${coresPersonalizadas.primary};">${ativos}</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">Lojas ativas</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-ban text-2xl text-red-600"></i>
+                        </div>
+                        <span class="text-3xl font-black text-red-600">${bloqueados}</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">Lojas bloqueadas</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: ${coresPersonalizadas.accent}20;">
+                            <i class="fas fa-exclamation-triangle text-2xl" style="color: ${coresPersonalizadas.accent};"></i>
+                        </div>
+                        <span class="text-3xl font-black" style="color: ${coresPersonalizadas.accent};">${inadimplentes}</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">Inadimplentes</p>
+                </div>
             `;
             
-            document.getElementById('faturamento-mes').innerText = `R$ ${faturamento.toFixed(2)}`;
-            
-            const alertas = clientes.filter(c => {
-                if (!c.dataVencimento || c.status !== 'ativo') return false;
-                const venc = new Date(c.dataVencimento + 'T00:00:00');
-                const diff = Math.ceil((venc - hoje) / (1000*60*60*24));
-                return diff >= 0 && diff <= diasAviso;
-            }).sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
-            
-            let html = '';
-            if (alertas.length === 0) {
-                html = '<p class="text-gray-500">Nenhum alerta próximo.</p>';
-            } else {
-                alertas.forEach(c => {
-                    const venc = new Date(c.dataVencimento + 'T00:00:00');
-                    const diff = Math.ceil((venc - hoje) / (1000*60*60*24));
-                    html += `
-                        <div class="flex justify-between items-center p-3 bg-amber-50 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-exclamation-circle text-amber-500"></i>
-                                <div>
-                                    <span class="font-semibold">${c.nome}</span>
-                                    <span class="text-sm text-gray-600">vence em <span class="${diff <= 1 ? 'text-red-600' : 'text-yellow-600'} font-bold">${diff} dia(s)</span></span>
-                                </div>
-                            </div>
-                            <button onclick="enviarCobranca('${c.id}')" class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-xs font-semibold hover:bg-teal-200 transition"><i class="fab fa-whatsapp mr-1"></i> Cobrar</button>
-                        </div>
-                    `;
-                });
-            }
-            document.getElementById('alerta-lista').innerHTML = html;
+            // Atualiza também os cards do financeiro
+            atualizarFaturamentoFinanceiro();
         }
 
+        function atualizarFaturamentoFinanceiro() {
+            const ativos = clientes.filter(c => c.status === 'ativo').length;
+            const inadimplentes = clientes.filter(c => c.status === 'inadimplente').length;
+            const total = clientes.length;
+            
+            const faturamentoMensal = calcularFaturamentoMesAtual();
+            
+            document.getElementById('faturamento-mes').innerText = `R$ ${faturamentoMensal.toFixed(2).replace('.',',')}`;
+            
+            const receitaPrevista = ativos * mensalidadePadrao;
+            document.getElementById('receita-prevista').innerText = `R$ ${receitaPrevista.toFixed(2).replace('.',',')}`;
+            
+            const percInadimplencia = total > 0 ? ((inadimplentes / total) * 100).toFixed(1) : 0;
+            document.getElementById('inadimplencia').innerText = `${percInadimplencia}%`;
+        }
+
+        function calcularFaturamentoMesAtual() {
+            const hoje = new Date();
+            const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+            const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
+            
+            return pedidos
+                .filter(p => {
+                    if (!p.created_at || p.status === 'Cancelado') return false;
+                    const dataPedido = p.created_at.toDate ? p.created_at.toDate() : new Date(p.created_at);
+                    return dataPedido >= inicioMes && dataPedido <= fimMes;
+                })
+                .reduce((acc, p) => acc + (p.total || 0), 0);
+        }
+
+        // ==================== TABELA DE LOJAS ====================
         function atualizarTabelaClientes() {
             const hoje = new Date(); hoje.setHours(0,0,0,0);
             
             let html = '';
-            clientes.forEach(c => {
-                const venc = c.dataVencimento ? new Date(c.dataVencimento + 'T00:00:00') : null;
-                const diff = venc ? Math.ceil((venc - hoje) / (1000*60*60*24)) : null;
-                let diasClasse = '', diasTexto = '';
-                if (diff !== null) {
-                    if (diff < 0) { diasClasse = 'badge-danger'; diasTexto = 'Vencido'; }
-                    else if (diff === 0) { diasClasse = 'badge-danger'; diasTexto = 'Vence hoje'; }
-                    else if (diff <= 3) { diasClasse = 'badge-warning'; diasTexto = `${diff} dias`; }
-                    else { diasClasse = 'badge-success'; diasTexto = `${diff} dias`; }
-                } else {
-                    diasClasse = 'badge-neutral'; diasTexto = '---';
-                }
-                
-                const link = `${dominioBase}?loja=${c.link || c.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
-                
-                html += `
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="p-4">
-                        <div class="font-semibold">${c.nome}</div>
-                        <div class="text-xs text-gray-500">${c.responsavel || ''}</div>
-                    </td>
-                    <td class="p-4">${c.whatsapp || ''}</td>
-                    <td class="p-4">${c.plano || 'Mensal'}</td>
-                    <td class="p-4"><a href="${link}" target="_blank" class="text-teal-600 hover:underline text-xs"><i class="fas fa-external-link-alt mr-1"></i>ver</a></td>
-                    <td class="p-4">
-                        <span class="${diasClasse}">${diasTexto}</span>
-                        <div class="text-xs text-gray-400 mt-1">${c.dataVencimento || ''}</div>
-                    </td>
-                    <td class="p-4">
-                        <span class="${c.status === 'ativo' ? 'badge-success' : 'badge-danger'}">${c.status}</span>
-                    </td>
-                    <td class="p-4">
-                        <div class="flex gap-1">
-                            <button onclick="editarCliente('${c.id}')" class="btn-action" title="Editar"><i class="fas fa-edit"></i></button>
-                            <button onclick="toggleBloqueio('${c.id}', '${c.status}')" class="btn-action" title="${c.status === 'ativo' ? 'Bloquear' : 'Desbloquear'}">
-                                <i class="fas ${c.status === 'ativo' ? 'fa-lock' : 'fa-unlock'}"></i>
-                            </button>
-                            <button onclick="renovarAssinatura('${c.id}')" class="btn-action" title="Renovar (+30 dias)"><i class="fas fa-sync-alt"></i></button>
-                            <button onclick="enviarCobranca('${c.id}')" class="btn-action" title="Enviar cobrança"><i class="fab fa-whatsapp"></i></button>
-                            <button onclick="excluirCliente('${c.id}')" class="btn-action text-red-600 hover:bg-red-500 hover:text-white" title="Excluir"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                `;
-            });
+            if (clientes.length === 0) {
+                html = `<tr><td colspan="7" class="text-center py-8 text-gray-500">Nenhuma loja cadastrada</td></tr>`;
+            } else {
+                clientes.forEach(c => {
+                    const venc = c.dataVencimento ? new Date(c.dataVencimento + 'T00:00:00') : null;
+                    const diff = venc ? Math.ceil((venc - hoje) / (1000*60*60*24)) : null;
+                    let diasClasse = '', diasTexto = '';
+                    
+                    if (diff !== null) {
+                        if (diff < 0) { diasClasse = 'badge-danger'; diasTexto = 'Vencido'; }
+                        else if (diff === 0) { diasClasse = 'badge-danger'; diasTexto = 'Vence hoje'; }
+                        else if (diff <= 3) { diasClasse = 'badge-warning'; diasTexto = `${diff} dias`; }
+                        else { diasClasse = 'badge-success'; diasTexto = `${diff} dias`; }
+                    }
+                    
+                    let statusClasse = '';
+                    let statusTexto = c.status || 'ativo';
+                    if (c.status === 'ativo') statusClasse = 'badge-success';
+                    else if (c.status === 'inadimplente') statusClasse = 'badge-warning';
+                    else statusClasse = 'badge-danger';
+                    
+                    const link = `${dominioBase}${c.link || c.nome?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'loja'}`;
+                    
+                    html += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="font-semibold">${c.nome || '-'}</td>
+                        <td>${c.responsavel || '-'}</td>
+                        <td>${c.whatsapp || '-'}</td>
+                        <td>${c.plano || 'Mensal'}</td>
+                        <td>
+                            <span class="${diasClasse}">${diasTexto}</span>
+                            <div class="text-xs text-gray-400 mt-1">${c.dataVencimento || ''}</div>
+                        </td>
+                        <td>
+                            <span class="${statusClasse}">${statusTexto}</span>
+                        </td>
+                        <td>
+                            <div class="actions-footer">
+                                <button onclick="editarCliente('${c.id}')" class="action-button action-edit" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                    Editar
+                                </button>
+                                <button onclick="verDetalhesLoja('${c.id}')" class="action-button action-view" title="Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                    Detalhes
+                                </button>
+                                <button onclick="toggleBloqueio('${c.id}', '${c.status}')" class="action-button action-block" title="${c.status === 'ativo' ? 'Bloquear' : 'Desbloquear'}">
+                                    <i class="fas ${c.status === 'ativo' ? 'fa-lock' : 'fa-unlock'}"></i>
+                                    ${c.status === 'ativo' ? 'Bloquear' : 'Desbloquear'}
+                                </button>
+                                <button onclick="enviarCobranca('${c.id}')" class="action-button action-whatsapp" title="Enviar cobrança">
+                                    <i class="fab fa-whatsapp"></i>
+                                    WhatsApp
+                                </button>
+                                <button onclick="excluirCliente('${c.id}')" class="action-button action-delete" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                    Excluir
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+            }
             document.getElementById('clientes-tbody').innerHTML = html;
         }
 
+        // ==================== TABELA DE PEDIDOS ====================
+        function atualizarTabelaPedidos() {
+            const tbody = document.getElementById('pedidos-tbody');
+            if (!tbody) return;
+            
+            if (pedidos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500">Nenhum pedido encontrado</td></tr>`;
+                return;
+            }
+            
+            let html = '';
+            pedidos.slice(0, 10).forEach(p => {
+                const loja = clientes.find(c => c.id === p.lojaId) || { nome: 'Desconhecida' };
+                const data = p.created_at ? new Date(p.created_at.seconds * 1000).toLocaleString('pt-BR') : '-';
+                
+                html += `
+                <tr>
+                    <td class="font-mono text-xs">#${p.id.slice(-8)}</td>
+                    <td>${loja.nome}</td>
+                    <td>${p.cliente_nome || '-'}</td>
+                    <td class="font-bold">R$ ${(p.total || 0).toFixed(2).replace('.',',')}</td>
+                    <td><span class="badge-info">${p.status || 'Novo'}</span></td>
+                    <td class="text-sm">${data}</td>
+                    <td>
+                        <button onclick="verPedido('${p.id}')" class="action-button action-view">
+                            <i class="fas fa-eye"></i>
+                            Ver
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // ==================== SOLICITAÇÕES ====================
+        function atualizarListaSolicitacoes() {
+            const container = document.getElementById('solicitacoes-lista');
+            const countSpan = document.getElementById('solicitacoes-count');
+            
+            if (!container) return;
+            
+            countSpan.innerText = `${solicitacoes.length} pendente${solicitacoes.length !== 1 ? 's' : ''}`;
+
+            if (solicitacoes.length === 0) {
+                container.innerHTML = '<div class="text-center py-12 bg-gray-50 rounded-2xl"><p class="text-gray-500">Nenhuma solicitação pendente</p></div>';
+                return;
+            }
+
+            let html = '';
+            solicitacoes.forEach(s => {
+                const data = s.data_cadastro ? new Date(s.data_cadastro.seconds * 1000).toLocaleString('pt-BR') : 'Data não informada';
+                html += `
+                <div class="solicitacao-card">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h4 class="font-bold text-lg text-gray-800">${s.nome_loja}</h4>
+                                <span class="badge-warning">Pendente</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <i class="fas fa-user w-5"></i>
+                                    <span>${s.responsavel || 'Não informado'}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <i class="fab fa-whatsapp w-5"></i>
+                                    <span>${s.whatsapp || 'Não informado'}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <i class="fas fa-envelope w-5"></i>
+                                    <span>${s.email || 'Não informado'}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <i class="fas fa-calendar w-5"></i>
+                                    <span>${data}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="aprovarSolicitacao('${s.id}')" class="btn-primary flex items-center gap-2">
+                                <i class="fas fa-check"></i>
+                                Aprovar
+                            </button>
+                            <button onclick="rejeitarSolicitacao('${s.id}')" class="btn-danger flex items-center gap-2">
+                                <i class="fas fa-times"></i>
+                                Rejeitar
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // ==================== MODAL CLIENTE ====================
         function novoCliente() {
-            document.getElementById('modal-titulo').innerText = 'Novo Cliente';
+            document.getElementById('modal-titulo').innerText = 'Nova Loja';
             document.getElementById('cliente-id').value = '';
             document.getElementById('campo-nome').value = '';
             document.getElementById('campo-responsavel').value = '';
             document.getElementById('campo-whatsapp').value = '';
-            document.getElementById('campo-cidade').value = '';
+            document.getElementById('campo-email').value = '';
             document.getElementById('campo-plano').value = 'Mensal';
             
             const hoje = new Date().toISOString().split('T')[0];
@@ -509,12 +1376,12 @@
             const c = clientes.find(c => c.id === id);
             if (!c) return;
             
-            document.getElementById('modal-titulo').innerText = 'Editar Cliente';
+            document.getElementById('modal-titulo').innerText = 'Editar Loja';
             document.getElementById('cliente-id').value = id;
             document.getElementById('campo-nome').value = c.nome || '';
             document.getElementById('campo-responsavel').value = c.responsavel || '';
             document.getElementById('campo-whatsapp').value = c.whatsapp || '';
-            document.getElementById('campo-cidade').value = c.cidade || '';
+            document.getElementById('campo-email').value = c.email || '';
             document.getElementById('campo-plano').value = c.plano || 'Mensal';
             document.getElementById('campo-data-inicio').value = c.dataInicio || '';
             document.getElementById('campo-data-vencimento').value = c.dataVencimento || '';
@@ -528,12 +1395,12 @@
         }
 
         async function salvarCliente() {
-            const { db, doc, setDoc, addDoc, collection, Timestamp } = getFirebase();
+            const { db, doc, updateDoc, addDoc, collection, Timestamp } = getFirebase();
             
             const id = document.getElementById('cliente-id').value;
             const nome = document.getElementById('campo-nome').value.trim();
             if (!nome) {
-                Swal.fire('Atenção', 'Nome do estabelecimento é obrigatório', 'warning');
+                Swal.fire('Atenção', 'Nome da loja é obrigatório', 'warning');
                 return;
             }
             
@@ -546,7 +1413,7 @@
                 nome,
                 responsavel: document.getElementById('campo-responsavel').value,
                 whatsapp: document.getElementById('campo-whatsapp').value,
-                cidade: document.getElementById('campo-cidade').value,
+                email: document.getElementById('campo-email').value,
                 plano: document.getElementById('campo-plano').value,
                 link,
                 status: document.getElementById('campo-status').value,
@@ -557,10 +1424,10 @@
             try {
                 if (id) {
                     await updateDoc(doc(db, "clientes", id), dados);
-                    Swal.fire('Sucesso', 'Cliente atualizado!', 'success');
+                    Swal.fire('Sucesso', 'Loja atualizada!', 'success');
                 } else {
                     await addDoc(collection(db, "clientes"), dados);
-                    Swal.fire('Sucesso', 'Cliente cadastrado!', 'success');
+                    Swal.fire('Sucesso', 'Loja cadastrada!', 'success');
                 }
                 fecharModal();
             } catch (error) {
@@ -569,34 +1436,15 @@
             }
         }
 
+        // ==================== AÇÕES ====================
         async function toggleBloqueio(id, statusAtual) {
             const novoStatus = statusAtual === 'ativo' ? 'bloqueado' : 'ativo';
             const { db, doc, updateDoc } = getFirebase();
             try {
                 await updateDoc(doc(db, "clientes", id), { status: novoStatus });
-                Swal.fire('Sucesso', `Cliente ${novoStatus === 'ativo' ? 'desbloqueado' : 'bloqueado'}!`, 'success');
+                Swal.fire('Sucesso', `Loja ${novoStatus === 'ativo' ? 'desbloqueada' : 'bloqueada'}!`, 'success');
             } catch (error) {
                 Swal.fire('Erro', 'Erro ao alterar status', 'error');
-            }
-        }
-
-        async function renovarAssinatura(id) {
-            const { db, doc, updateDoc, Timestamp } = getFirebase();
-            const cliente = clientes.find(c => c.id === id);
-            if (!cliente) return;
-            
-            const vencAtual = cliente.dataVencimento ? new Date(cliente.dataVencimento + 'T00:00:00') : new Date();
-            const novoVenc = new Date(vencAtual);
-            novoVenc.setDate(novoVenc.getDate() + 30);
-            
-            try {
-                await updateDoc(doc(db, "clientes", id), {
-                    status: 'ativo',
-                    dataVencimento: Timestamp.fromDate(novoVenc)
-                });
-                Swal.fire('Sucesso', 'Assinatura renovada por +30 dias!', 'success');
-            } catch (error) {
-                Swal.fire('Erro', 'Erro ao renovar', 'error');
             }
         }
 
@@ -621,10 +1469,11 @@
                 text: 'Esta ação não poderá ser desfeita!',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#14b8a6',
+                confirmButtonColor: '#dc2626',
                 confirmButtonText: 'Excluir',
                 cancelButtonText: 'Cancelar'
             });
+            
             if (!result.isConfirmed) return;
             
             const { db, doc, deleteDoc } = getFirebase();
@@ -636,132 +1485,49 @@
             }
         }
 
+        // ==================== ALERTAS ====================
         function atualizarAlertas() {
             const hoje = new Date(); hoje.setHours(0,0,0,0);
             const alertas = clientes.filter(c => {
-                if (!c.dataVencimento) return false;
-                const venc = new Date(c.dataVencimento + 'T00:00:00');
-                const diff = Math.ceil((venc - hoje) / (1000*60*60*24));
-                return diff >= 0 && diff <= diasAviso;
-            }).sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
-        }
-
-        function atualizarAlertasCompleto() {
-            const hoje = new Date(); hoje.setHours(0,0,0,0);
-            const alertas = clientes.filter(c => {
-                if (!c.dataVencimento) return false;
+                if (!c.dataVencimento || c.status !== 'ativo') return false;
                 const venc = new Date(c.dataVencimento + 'T00:00:00');
                 const diff = Math.ceil((venc - hoje) / (1000*60*60*24));
                 return diff >= 0 && diff <= diasAviso;
             }).sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
             
-            let html = '';
-            if (alertas.length === 0) {
-                html = '<p class="text-gray-500">Nenhum alerta no momento.</p>';
-            } else {
-                alertas.forEach(c => {
-                    const venc = new Date(c.dataVencimento + 'T00:00:00');
-                    const diff = Math.ceil((venc - hoje) / (1000*60*60*24));
-                    html += `
-                        <div class="flex justify-between items-center p-4 bg-amber-50 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-exclamation-triangle text-amber-500"></i>
-                                <div>
-                                    <span class="font-semibold">${c.nome}</span>
-                                    <span class="text-sm text-gray-600 ml-2">vence em ${diff} dia(s) (${c.dataVencimento})</span>
-                                </div>
-                            </div>
-                            <button onclick="enviarCobranca('${c.id}')" class="bg-teal-500 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-teal-600 transition"><i class="fab fa-whatsapp mr-1"></i> Cobrar</button>
-                        </div>
-                    `;
-                });
-            }
-            document.getElementById('alertas-completo').innerHTML = html;
-        }
-
-        function carregarConfiguracoes() {
-            const saved = localStorage.getItem('saasConfig');
-            if (saved) {
-                const cfg = JSON.parse(saved);
-                mensalidadePadrao = cfg.mensalidade || 97.00;
-                diasAviso = cfg.diasAviso || 3;
-                dominioBase = cfg.dominio || "https://seudominio.com/cardapio/";
-            }
-            document.getElementById('config-mensalidade').value = mensalidadePadrao;
-            document.getElementById('config-dias-aviso').value = diasAviso;
-            document.getElementById('config-dominio').value = dominioBase;
-        }
-
-        function salvarConfiguracoes() {
-            mensalidadePadrao = parseFloat(document.getElementById('config-mensalidade').value) || 97.00;
-            diasAviso = parseInt(document.getElementById('config-dias-aviso').value) || 3;
-            dominioBase = document.getElementById('config-dominio').value || "https://seudominio.com/cardapio/";
-            
-            localStorage.setItem('saasConfig', JSON.stringify({
-                mensalidade: mensalidadePadrao,
-                diasAviso: diasAviso,
-                dominio: dominioBase
-            }));
-            
-            Swal.fire('Configurações salvas!', '', 'success');
-            atualizarDashboard();
-        }
-
-        // ==================== FUNÇÕES PARA SOLICITAÇÕES DE LOJAS ====================
-        function iniciarListenerSolicitacoes() {
-            const { db, collection, onSnapshot, query, where } = getFirebase();
-            const q = query(collection(db, "solicitacoes_lojas"), where("status", "==", "pendente"));
-            
-            solicitacoesUnsubscribe = onSnapshot(q, (snapshot) => {
-                const solicitacoes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                atualizarListaSolicitacoes(solicitacoes);
-            }, (error) => {
-                console.error("Erro no listener de solicitações:", error);
-                setTimeout(() => {
-                    if (solicitacoesUnsubscribe) {
-                        solicitacoesUnsubscribe();
-                        solicitacoesUnsubscribe = null;
-                    }
-                    iniciarListenerSolicitacoes();
-                }, 5000);
-            });
-        }
-
-        function atualizarListaSolicitacoes(solicitacoes) {
-            const container = document.getElementById('solicitacoes-lista');
+            const container = document.getElementById('alerta-lista');
             if (!container) return;
-
-            if (solicitacoes.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-8">Nenhuma solicitação pendente.</p>';
+            
+            if (alertas.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum alerta próximo.</p>';
                 return;
             }
-
+            
             let html = '';
-            solicitacoes.forEach(s => {
-                const data = new Date(s.data_cadastro).toLocaleString('pt-BR');
+            alertas.forEach(c => {
+                const venc = new Date(c.dataVencimento + 'T00:00:00');
+                const diff = Math.ceil((venc - hoje) / (1000*60*60*24));
                 html += `
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                        <div class="font-bold text-gray-800">${s.nome_loja}</div>
-                        <div class="text-sm text-gray-600">Responsável: ${s.responsavel}</div>
-                        <div class="text-sm text-gray-600">WhatsApp: ${s.whatsapp}</div>
-                        <div class="text-sm text-gray-600">E-mail: ${s.email}</div>
-                        <div class="text-xs text-gray-400 mt-1">Solicitado em: ${data}</div>
+                <div class="flex items-center justify-between p-4 bg-amber-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800">${c.nome}</p>
+                            <p class="text-sm text-gray-600">Vence em <span class="font-bold ${diff <= 1 ? 'text-red-600' : 'text-amber-600'}">${diff} dia(s)</span></p>
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="aprovarSolicitacao('${s.id}')" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600 transition">
-                            <i class="fas fa-check mr-1"></i> Aprovar
-                        </button>
-                        <button onclick="rejeitarSolicitacao('${s.id}')" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">
-                            <i class="fas fa-times mr-1"></i> Rejeitar
-                        </button>
-                    </div>
-                </div>
-                `;
+                    <button onclick="enviarCobranca('${c.id}')" class="btn-primary text-sm py-2 px-4">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Cobrar
+                    </button>
+                </div>`;
             });
             container.innerHTML = html;
         }
 
+        // ==================== SOLICITAÇÕES (APROVAR/REJEITAR) ====================
         function gerarLojaId(nome) {
             const base = nome.toLowerCase()
                 .normalize('NFD')
@@ -775,40 +1541,48 @@
         async function aprovarSolicitacao(id) {
             const result = await Swal.fire({
                 title: 'Aprovar loja?',
-                text: 'Ao aprovar, um usuário será criado no Authentication, um registro em clientes e a estrutura da loja.',
+                text: 'Ao aprovar, um usuário será criado no Authentication e a loja estará disponível.',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: coresPersonalizadas.primary,
                 confirmButtonText: 'Sim, aprovar',
                 cancelButtonText: 'Cancelar'
             });
             if (!result.isConfirmed) return;
 
             try {
-                const { db, auth, authModules, doc, updateDoc, addDoc, setDoc, collection, Timestamp, getDoc } = getFirebase();
+                const { db, auth, authModules, doc, updateDoc, setDoc, collection, Timestamp, getDoc } = getFirebase();
 
                 const solicRef = doc(db, "solicitacoes_lojas", id);
                 const solicSnap = await getDoc(solicRef);
                 if (!solicSnap.exists()) throw new Error("Solicitação não encontrada");
                 const dados = solicSnap.data();
 
+                // 1. Criar usuário no Authentication
                 const userCredential = await authModules.createUserWithEmailAndPassword(auth, dados.email, dados.senha);
                 const uid = userCredential.user.uid;
 
+                // 2. Gerar lojaId
                 const lojaId = gerarLojaId(dados.nome_loja);
+
+                // 3. Criar documento em clientes
+                const hoje = new Date();
+                const venc = new Date(); venc.setDate(venc.getDate() + 30);
 
                 await setDoc(doc(db, "clientes", uid), {
                     lojaId: lojaId,
-                    nome_loja: dados.nome_loja,
+                    nome: dados.nome_loja,
                     responsavel: dados.responsavel,
                     email: dados.email,
                     whatsapp: dados.whatsapp,
                     status: "ativo",
                     plano: "Mensal",
-                    data_inicio: Timestamp.now(),
-                    data_vencimento: Timestamp.fromDate(new Date(Date.now() + 30*24*60*60*1000))
+                    dataInicio: Timestamp.fromDate(hoje),
+                    dataVencimento: Timestamp.fromDate(venc),
+                    link: lojaId
                 });
 
+                // 4. Criar documento da loja
                 await setDoc(doc(db, "lojas", lojaId), {
                     nome_loja: dados.nome_loja,
                     responsavel: dados.responsavel,
@@ -819,7 +1593,7 @@
                     data_criacao: Timestamp.now()
                 });
 
-                // Configurações iniciais da loja
+                // 5. Criar configurações iniciais
                 await setDoc(doc(db, "lojas", lojaId, "configuracoes", "geral"), {
                     nome_pizzaria: dados.nome_loja,
                     loja_aberta: true,
@@ -829,6 +1603,7 @@
                     logo_url: ""
                 });
 
+                // 6. Atualizar solicitação
                 await updateDoc(solicRef, { 
                     status: "aprovado", 
                     aprovadoEm: Timestamp.now(),
@@ -838,7 +1613,7 @@
 
                 Swal.fire({
                     title: 'Aprovado!',
-                    html: `Loja criada com sucesso.<br>Link do cardápio:<br><strong>${dominioBase}?loja=${lojaId}</strong>`,
+                    html: `Loja criada com sucesso.<br>Link do cardápio:<br><strong>${dominioBase}${lojaId}</strong>`,
                     icon: 'success'
                 });
             } catch (error) {
@@ -876,19 +1651,135 @@
             }
         }
 
+        // ==================== CONFIGURAÇÕES ====================
+        function carregarConfiguracoes() {
+            const saved = localStorage.getItem('saasConfig');
+            if (saved) {
+                const cfg = JSON.parse(saved);
+                mensalidadePadrao = cfg.mensalidade || 97.00;
+                diasAviso = cfg.diasAviso || 3;
+                dominioBase = cfg.dominio || "https://danamorim1347-max.github.io/lamen/?loja=";
+            }
+            document.getElementById('config-mensalidade').value = mensalidadePadrao;
+            document.getElementById('config-dias-aviso').value = diasAviso;
+            document.getElementById('config-dominio').value = dominioBase;
+        }
+
+        function salvarConfiguracoes() {
+            mensalidadePadrao = parseFloat(document.getElementById('config-mensalidade').value) || 97.00;
+            diasAviso = parseInt(document.getElementById('config-dias-aviso').value) || 3;
+            dominioBase = document.getElementById('config-dominio').value || "https://danamorim1347-max.github.io/lamen/?loja=";
+            
+            localStorage.setItem('saasConfig', JSON.stringify({
+                mensalidade: mensalidadePadrao,
+                diasAviso: diasAviso,
+                dominio: dominioBase
+            }));
+            
+            Swal.fire('Configurações salvas!', '', 'success');
+            atualizarDashboard();
+            atualizarTabelaClientes();
+        }
+
+        // ==================== FUNÇÕES AUXILIARES ====================
+        function verDetalhesLoja(id) {
+            const loja = clientes.find(c => c.id === id);
+            if (!loja) return;
+            
+            const link = `${dominioBase}${loja.link || ''}`;
+            
+            Swal.fire({
+                title: loja.nome,
+                html: `
+                    <div class="text-left space-y-2">
+                        <p><strong>Responsável:</strong> ${loja.responsavel || '-'}</p>
+                        <p><strong>WhatsApp:</strong> ${loja.whatsapp || '-'}</p>
+                        <p><strong>E-mail:</strong> ${loja.email || '-'}</p>
+                        <p><strong>Plano:</strong> ${loja.plano || 'Mensal'}</p>
+                        <p><strong>Status:</strong> ${loja.status || 'ativo'}</p>
+                        <p><strong>Data de início:</strong> ${loja.dataInicio || '-'}</p>
+                        <p><strong>Data de vencimento:</strong> ${loja.dataVencimento || '-'}</p>
+                        <p><strong>Link do cardápio:</strong><br>
+                        <a href="${link}" target="_blank" class="text-emerald-600 break-all">${link}</a></p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonColor: coresPersonalizadas.primary,
+                width: 600
+            });
+        }
+
+        function verPedido(id) {
+            const pedido = pedidos.find(p => p.id === id);
+            if (!pedido) return;
+            
+            const loja = clientes.find(c => c.id === pedido.lojaId) || { nome: 'Desconhecida' };
+            const data = pedido.created_at ? new Date(pedido.created_at.seconds * 1000).toLocaleString('pt-BR') : '-';
+            
+            let itensHtml = '';
+            if (pedido.itens_quantidade) {
+                itensHtml = Object.entries(pedido.itens_quantidade)
+                    .map(([item, qtd]) => `<li>${qtd}x ${item}</li>`)
+                    .join('');
+            }
+            
+            Swal.fire({
+                title: `Pedido #${id.slice(-8)}`,
+                html: `
+                    <div class="text-left space-y-2">
+                        <p><strong>Loja:</strong> ${loja.nome}</p>
+                        <p><strong>Cliente:</strong> ${pedido.cliente_nome || '-'}</p>
+                        <p><strong>WhatsApp:</strong> ${pedido.cliente_whatsapp || '-'}</p>
+                        <p><strong>Endereço:</strong> ${pedido.rua || ''}, ${pedido.numero || ''} - ${pedido.bairro || ''}</p>
+                        <p><strong>Total:</strong> R$ ${(pedido.total || 0).toFixed(2).replace('.',',')}</p>
+                        <p><strong>Status:</strong> ${pedido.status || 'Novo'}</p>
+                        <p><strong>Data:</strong> ${data}</p>
+                        ${itensHtml ? `<div><strong>Itens:</strong><ul class="list-disc pl-5">${itensHtml}</ul></div>` : ''}
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonColor: coresPersonalizadas.primary,
+                width: 600
+            });
+        }
+
+        async function sairAdmin() {
+            const { auth, authModules } = getFirebase();
+            await authModules.signOut(auth);
+            window.location.reload();
+        }
+
+        function exportarRelatorio() {
+            Swal.fire({
+                title: 'Exportar relatório',
+                text: 'Funcionalidade em desenvolvimento',
+                icon: 'info',
+                confirmButtonColor: coresPersonalizadas.primary
+            });
+        }
+
+        // ==================== EXPORTAR FUNÇÕES ====================
         window.showSection = showSection;
         window.novoCliente = novoCliente;
         window.editarCliente = editarCliente;
         window.fecharModal = fecharModal;
         window.salvarCliente = salvarCliente;
         window.toggleBloqueio = toggleBloqueio;
-        window.renovarAssinatura = renovarAssinatura;
         window.enviarCobranca = enviarCobranca;
         window.excluirCliente = excluirCliente;
         window.salvarConfiguracoes = salvarConfiguracoes;
-
         window.aprovarSolicitacao = aprovarSolicitacao;
         window.rejeitarSolicitacao = rejeitarSolicitacao;
+        window.verDetalhesLoja = verDetalhesLoja;
+        window.verPedido = verPedido;
+        window.sairAdmin = sairAdmin;
+        window.exportarRelatorio = exportarRelatorio;
+        
+        // Funções de personalização
+        window.selecionarCor = selecionarCor;
+        window.salvarPersonalizacao = salvarPersonalizacao;
+        window.resetarCores = resetarCores;
+        window.aplicarTema = aplicarTema;
     </script>
 </body>
 </html>
