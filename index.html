@@ -220,6 +220,49 @@
             display: inline-block;
             margin-bottom: 8px;
         }
+        
+        /* Tela de bloqueio */
+        #view-bloqueado {
+            position: fixed;
+            inset: 0;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            z-index: 1000;
+        }
+        .bloqueado-icon {
+            font-size: 5rem;
+            color: #dc2626;
+            margin-bottom: 20px;
+        }
+        .bloqueado-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .bloqueado-message {
+            color: #6b7280;
+            margin-bottom: 30px;
+            max-width: 400px;
+        }
+        .bloqueado-button {
+            background: #dc2626;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .bloqueado-button:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="flex justify-center">
@@ -230,6 +273,14 @@
             <h2 class="text-xl font-bebas text-red-800 mb-2">MASTER PIZZA PRO</h2>
             <div class="text-red-600 text-sm">Inicializando sistema de delivery...</div>
         </div>
+    </div>
+
+    <!-- Tela de bloqueio (inicialmente oculta) -->
+    <div id="view-bloqueado" class="hidden">
+        <div class="bloqueado-icon">🔒</div>
+        <h2 class="bloqueado-title">Acesso Bloqueado</h2>
+        <p class="bloqueado-message">Esta loja está temporariamente bloqueada. Entre em contato com o administrador para mais informações.</p>
+        <a href="#" onclick="location.reload()" class="bloqueado-button">Tentar novamente</a>
     </div>
 
     <audio id="alerta-som" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
@@ -590,12 +641,15 @@
         </div>
     </div>
 
-    <!-- BOTÃO FLUTUANTE ADMIN (REMOVIDO CONFORME SOLICITADO) -->
-    <!-- O botão foi removido para atender à solicitação do usuário -->
+    <!-- BOTÃO FLUTUANTE ADMIN (REMOVIDO) -->
 
     <script>
         // ==================== FUNÇÕES GLOBAIS DE SEGURANÇA ====================
         window.abrirLogin = function() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             document.getElementById('view-login')?.classList.remove('hidden');
         };
         window.fecharLogin = function() {
@@ -608,6 +662,10 @@
             document.getElementById('modal-cadastro-loja')?.classList.add('hidden');
         };
         window.abrirCarrinho = function() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             renderCarrinhoModal();
             document.getElementById('modal-carrinho')?.classList.remove('hidden');
         };
@@ -615,6 +673,10 @@
             document.getElementById('modal-carrinho')?.classList.add('hidden');
         };
         window.abrirCheckout = function() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             if (CARRINHO.length === 0) {
                 Swal.fire({ title: 'Carrinho Vazio', text: 'Adicione itens ao carrinho antes de finalizar!', icon: 'warning', confirmButtonColor: '#dc2626' });
                 return;
@@ -641,6 +703,8 @@
         let lojaIdAtual = null;
         let tipoAcesso = 'publico';
         let dadosLoja = null;
+        let lojaBloqueada = false; // Indica se a loja está bloqueada
+        let lojaUnsubscribe = null; // Listener para o status da loja
         
         // Variáveis para o montador de pizza
         let pizzaMontada = {
@@ -788,7 +852,45 @@
             lojaIdAtual = lojaParam;
             dadosLoja = lojaDoc.data();
             tipoAcesso = 'publico';
+            
+            // Verificar status inicial da loja
+            lojaBloqueada = (dadosLoja.status === 'bloqueado');
+            
             return true;
+        }
+
+        // FUNÇÃO PARA MONITORAR O STATUS DA LOJA
+        function monitorarStatusLoja() {
+            if (!lojaIdAtual) return;
+            const { db, firestore } = getFirebaseRefs();
+            const lojaRef = firestore.doc(db, "lojas", lojaIdAtual);
+            
+            lojaUnsubscribe = firestore.onSnapshot(lojaRef, (doc) => {
+                if (doc.exists()) {
+                    const novoStatus = doc.data().status;
+                    const estavaBloqueada = lojaBloqueada;
+                    lojaBloqueada = (novoStatus === 'bloqueado');
+                    
+                    // Se o status mudou para bloqueado, redirecionar para a tela de bloqueio
+                    if (!estavaBloqueada && lojaBloqueada) {
+                        mostrarTelaBloqueio();
+                    }
+                    // Se estava bloqueado e agora está ativo, recarregar (opcional)
+                    else if (estavaBloqueada && !lojaBloqueada) {
+                        // Pode recarregar a página para restaurar funcionalidades
+                        location.reload();
+                    }
+                }
+            }, (error) => {
+                console.error("Erro ao monitorar status da loja:", error);
+            });
+        }
+
+        // FUNÇÃO PARA MOSTRAR TELA DE BLOQUEIO
+        function mostrarTelaBloqueio() {
+            document.getElementById('view-cliente').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('view-bloqueado').classList.remove('hidden');
         }
 
         // FUNÇÃO INIT MELHORADA
@@ -814,6 +916,15 @@
                     mostrarErroInicializacao('Loja não encontrada. Verifique o link.');
                     return;
                 }
+
+                // Se a loja estiver bloqueada, mostrar tela de bloqueio e não carregar mais nada
+                if (lojaBloqueada) {
+                    document.getElementById('initial-loading').style.display = 'none';
+                    mostrarTelaBloqueio();
+                    // Ainda assim, monitorar status para caso seja desbloqueada
+                    monitorarStatusLoja();
+                    return;
+                }
                 
                 // Carregar configuração da loja
                 await carregarConfiguracao();
@@ -828,6 +939,9 @@
                 if (tipoAcesso === 'admin') {
                     listenPedidos();
                 }
+
+                // Monitorar status da loja (para mudanças futuras)
+                monitorarStatusLoja();
 
                 // Carregar dados locais
                 carregarDadosLocal();
@@ -963,6 +1077,10 @@
         }
 
         function abrirSelecaoSaboresPromocao() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             if(CONFIG.loja_aberta === false) {
                 Swal.fire({
                     title: 'Loja Fechada',
@@ -1076,6 +1194,10 @@
         }
 
         function adicionarPromocaoComSabores() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             // Verificar se há sabores selecionados (opcional)
             let descricao = PROMOCAO.descricao || "";
             
@@ -1377,6 +1499,7 @@
         }
 
         function renderCardapio(cid) {
+            if (lojaBloqueada) return;
             curCat = cid;
             renderFiltros();
             
@@ -1428,6 +1551,7 @@
         }
 
         function abrirDetalhesProduto(id) {
+            if (lojaBloqueada) return;
             const produto = PRODS.find(i => i.id === id);
             if (!produto) return;
             
@@ -1477,6 +1601,10 @@
         }
 
         function addCart(id) {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             if(CONFIG.loja_aberta === false) {
                 Swal.fire({
                     title: 'Loja Fechada',
@@ -1662,6 +1790,10 @@
         // ==================== FUNÇÕES DO MONTADOR DE PIZZA ====================
 
         function abrirMontadorPizza() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             console.log("Abrindo montador de pizza...");
             document.getElementById('modal-montador-pizza').classList.remove('hidden');
             resetarMontadorPizza();
@@ -1960,6 +2092,10 @@
         }
 
         function finalizarPizzaMontada() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             // Validar
             if (!pizzaMontada.tamanho) {
                 Swal.fire({
@@ -2126,6 +2262,10 @@
         // ==================== FUNÇÕES DE GEOLOCALIZAÇÃO ====================
 
         function obterGPSCliente() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             if (!navigator.geolocation) {
                 Swal.fire({
                     title: 'Erro de Localização',
@@ -2221,6 +2361,10 @@
         // ==================== FUNÇÕES DE PEDIDO ====================
 
         async function enviarPedido() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             const nome = document.getElementById('f-nome').value.trim();
             const totalStr = document.getElementById('res-total').innerText;
             
@@ -4504,6 +4648,10 @@
         // ==================== FUNÇÕES ADICIONAIS ====================
 
         function aplicarCupom() {
+            if (lojaBloqueada) {
+                Swal.fire('Acesso Bloqueado', 'Esta loja está bloqueada.', 'error');
+                return;
+            }
             const codigo = document.getElementById('f-cupom').value.trim().toUpperCase();
             if (!codigo) {
                 Swal.fire({
@@ -4543,6 +4691,16 @@
                 showConfirmButton: false
             });
         }
+
+        // ==================== LIMPEZA DE LISTENERS AO SAIR ====================
+        window.addEventListener('beforeunload', function() {
+            if (lojaUnsubscribe) {
+                lojaUnsubscribe();
+            }
+            if (pedidosListenerUnsubscribe) {
+                pedidosListenerUnsubscribe();
+            }
+        });
 
         // ==================== EXPORTA FUNÇÕES PARA O ESCOPO GLOBAL ====================
 
