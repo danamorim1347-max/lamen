@@ -2,8 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Pizza Pro | Painel Administrativo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>PAINEL ADMINISTRATIVO | Master Pizza</title>
     
     <!-- Tailwind + Font Awesome + Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -65,14 +65,14 @@
             background: #f3f4f6;
         }
         
+        /* Scrollbar personalizada */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 4px;
+            height: 4px;
         }
         
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
-            border-radius: 10px;
         }
         
         ::-webkit-scrollbar-thumb {
@@ -80,10 +80,7 @@
             border-radius: 10px;
         }
         
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        
+        /* Animações */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -93,34 +90,41 @@
             animation: fadeIn 0.3s ease-out;
         }
         
+        /* Botões compactos */
         .btn-primary {
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
             cursor: pointer;
             border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
         }
         
         .btn-secondary {
             background: white;
             color: #1f2937;
-            padding: 12px 24px;
-            border-radius: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s;
+            font-size: 0.85rem;
+            transition: all 0.2s;
             border: 1px solid #e5e7eb;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .btn-secondary:hover {
@@ -131,36 +135,41 @@
         .btn-danger {
             background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
             color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
             cursor: pointer;
             border: none;
-        }
-        
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
-        }
-        
-        .action-button {
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.8rem;
-            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Botões de ação */
+        .action-button {
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             cursor: pointer;
             border: none;
+            white-space: nowrap;
         }
         
         .action-button i {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
         
         .action-edit {
@@ -208,93 +217,81 @@
             background: #fecaca;
         }
         
+        /* Tabela compacta */
         .table-container {
             background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border: 1px solid #f1f5f9;
+            overflow-x: auto;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 600px;
         }
         
         th {
             text-align: left;
-            padding: 16px;
+            padding: 12px 8px;
             font-weight: 600;
             color: #64748b;
-            font-size: 0.85rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.03em;
             border-bottom: 2px solid #e2e8f0;
         }
         
         td {
-            padding: 16px;
+            padding: 12px 8px;
             border-bottom: 1px solid #e2e8f0;
             color: #1e293b;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
         }
         
         tr:hover {
             background-color: #f8fafc;
         }
         
-        .actions-footer {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
+        /* Badges compactos */
+        .badge-success, .badge-warning, .badge-danger, .badge-info {
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
         }
         
         .badge-success {
             background: #d1fae5;
             color: #065f46;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
         }
         
         .badge-warning {
             background: #fed7aa;
             color: #92400e;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
         }
         
         .badge-danger {
             background: #fee2e2;
             color: #991b1b;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
         }
         
         .badge-info {
             background: #dbeafe;
             color: #1e40af;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
         }
         
+        /* Tabs */
         .tab {
-            padding: 12px 24px;
+            padding: 10px 16px;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             color: #64748b;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: all 0.2s;
             cursor: pointer;
             white-space: nowrap;
@@ -315,15 +312,17 @@
             color: white;
         }
         
+        /* Sidebar compacta */
         .sidebar-link {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
+            gap: 8px;
+            padding: 10px 12px;
             color: #94a3b8;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: all 0.2s;
             font-weight: 500;
+            font-size: 0.85rem;
             text-decoration: none;
         }
         
@@ -337,10 +336,16 @@
             color: white;
         }
         
+        .sidebar-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Cards de solicitação */
         .solicitacao-card {
             background: white;
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 16px;
             border: 1px solid #e2e8f0;
             transition: all 0.3s;
         }
@@ -350,12 +355,13 @@
             box-shadow: 0 4px 12px rgba(5, 150, 105, 0.1);
         }
         
+        /* Loading */
         .loading-spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #059669;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
         }
         
@@ -368,11 +374,62 @@
             display: none !important;
         }
 
+        /* Header responsivo */
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        @media (min-width: 640px) {
+            .page-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1f2937;
+        }
+        
+        .page-subtitle {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        
+        /* Ações no topo */
         .top-actions {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 8px;
             flex-wrap: wrap;
+        }
+        
+        /* Sidebar para mobile (overlay) */
+        #sidebar {
+            width: 240px;
+        }
+        
+        @media (max-width: 640px) {
+            #sidebar {
+                position: fixed;
+                left: -240px;
+                transition: left 0.3s ease;
+                z-index: 50;
+            }
+            #sidebar.open {
+                left: 0;
+            }
+            #main-content {
+                margin-left: 0 !important;
+                padding: 12px;
+            }
+            #menu-toggle {
+                display: block !important;
+            }
         }
     </style>
 </head>
@@ -380,60 +437,60 @@
     <!-- Loading inicial -->
     <div id="initial-loading" class="fixed inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
         <div class="text-center fade-in">
-            <div class="loading-spinner mx-auto mb-6"></div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Carregando painel</h2>
-            <p class="text-gray-500">Aguarde um instante...</p>
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-800 mb-1">Carregando painel</h2>
+            <p class="text-sm text-gray-500">Aguarde um instante...</p>
         </div>
     </div>
 
     <!-- Estrutura principal -->
-    <div id="app" class="hidden flex min-h-screen bg-gray-50">
-        <!-- Sidebar fixa -->
-        <aside class="w-72 bg-gray-900 text-white fixed left-0 top-0 h-screen overflow-y-auto shadow-2xl" style="z-index: 40;">
-            <div class="p-6">
+    <div id="app" class="hidden min-h-screen bg-gray-50">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-gray-900 text-white fixed left-0 top-0 h-screen overflow-y-auto shadow-2xl z-40">
+            <div class="p-4">
                 <!-- Logo -->
-                <div class="mb-10">
-                    <h1 class="text-3xl font-black">
-                        <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Master</span>
-                        <span class="text-white">Pizza</span>
+                <div class="mb-6">
+                    <h1 class="text-2xl font-black">
+                        <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">CONTROLE</span>
+                        <span class="text-white">CLIENTES</span>
                     </h1>
-                    <p class="text-xs text-gray-400 mt-2 font-medium">Painel Administrativo</p>
+                    <p class="text-[10px] text-gray-400 mt-1 font-medium">Dan Amorim</p>
                 </div>
                 
                 <!-- Menu -->
-                <nav class="space-y-2">
+                <nav class="space-y-1">
                     <a href="#" onclick="showSection('clientes')" id="menu-clientes" class="sidebar-link active">
-                        <i class="fas fa-store w-6 text-lg"></i>
+                        <i class="fas fa-store w-5 text-base"></i>
                         <span>Lojas</span>
                     </a>
                     <a href="#" onclick="showSection('solicitacoes')" id="menu-solicitacoes" class="sidebar-link">
-                        <i class="fas fa-user-plus w-6 text-lg"></i>
+                        <i class="fas fa-user-plus w-5 text-base"></i>
                         <span>Solicitações</span>
                     </a>
                     <a href="#" onclick="showSection('pedidos')" id="menu-pedidos" class="sidebar-link">
-                        <i class="fas fa-shopping-bag w-6 text-lg"></i>
+                        <i class="fas fa-shopping-bag w-5 text-base"></i>
                         <span>Pedidos</span>
                     </a>
                     <a href="#" onclick="showSection('configuracoes')" id="menu-configuracoes" class="sidebar-link">
-                        <i class="fas fa-cog w-6 text-lg"></i>
+                        <i class="fas fa-cog w-5 text-base"></i>
                         <span>Configurações</span>
                     </a>
                 </nav>
                 
                 <!-- Perfil e logout -->
-                <div class="absolute bottom-6 left-6 right-6">
-                    <div class="bg-gray-800/50 backdrop-blur-sm p-5 rounded-2xl border border-gray-700">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg" id="admin-avatar">
+                <div class="absolute bottom-4 left-4 right-4">
+                    <div class="bg-gray-800/50 backdrop-blur-sm p-3 rounded-xl border border-gray-700">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
                                 A
                             </div>
-                            <div>
-                                <p class="text-sm font-semibold text-white" id="admin-name">Administrador</p>
-                                <p class="text-xs text-gray-400" id="admin-email">admin@pizza.com</p>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-semibold text-white truncate" id="admin-name">Administrador</p>
+                                <p class="text-[9px] text-gray-400 truncate" id="admin-email">admin@pizza.com</p>
                             </div>
                         </div>
-                        <button onclick="sairAdmin()" class="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-medium text-sm transition flex items-center justify-center gap-2">
-                            <i class="fas fa-sign-out-alt"></i>
+                        <button onclick="sairAdmin()" class="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1">
+                            <i class="fas fa-sign-out-alt text-xs"></i>
                             Sair
                         </button>
                     </div>
@@ -442,142 +499,132 @@
         </aside>
 
         <!-- Conteúdo principal -->
-        <main class="flex-1 ml-72 p-8">
-            <!-- Header -->
-            <div class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 id="page-title" class="text-3xl font-black text-gray-800">Lojas</h2>
-                    <p class="text-gray-500 mt-1">Gerenciamento de lojas</p>
+        <main id="main-content" class="min-h-screen transition-all duration-300" style="margin-left: 256px;">
+            <!-- Header com botão menu para mobile -->
+            <div class="bg-white border-b border-gray-200 sticky top-0 z-30 p-3 flex items-center gap-3">
+                <button id="menu-toggle" class="text-gray-600 hover:text-emerald-600 text-xl hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex-1">
+                    <h2 id="page-title" class="text-xl font-bold text-gray-800">Lojas</h2>
+                    <p id="page-subtitle" class="text-xs text-gray-500">Gerenciamento de lojas</p>
                 </div>
-                <div class="top-actions">
-                    <button onclick="novoCliente()" class="btn-primary flex items-center gap-2">
-                        <i class="fas fa-plus"></i>
-                        Nova Loja
-                    </button>
-                    <div class="relative">
-                        <button class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg" id="header-avatar">
-                            A
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Seções dinâmicas -->
-
-            <!-- Seção de Lojas (inicialmente visível) -->
-            <div id="clientes-section" class="section fade-in">
-                <div class="table-container">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-bold text-gray-800">Lojas cadastradas</h3>
-                        <button onclick="novoCliente()" class="btn-primary flex items-center gap-2">
-                            <i class="fas fa-plus"></i>
-                            Nova Loja
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Loja</th>
-                                    <th>Responsável</th>
-                                    <th>WhatsApp</th>
-                                    <th>Plano</th>
-                                    <th>Vencimento</th>
-                                    <th>Status</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clientes-tbody">
-                                <!-- Lojas serão carregadas aqui -->
-                                <tr>
-                                    <td colspan="7" class="text-center py-8 text-gray-500">
-                                        Carregando lojas...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <button onclick="novoCliente()" class="btn-primary text-xs px-3 py-2">
+                    <i class="fas fa-plus"></i>
+                    <span class="hidden sm:inline">Nova Loja</span>
+                </button>
+                <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                    A
                 </div>
             </div>
 
-            <!-- Seção de Solicitações -->
-            <div id="solicitacoes-section" class="section hidden fade-in">
-                <div class="table-container">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-bold text-gray-800">Solicitações de cadastro</h3>
-                        <span class="badge-info" id="solicitacoes-count">0 pendentes</span>
-                    </div>
-                    <div id="solicitacoes-lista" class="space-y-4">
-                        <!-- Solicitações serão carregadas aqui -->
-                        <div class="text-center py-12 bg-gray-50 rounded-2xl">
-                            <p class="text-gray-500">Carregando solicitações...</p>
+            <!-- Conteúdo com padding -->
+            <div class="p-4">
+                <!-- Seções dinâmicas -->
+
+                <!-- Seção de Lojas -->
+                <div id="clientes-section" class="section fade-in">
+                    <div class="table-container">
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Loja</th>
+                                        <th>WhatsApp</th>
+                                        <th>Plano</th>
+                                        <th>Vencimento</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clientes-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-8 text-gray-500">
+                                            Carregando lojas...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Seção de Pedidos -->
-            <div id="pedidos-section" class="section hidden fade-in">
-                <div class="table-container">
-                    <h3 class="text-xl font-bold text-gray-800 mb-6">Últimos pedidos</h3>
-                    <div class="overflow-x-auto">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Pedido</th>
-                                    <th>Loja</th>
-                                    <th>Cliente</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                    <th>Data</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pedidos-tbody">
-                                <!-- Pedidos serão carregados aqui -->
-                                <tr>
-                                    <td colspan="7" class="text-center py-8 text-gray-500">
-                                        Carregando pedidos...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <!-- Seção de Solicitações -->
+                <div id="solicitacoes-section" class="section hidden fade-in">
+                    <div class="table-container">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-gray-800">Solicitações de cadastro</h3>
+                            <span class="badge-info" id="solicitacoes-count">0</span>
+                        </div>
+                        <div id="solicitacoes-lista" class="space-y-3">
+                            <div class="text-center py-8 text-gray-500">
+                                Carregando solicitações...
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Seção Configurações -->
-            <div id="configuracoes-section" class="section hidden fade-in">
-                <div class="stat-card p-6 bg-white rounded-2xl shadow-md">
-                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                        <i class="fas fa-sliders-h text-emerald-500"></i>
-                        Configurações Gerais
-                    </h3>
-                    <div class="space-y-5">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Valor da mensalidade (R$)
-                            </label>
-                            <input type="number" id="config-mensalidade" value="97.00" step="0.01" min="0"
-                                   class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                <!-- Seção de Pedidos -->
+                <div id="pedidos-section" class="section hidden fade-in">
+                    <div class="table-container">
+                        <h3 class="text-base font-bold text-gray-800 mb-4">Últimos pedidos</h3>
+                        <div class="overflow-x-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Pedido</th>
+                                        <th>Loja</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Data</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pedidos-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-8 text-gray-500">
+                                            Carregando pedidos...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Dias de aviso prévio
-                            </label>
-                            <input type="number" id="config-dias-aviso" value="3" min="1" max="30"
-                                   class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+                    </div>
+                </div>
+
+                <!-- Seção Configurações -->
+                <div id="configuracoes-section" class="section hidden fade-in">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <h3 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-sliders-h text-emerald-500"></i>
+                            Configurações
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">
+                                    Mensalidade (R$)
+                                </label>
+                                <input type="number" id="config-mensalidade" value="97.00" step="0.01" min="0"
+                                       class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">
+                                    Dias de aviso
+                                </label>
+                                <input type="number" id="config-dias-aviso" value="3" min="1" max="30"
+                                       class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">
+                                    Domínio
+                                </label>
+                                <input type="text" id="config-dominio" value="https://danamorim1347-max.github.io/lamen/?loja=" 
+                                       class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                            </div>
+                            <button onclick="salvarConfiguracoes()" class="btn-primary w-full justify-center">
+                                Salvar
+                            </button>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Domínio dos cardápios
-                            </label>
-                            <input type="text" id="config-dominio" value="https://danamorim1347-max.github.io/lamen/?loja=" 
-                                   class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                        </div>
-                        <button onclick="salvarConfiguracoes()" class="btn-primary w-full">
-                            Salvar configurações
-                        </button>
                     </div>
                 </div>
             </div>
@@ -586,78 +633,54 @@
 
     <!-- Modal de cadastro/edição de loja -->
     <div id="modal-cliente" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-800" id="modal-titulo">Nova Loja</h3>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 transition">
-                    <i class="fas fa-times text-xl"></i>
+        <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800" id="modal-titulo">Nova Loja</h3>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
             
             <input type="hidden" id="cliente-id">
             
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome da loja</label>
-                    <input type="text" id="campo-nome" placeholder="Ex: Pizzaria do João" 
-                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
+            <div class="space-y-3">
+                <input type="text" id="campo-nome" placeholder="Nome da loja" 
+                       class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                
+                <input type="text" id="campo-responsavel" placeholder="Responsável" 
+                       class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                
+                <input type="text" id="campo-whatsapp" placeholder="WhatsApp" 
+                       class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                
+                <input type="email" id="campo-email" placeholder="E-mail" 
+                       class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                
+                <select id="campo-plano" class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                    <option value="Mensal">Mensal</option>
+                    <option value="Trimestral">Trimestral</option>
+                    <option value="Anual">Anual</option>
+                </select>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="date" id="campo-data-inicio" 
+                           class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                    <input type="date" id="campo-data-vencimento" 
+                           class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
                 </div>
                 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nome do responsável</label>
-                    <input type="text" id="campo-responsavel" placeholder="Ex: João Silva" 
-                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
-                    <input type="text" id="campo-whatsapp" placeholder="Ex: 11999999999" 
-                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
-                    <input type="email" id="campo-email" placeholder="Ex: contato@loja.com" 
-                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Plano</label>
-                    <select id="campo-plano" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                        <option value="Mensal">Mensal - R$ 97/mês</option>
-                        <option value="Trimestral">Trimestral - R$ 87/mês (R$ 261)</option>
-                        <option value="Anual">Anual - R$ 77/mês (R$ 924)</option>
-                    </select>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Data de início</label>
-                        <input type="date" id="campo-data-inicio" 
-                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Vencimento</label>
-                        <input type="date" id="campo-data-vencimento" 
-                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select id="campo-status" class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-300 outline-none transition">
-                        <option value="ativo">Ativo</option>
-                        <option value="bloqueado">Bloqueado</option>
-                        <option value="inadimplente">Inadimplente</option>
-                    </select>
-                </div>
+                <select id="campo-status" class="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-300 outline-none">
+                    <option value="ativo">Ativo</option>
+                    <option value="bloqueado">Bloqueado</option>
+                    <option value="inadimplente">Inadimplente</option>
+                </select>
             </div>
             
-            <div class="flex gap-4 mt-8">
-                <button onclick="salvarCliente()" class="btn-primary flex-1">
+            <div class="flex gap-3 mt-5">
+                <button onclick="salvarCliente()" class="btn-primary flex-1 justify-center">
                     Salvar
                 </button>
-                <button onclick="fecharModal()" class="btn-secondary flex-1">
+                <button onclick="fecharModal()" class="btn-secondary flex-1 justify-center">
                     Cancelar
                 </button>
             </div>
@@ -675,6 +698,7 @@
         let mensalidadePadrao = 97.00;
         let diasAviso = 3;
         let dominioBase = "https://danamorim1347-max.github.io/lamen/?loja=";
+        let sidebarOpen = false;
 
         // ==================== INICIALIZAÇÃO ====================
         window.startApp = function() {
@@ -683,10 +707,32 @@
             
             carregarConfiguracoes();
             iniciarListeners();
+            setupMobileMenu();
             
             // Mostrar a seção de lojas por padrão
             showSection('clientes');
         };
+
+        // ==================== MENU MOBILE ====================
+        function setupMobileMenu() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                });
+            }
+            
+            // Fechar sidebar ao clicar em um link
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 640) {
+                        sidebar.classList.remove('open');
+                    }
+                });
+            });
+        }
 
         // ==================== LISTENERS ====================
         function iniciarListeners() {
@@ -705,8 +751,8 @@
                 console.error("Erro ao carregar clientes:", error);
             });
 
-            // Listener de pedidos (últimos 100)
-            const qPedidos = query(collection(db, "pedidos"), orderBy("created_at", "desc"), limit(100));
+            // Listener de pedidos
+            const qPedidos = query(collection(db, "pedidos"), orderBy("created_at", "desc"), limit(50));
             pedidosUnsubscribe = onSnapshot(qPedidos, (snapshot) => {
                 pedidos = snapshot.docs.map(doc => ({
                     id: doc.id,
@@ -717,7 +763,7 @@
                 console.error("Erro ao carregar pedidos:", error);
             });
 
-            // Listener de solicitações pendentes
+            // Listener de solicitações
             const qSolicitacoes = query(collection(db, "solicitacoes_lojas"), where("status", "==", "pendente"));
             solicitacoesUnsubscribe = onSnapshot(qSolicitacoes, (snapshot) => {
                 solicitacoes = snapshot.docs.map(doc => ({
@@ -778,7 +824,14 @@
                 pedidos: 'Pedidos',
                 configuracoes: 'Configurações'
             };
+            const subtitles = {
+                clientes: 'Gerenciamento de lojas',
+                solicitacoes: 'Solicitações pendentes',
+                pedidos: 'Últimos pedidos',
+                configuracoes: 'Configurações do sistema'
+            };
             document.getElementById('page-title').innerText = titles[section] || 'Lojas';
+            document.getElementById('page-subtitle').innerText = subtitles[section] || '';
         }
 
         // ==================== TABELA DE LOJAS ====================
@@ -787,7 +840,7 @@
             
             let html = '';
             if (clientes.length === 0) {
-                html = `<tr><td colspan="7" class="text-center py-8 text-gray-500">Nenhuma loja cadastrada</td></tr>`;
+                html = `<tr><td colspan="6" class="text-center py-8 text-gray-500">Nenhuma loja cadastrada</td></tr>`;
             } else {
                 clientes.forEach(c => {
                     const venc = c.dataVencimento ? new Date(c.dataVencimento + 'T00:00:00') : null;
@@ -807,42 +860,31 @@
                     else if (c.status === 'inadimplente') statusClasse = 'badge-warning';
                     else statusClasse = 'badge-danger';
                     
-                    const link = `${dominioBase}${c.link || c.nome?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'loja'}`;
-                    
                     html += `
-                    <tr class="hover:bg-gray-50 transition" data-cliente-id="${c.id}" data-loja-id="${c.lojaId || ''}">
-                        <td class="font-semibold">${c.nome || '-'}</td>
-                        <td>${c.responsavel || '-'}</td>
-                        <td>${c.whatsapp || '-'}</td>
-                        <td>${c.plano || 'Mensal'}</td>
+                    <tr class="hover:bg-gray-50 transition">
+                        <td>
+                            <div class="font-semibold text-sm">${c.nome || '-'}</div>
+                            <div class="text-xs text-gray-500">${c.responsavel || ''}</div>
+                        </td>
+                        <td class="text-xs">${c.whatsapp || '-'}</td>
+                        <td class="text-xs">${c.plano || 'Mensal'}</td>
                         <td>
                             <span class="${diasClasse}">${diasTexto}</span>
-                            <div class="text-xs text-gray-400 mt-1">${c.dataVencimento || ''}</div>
+                            <div class="text-[10px] text-gray-400 mt-1">${c.dataVencimento || ''}</div>
                         </td>
                         <td>
                             <span class="${statusClasse}">${statusTexto}</span>
                         </td>
                         <td>
-                            <div class="actions-footer">
+                            <div class="flex gap-1 flex-wrap">
                                 <button onclick="editarCliente('${c.id}')" class="action-button action-edit" title="Editar">
                                     <i class="fas fa-edit"></i>
-                                    Editar
                                 </button>
-                                <button onclick="verDetalhesLoja('${c.id}')" class="action-button action-view" title="Detalhes">
-                                    <i class="fas fa-eye"></i>
-                                    Detalhes
-                                </button>
-                                <button onclick="toggleBloqueioLoja('${c.lojaId || c.id}')" class="action-button action-block" title="Bloquear/Desbloquear Loja">
+                                <button onclick="toggleBloqueioLoja('${c.lojaId || c.id}')" class="action-button action-block" title="Bloquear/Desbloquear">
                                     <i class="fas fa-ban"></i>
-                                    Bloquear
                                 </button>
-                                <button onclick="enviarCobranca('${c.id}')" class="action-button action-whatsapp" title="Enviar cobrança">
+                                <button onclick="enviarCobranca('${c.id}')" class="action-button action-whatsapp" title="WhatsApp">
                                     <i class="fab fa-whatsapp"></i>
-                                    WhatsApp
-                                </button>
-                                <button onclick="excluirCliente('${c.id}')" class="action-button action-delete" title="Excluir">
-                                    <i class="fas fa-trash"></i>
-                                    Excluir
                                 </button>
                             </div>
                         </td>
@@ -852,7 +894,7 @@
             document.getElementById('clientes-tbody').innerHTML = html;
         }
 
-        // ==================== FUNÇÃO DE BLOQUEIO/DESBLOQUEIO DE LOJA ====================
+        // ==================== FUNÇÃO DE BLOQUEIO ====================
         async function toggleBloqueioLoja(lojaId) {
             if (!lojaId) {
                 Swal.fire('Erro', 'ID da loja não encontrado.', 'error');
@@ -882,14 +924,14 @@
                 await updateDoc(lojaRef, { status: novoStatus });
                 Swal.fire({
                     title: 'Sucesso!',
-                    text: `Loja ${novoStatus === 'ativo' ? 'desbloqueada' : 'bloqueada'} com sucesso.`,
+                    text: `Loja ${novoStatus === 'ativo' ? 'desbloqueada' : 'bloqueada'}.`,
                     icon: 'success',
-                    timer: 2000,
+                    timer: 1500,
                     showConfirmButton: false
                 });
             } catch (error) {
                 console.error("Erro ao alterar status:", error);
-                Swal.fire('Erro', 'Não foi possível alterar o status. Verifique as permissões do Firestore.', 'error');
+                Swal.fire('Erro', 'Não foi possível alterar o status.', 'error');
             }
         }
 
@@ -899,27 +941,25 @@
             if (!tbody) return;
             
             if (pedidos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500">Nenhum pedido encontrado</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">Nenhum pedido</td></tr>`;
                 return;
             }
             
             let html = '';
-            pedidos.slice(0, 10).forEach(p => {
-                const loja = clientes.find(c => c.id === p.lojaId) || { nome: 'Desconhecida' };
-                const data = p.created_at ? new Date(p.created_at.seconds * 1000).toLocaleString('pt-BR') : '-';
+            pedidos.slice(0, 15).forEach(p => {
+                const loja = clientes.find(c => c.id === p.lojaId) || { nome: '-' };
+                const data = p.created_at ? new Date(p.created_at.seconds * 1000).toLocaleString('pt-BR').slice(0,10) : '-';
                 
                 html += `
                 <tr>
-                    <td class="font-mono text-xs">#${p.id.slice(-8)}</td>
-                    <td>${loja.nome}</td>
-                    <td>${p.cliente_nome || '-'}</td>
-                    <td class="font-bold">R$ ${(p.total || 0).toFixed(2).replace('.',',')}</td>
-                    <td><span class="badge-info">${p.status || 'Novo'}</span></td>
-                    <td class="text-sm">${data}</td>
+                    <td class="font-mono text-xs">#${p.id.slice(-6)}</td>
+                    <td class="text-xs">${loja.nome}</td>
+                    <td class="text-xs font-bold">R$ ${(p.total || 0).toFixed(2).replace('.',',')}</td>
+                    <td><span class="badge-info text-[10px]">${p.status || 'Novo'}</span></td>
+                    <td class="text-xs">${data}</td>
                     <td>
-                        <button onclick="verPedido('${p.id}')" class="action-button action-view">
+                        <button onclick="verPedido('${p.id}')" class="action-button action-view text-[10px] py-1 px-2">
                             <i class="fas fa-eye"></i>
-                            Ver
                         </button>
                     </td>
                 </tr>`;
@@ -934,51 +974,39 @@
             
             if (!container) return;
             
-            countSpan.innerText = `${solicitacoes.length} pendente${solicitacoes.length !== 1 ? 's' : ''}`;
+            countSpan.innerText = `${solicitacoes.length}`;
 
             if (solicitacoes.length === 0) {
-                container.innerHTML = '<div class="text-center py-12 bg-gray-50 rounded-2xl"><p class="text-gray-500">Nenhuma solicitação pendente</p></div>';
+                container.innerHTML = '<div class="text-center py-6 bg-gray-50 rounded-lg"><p class="text-sm text-gray-500">Nenhuma solicitação</p></div>';
                 return;
             }
 
             let html = '';
             solicitacoes.forEach(s => {
-                const data = s.data_cadastro ? new Date(s.data_cadastro.seconds * 1000).toLocaleString('pt-BR') : 'Data não informada';
+                const data = s.data_cadastro ? new Date(s.data_cadastro.seconds * 1000).toLocaleDateString('pt-BR') : '-';
                 html += `
-                <div class="solicitacao-card">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <h4 class="font-bold text-lg text-gray-800">${s.nome_loja}</h4>
-                                <span class="badge-warning">Pendente</span>
+                <div class="solicitacao-card p-3">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-sm text-gray-800">${s.nome_loja}</h4>
+                            <span class="badge-warning text-[9px]">Pendente</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-user w-4 text-[10px]"></i>
+                                <span class="truncate">${s.responsavel || '-'}</span>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <i class="fas fa-user w-5"></i>
-                                    <span>${s.responsavel || 'Não informado'}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <i class="fab fa-whatsapp w-5"></i>
-                                    <span>${s.whatsapp || 'Não informado'}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <i class="fas fa-envelope w-5"></i>
-                                    <span>${s.email || 'Não informado'}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <i class="fas fa-calendar w-5"></i>
-                                    <span>${data}</span>
-                                </div>
+                            <div class="flex items-center gap-1">
+                                <i class="fab fa-whatsapp w-4 text-[10px]"></i>
+                                <span class="truncate">${s.whatsapp || '-'}</span>
                             </div>
                         </div>
-                        <div class="flex gap-3">
-                            <button onclick="aprovarSolicitacao('${s.id}')" class="btn-primary flex items-center gap-2">
-                                <i class="fas fa-check"></i>
-                                Aprovar
+                        <div class="flex gap-2 mt-1">
+                            <button onclick="aprovarSolicitacao('${s.id}')" class="btn-primary text-xs py-2 flex-1 justify-center">
+                                <i class="fas fa-check"></i> Aprovar
                             </button>
-                            <button onclick="rejeitarSolicitacao('${s.id}')" class="btn-danger flex items-center gap-2">
-                                <i class="fas fa-times"></i>
-                                Rejeitar
+                            <button onclick="rejeitarSolicitacao('${s.id}')" class="btn-danger text-xs py-2 flex-1 justify-center">
+                                <i class="fas fa-times"></i> Rejeitar
                             </button>
                         </div>
                     </div>
@@ -1075,38 +1103,16 @@
         function enviarCobranca(id) {
             const cliente = clientes.find(c => c.id === id);
             if (!cliente || !cliente.whatsapp) {
-                Swal.fire('Atenção', 'Cliente sem WhatsApp cadastrado', 'warning');
+                Swal.fire('Atenção', 'Sem WhatsApp', 'warning');
                 return;
             }
             
             const venc = cliente.dataVencimento ? new Date(cliente.dataVencimento + 'T00:00:00') : null;
             const diff = venc ? Math.ceil((venc - new Date()) / (1000*60*60*24)) : '?';
-            const mensagem = `Olá ${cliente.responsavel || cliente.nome}! A mensalidade do seu cardápio digital vence em ${diff} dias. Para evitar bloqueio, realize o pagamento. Qualquer dúvida, estamos à disposição.`;
+            const mensagem = `Olá ${cliente.responsavel || cliente.nome}! Sua mensalidade vence em ${diff} dias.`;
             
             const url = `https://wa.me/${cliente.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(mensagem)}`;
             window.open(url, '_blank');
-        }
-
-        async function excluirCliente(id) {
-            const result = await Swal.fire({
-                title: 'Confirmar exclusão',
-                text: 'Esta ação não poderá ser desfeita!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                confirmButtonText: 'Excluir',
-                cancelButtonText: 'Cancelar'
-            });
-            
-            if (!result.isConfirmed) return;
-            
-            const { db, doc, deleteDoc } = getFirebase();
-            try {
-                await deleteDoc(doc(db, "clientes", id));
-                Swal.fire('Excluído!', 'Cliente removido.', 'success');
-            } catch (error) {
-                Swal.fire('Erro', 'Erro ao excluir', 'error');
-            }
         }
 
         // ==================== SOLICITAÇÕES (APROVAR/REJEITAR) ====================
@@ -1122,32 +1128,27 @@
 
         async function aprovarSolicitacao(id) {
             const result = await Swal.fire({
-                title: 'Aprovar loja?',
-                text: 'Ao aprovar, um usuário será criado no Authentication e a loja estará disponível.',
+                title: 'Aprovar?',
+                text: 'A loja será criada e o usuário autenticado.',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#059669',
-                confirmButtonText: 'Sim, aprovar',
+                confirmButtonText: 'Sim',
                 cancelButtonText: 'Cancelar'
             });
             if (!result.isConfirmed) return;
 
             try {
-                const { db, auth, authModules, doc, updateDoc, setDoc, collection, Timestamp, getDoc } = getFirebase();
+                const { db, auth, authModules, doc, updateDoc, setDoc, Timestamp, getDoc } = getFirebase();
 
                 const solicRef = doc(db, "solicitacoes_lojas", id);
                 const solicSnap = await getDoc(solicRef);
                 if (!solicSnap.exists()) throw new Error("Solicitação não encontrada");
                 const dados = solicSnap.data();
 
-                // 1. Criar usuário no Authentication
                 const userCredential = await authModules.createUserWithEmailAndPassword(auth, dados.email, dados.senha);
                 const uid = userCredential.user.uid;
-
-                // 2. Gerar lojaId
                 const lojaId = gerarLojaId(dados.nome_loja);
-
-                // 3. Criar documento em clientes
                 const hoje = new Date();
                 const venc = new Date(); venc.setDate(venc.getDate() + 30);
 
@@ -1164,53 +1165,31 @@
                     link: lojaId
                 });
 
-                // 4. Criar documento da loja
                 await setDoc(doc(db, "lojas", lojaId), {
                     nome_loja: dados.nome_loja,
                     responsavel: dados.responsavel,
                     whatsapp: dados.whatsapp,
                     email: dados.email,
                     status: "ativo",
-                    usa_montador: true,
                     data_criacao: Timestamp.now()
                 });
 
-                // 5. Criar configurações iniciais
-                await setDoc(doc(db, "lojas", lojaId, "configuracoes", "geral"), {
-                    nome_pizzaria: dados.nome_loja,
-                    loja_aberta: true,
-                    taxa_base: 6,
-                    preco_km: 2.5,
-                    pedido_minimo: 35,
-                    logo_url: ""
-                });
-
-                // 6. Atualizar solicitação
-                await updateDoc(solicRef, { 
-                    status: "aprovado", 
-                    aprovadoEm: Timestamp.now(),
-                    uid: uid,
-                    lojaId: lojaId
-                });
+                await updateDoc(solicRef, { status: "aprovado" });
 
                 Swal.fire({
                     title: 'Aprovado!',
-                    html: `Loja criada com sucesso.<br>Link do cardápio:<br><strong>${dominioBase}${lojaId}</strong>`,
+                    html: `Link: <strong>${dominioBase}${lojaId}</strong>`,
                     icon: 'success'
                 });
             } catch (error) {
-                console.error("Erro ao aprovar solicitação:", error);
-                if (error.code === 'auth/email-already-in-use') {
-                    Swal.fire('Erro', 'Este e-mail já está em uso por outro usuário.', 'error');
-                } else {
-                    Swal.fire('Erro', 'Não foi possível aprovar a solicitação: ' + error.message, 'error');
-                }
+                console.error(error);
+                Swal.fire('Erro', error.message, 'error');
             }
         }
 
         async function rejeitarSolicitacao(id) {
             const result = await Swal.fire({
-                title: 'Rejeitar solicitação?',
+                title: 'Rejeitar?',
                 text: 'Esta ação não poderá ser desfeita.',
                 icon: 'warning',
                 showCancelButton: true,
@@ -1222,14 +1201,11 @@
 
             try {
                 const { db, doc, updateDoc, Timestamp } = getFirebase();
-                await updateDoc(doc(db, "solicitacoes_lojas", id), {
-                    status: "rejeitado",
-                    rejeitadoEm: Timestamp.now()
-                });
-                Swal.fire('Rejeitado!', 'Solicitação rejeitada.', 'success');
+                await updateDoc(doc(db, "solicitacoes_lojas", id), { status: "rejeitado" });
+                Swal.fire('Rejeitado!', '', 'success');
             } catch (error) {
-                console.error("Erro ao rejeitar solicitação:", error);
-                Swal.fire('Erro', 'Não foi possível rejeitar a solicitação.', 'error');
+                console.error(error);
+                Swal.fire('Erro', error.message, 'error');
             }
         }
 
@@ -1262,64 +1238,13 @@
         }
 
         // ==================== FUNÇÕES AUXILIARES ====================
-        function verDetalhesLoja(id) {
-            const loja = clientes.find(c => c.id === id);
-            if (!loja) return;
-            
-            const link = `${dominioBase}${loja.link || ''}`;
-            
-            Swal.fire({
-                title: loja.nome,
-                html: `
-                    <div class="text-left space-y-2">
-                        <p><strong>Responsável:</strong> ${loja.responsavel || '-'}</p>
-                        <p><strong>WhatsApp:</strong> ${loja.whatsapp || '-'}</p>
-                        <p><strong>E-mail:</strong> ${loja.email || '-'}</p>
-                        <p><strong>Plano:</strong> ${loja.plano || 'Mensal'}</p>
-                        <p><strong>Status:</strong> ${loja.status || 'ativo'}</p>
-                        <p><strong>Data de início:</strong> ${loja.dataInicio || '-'}</p>
-                        <p><strong>Data de vencimento:</strong> ${loja.dataVencimento || '-'}</p>
-                        <p><strong>Link do cardápio:</strong><br>
-                        <a href="${link}" target="_blank" class="text-emerald-600 break-all">${link}</a></p>
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonColor: '#059669',
-                width: 600
-            });
-        }
-
         function verPedido(id) {
             const pedido = pedidos.find(p => p.id === id);
             if (!pedido) return;
-            
-            const loja = clientes.find(c => c.id === pedido.lojaId) || { nome: 'Desconhecida' };
-            const data = pedido.created_at ? new Date(pedido.created_at.seconds * 1000).toLocaleString('pt-BR') : '-';
-            
-            let itensHtml = '';
-            if (pedido.itens_quantidade) {
-                itensHtml = Object.entries(pedido.itens_quantidade)
-                    .map(([item, qtd]) => `<li>${qtd}x ${item}</li>`)
-                    .join('');
-            }
-            
             Swal.fire({
                 title: `Pedido #${id.slice(-8)}`,
-                html: `
-                    <div class="text-left space-y-2">
-                        <p><strong>Loja:</strong> ${loja.nome}</p>
-                        <p><strong>Cliente:</strong> ${pedido.cliente_nome || '-'}</p>
-                        <p><strong>WhatsApp:</strong> ${pedido.cliente_whatsapp || '-'}</p>
-                        <p><strong>Endereço:</strong> ${pedido.rua || ''}, ${pedido.numero || ''} - ${pedido.bairro || ''}</p>
-                        <p><strong>Total:</strong> R$ ${(pedido.total || 0).toFixed(2).replace('.',',')}</p>
-                        <p><strong>Status:</strong> ${pedido.status || 'Novo'}</p>
-                        <p><strong>Data:</strong> ${data}</p>
-                        ${itensHtml ? `<div><strong>Itens:</strong><ul class="list-disc pl-5">${itensHtml}</ul></div>` : ''}
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonColor: '#059669',
-                width: 600
+                html: `Total: R$ ${(pedido.total || 0).toFixed(2).replace('.',',')}`,
+                icon: 'info'
             });
         }
 
@@ -1337,11 +1262,9 @@
         window.salvarCliente = salvarCliente;
         window.toggleBloqueioLoja = toggleBloqueioLoja;
         window.enviarCobranca = enviarCobranca;
-        window.excluirCliente = excluirCliente;
         window.salvarConfiguracoes = salvarConfiguracoes;
         window.aprovarSolicitacao = aprovarSolicitacao;
         window.rejeitarSolicitacao = rejeitarSolicitacao;
-        window.verDetalhesLoja = verDetalhesLoja;
         window.verPedido = verPedido;
         window.sairAdmin = sairAdmin;
     </script>
