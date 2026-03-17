@@ -95,7 +95,7 @@
         .status-Cancelado { border-left: 12px solid #dc2626 !important; background-color: #fee2e2; opacity: 0.5; }
 
         @media print {
-            header, nav, main, #cart-fixed, #modal-checkout, #modal-montador-pizza, #view-admin, #view-login, #modal-carrinho, #modal-detalhes-produto, #modal-editar-prod, #modal-editar-promocao, #modal-editar-tamanho, #modal-sabores-promocao, button, select, i, .no-print { 
+            header, nav, main, #cart-fixed, #modal-checkout, #modal-montador, #view-admin, #view-login, #modal-carrinho, #modal-detalhes-produto, #modal-editar-prod, #modal-editar-promocao, #modal-editar-tamanho, #modal-sabores-promocao, button, select, i, .no-print { 
                 display: none !important; 
             }
             #secao-impressao { 
@@ -170,21 +170,21 @@
             input, select { padding: 12px !important; font-size: 14px !important; }
             #view-admin { padding-bottom: 10px !important; }
             .flex-1.p-4 { padding: 12px 8px !important; font-size: 8px !important; }
-            #modal-montador-pizza { padding: 15px !important; }
+            #modal-montador { padding: 15px !important; }
             .tamanho-option { padding: 10px !important; }
             #promocao-container div { padding: 12px !important; }
             #cart-fixed { bottom: 10px !important; padding: 0 10px !important; }
             #cart-fixed button { padding: 10px 14px !important; font-size: 9px !important; border-radius: 20px !important; }
             #modal-checkout .max-h-\[94vh\] { max-height: 85vh !important; }
             #carrinho-itens-list > div { padding: 10px !important; margin-bottom: 6px !important; }
-            #modal-montador-pizza .mb-6 { margin-bottom: 15px !important; }
-            #lista-sabores > div, #lista-adicionais-pizza > div { padding: 10px !important; margin-bottom: 5px !important; }
+            #modal-montador .mb-6 { margin-bottom: 15px !important; }
+            #lista-sabores > div, #lista-adicionais > div { padding: 10px !important; margin-bottom: 5px !important; }
         }
         
         @media (max-width: 360px) {
             .header-banner { height: 150px !important; }
             #cli-nome { font-size: 1.5rem !important; }
-            #lista-tamanhos-pizza { grid-template-columns: repeat(2, 1fr) !important; }
+            #lista-tamanhos { grid-template-columns: repeat(2, 1fr) !important; }
             #cardapio > div { padding: 10px !important; gap: 10px !important; }
         }
         
@@ -318,7 +318,7 @@
 
         <div id="bloco-montador" class="px-5 mt-4 relative z-10">
             <button onclick="MontadorService.abrirMontador()" class="w-full app-gradient text-white p-5 rounded-[25px] font-black text-[11px] uppercase shadow-xl flex justify-between items-center active:scale-95 transition">
-                <span>🎯 MONTAR SEU PEDIDO PERSONALIZADO</span>
+                <span>🎯 MONTAR SEU PEDIDO</span>
                 <i class="fas fa-plus bg-white/20 p-2 rounded-lg"></i>
             </button>
         </div>
@@ -467,35 +467,35 @@
     </div>
 
     <!-- MODAL MONTADOR -->
-    <div id="modal-montador-pizza" class="fixed inset-0 bg-black/80 z-50 hidden flex items-end justify-center text-black">
+    <div id="modal-montador" class="fixed inset-0 bg-black/80 z-50 hidden flex items-end justify-center text-black">
         <div class="bg-white w-full max-w-md rounded-t-[40px] p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center font-bebas uppercase tracking-tighter text-blue-600"><h2 class="text-xl">MONTAR SEU PEDIDO</h2><button onclick="MontadorService.fecharMontador()" class="text-2xl">✕</button></div>
             
-            <div class="mb-6">
+            <div id="secao-tamanhos" class="mb-6">
                 <h3 class="font-black text-sm uppercase text-gray-800 mb-3">1. Escolha o Tamanho</h3>
-                <div id="lista-tamanhos-pizza" class="grid grid-cols-4 gap-2"></div>
+                <div id="lista-tamanhos" class="grid grid-cols-4 gap-2"></div>
             </div>
             
-            <div class="mb-6">
+            <div id="secao-itens" class="mb-6">
                 <h3 class="font-black text-sm uppercase text-gray-800 mb-3">2. Escolha os Itens</h3>
                 <div id="lista-sabores" class="space-y-2"></div>
                 <div id="limite-info" class="text-[9px] text-blue-600 mt-1 italic">Máximo de 2 itens</div>
             </div>
             
-            <div class="mb-6">
+            <div id="secao-adicionais" class="mb-6">
                 <h3 class="font-black text-sm uppercase text-gray-800 mb-3">3. Adicionais (opcional)</h3>
-                <div id="lista-adicionais-pizza" class="space-y-2"></div>
+                <div id="lista-adicionais" class="space-y-2"></div>
             </div>
             
             <div class="bg-slate-50 p-4 rounded-2xl border borda-item mt-4">
                 <div class="flex justify-between font-bold text-sm">
                     <span>Seu Pedido:</span>
-                    <span id="preco-montador-pizza">R$ 0,00</span>
+                    <span id="preco-montador">R$ 0,00</span>
                 </div>
-                <div id="resumo-montador-pizza" class="text-[10px] text-gray-600 mt-1">
+                <div id="resumo-montador" class="text-[10px] text-gray-600 mt-1">
                     <div id="resumo-tamanho">Tamanho: --</div>
-                    <div id="resumo-sabores">Itens: --</div>
-                    <div id="resumo-adicionais-pizza">Adicionais: --</div>
+                    <div id="resumo-itens">Itens: --</div>
+                    <div id="resumo-adicionais">Adicionais: --</div>
                 </div>
             </div>
             
@@ -537,11 +537,11 @@
     <div id="modal-editar-tamanho" class="fixed inset-0 bg-black/80 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md p-6 rounded-[40px] shadow-2xl space-y-4 text-black">
             <div class="flex justify-between items-center font-bebas uppercase text-sm text-blue-600"><h2>Editar Tamanho</h2><button onclick="AdminUI.fecharModalEditarTamanho()">✕</button></div>
-            <input id="edit-tamanho-nome" type="text" placeholder="Nome (ex: P, M, G, GG)" class="w-full p-3 border rounded-xl text-sm font-bold uppercase">
+            <input id="edit-tamanho-nome" type="text" placeholder="Nome (ex: P, M, G)" class="w-full p-3 border rounded-xl text-sm font-bold uppercase">
             <input id="edit-tamanho-descricao" type="text" placeholder="Descrição" class="w-full p-3 border rounded-xl text-sm">
             <div class="flex gap-2">
                 <input id="edit-tamanho-preco" type="number" step="0.01" placeholder="Preço base" class="flex-1 p-3 border rounded-xl text-sm font-black">
-                <input id="edit-tamanho-ordem" type="number" placeholder="Ordem (1,2,3...)" class="flex-1 p-3 border rounded-xl text-sm font-black">
+                <input id="edit-tamanho-ordem" type="number" placeholder="Ordem" class="flex-1 p-3 border rounded-xl text-sm font-black">
             </div>
             <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border text-[10px] font-black uppercase">
                 <span>Disponível?</span>
@@ -698,12 +698,12 @@
             
             getTamanhosRef: (lojaId) => {
                 const { firestore, db } = Utils.getFirebaseRefs();
-                return firestore.collection(db, "lojas", lojaId, "tamanhos_pizza");
+                return firestore.collection(db, "lojas", lojaId, "tamanhos");
             },
             
             getTamanhoRef: (lojaId, tamanhoId) => {
                 const { firestore, db } = Utils.getFirebaseRefs();
-                return firestore.doc(db, "lojas", lojaId, "tamanhos_pizza", tamanhoId);
+                return firestore.doc(db, "lojas", lojaId, "tamanhos", tamanhoId);
             }
         };
 
@@ -767,27 +767,23 @@
                     pizzaria: [
                         { nome: "Pizzas", tipo: "categoria", ordem: 1 },
                         { nome: "Bebidas", tipo: "categoria", ordem: 2 },
-                        { nome: "Sobremesas", tipo: "categoria", ordem: 3 },
-                        { nome: "Adicionais", tipo: "montador", subtipo: "adicional", ordem: 99 }
+                        { nome: "Sobremesas", tipo: "categoria", ordem: 3 }
                     ],
                     hamburgueria: [
                         { nome: "Hambúrgueres", tipo: "categoria", ordem: 1 },
                         { nome: "Porções", tipo: "categoria", ordem: 2 },
                         { nome: "Bebidas", tipo: "categoria", ordem: 3 },
-                        { nome: "Sobremesas", tipo: "categoria", ordem: 4 },
-                        { nome: "Adicionais", tipo: "montador", subtipo: "adicional", ordem: 99 }
+                        { nome: "Sobremesas", tipo: "categoria", ordem: 4 }
                     ],
                     restaurante: [
                         { nome: "Pratos Executivos", tipo: "categoria", ordem: 1 },
                         { nome: "Pratos Especiais", tipo: "categoria", ordem: 2 },
                         { nome: "Bebidas", tipo: "categoria", ordem: 3 },
-                        { nome: "Sobremesas", tipo: "categoria", ordem: 4 },
-                        { nome: "Adicionais", tipo: "montador", subtipo: "adicional", ordem: 99 }
+                        { nome: "Sobremesas", tipo: "categoria", ordem: 4 }
                     ],
                     acai: [
                         { nome: "Açaís", tipo: "categoria", ordem: 1 },
-                        { nome: "Bebidas", tipo: "categoria", ordem: 2 },
-                        { nome: "Complementos", tipo: "montador", subtipo: "adicional", ordem: 99 }
+                        { nome: "Bebidas", tipo: "categoria", ordem: 2 }
                     ]
                 };
                 return categoriasBase[tipo] || categoriasBase.restaurante;
@@ -836,7 +832,6 @@
                     await firestore.setDoc(firestore.doc(db, "lojas", lojaId), {
                         nome_loja: this.getNomePorTipo(tipo),
                         status: "ativo",
-                        usa_montador: true,
                         tipo_loja: tipo,
                         data_criacao: Timestamp.now()
                     });
@@ -849,7 +844,7 @@
                         preco_km: 2.5,
                         pedido_minimo: 35,
                         logo_url: "",
-                        usa_montador: true
+                        usa_montador: tipo === 'pizzaria' // Só ativa montador para pizzaria
                     });
 
                     const categorias = this.getCategoriasPorTipo(tipo);
@@ -918,6 +913,7 @@
                             preco_km: 2.5,
                             whatsapp: LojaService.dadosLoja?.whatsapp || "5599999999999",
                             pedido_minimo: 35,
+                            usa_montador: false
                         };
                     }
                     
@@ -932,6 +928,12 @@
             async salvar(dados) {
                 try {
                     const configRef = FirebaseService.getConfigRef(LojaService.lojaIdAtual);
+                    
+                    // Se não for pizzaria, desativa montador automaticamente
+                    if (dados.tipo_loja !== 'pizzaria') {
+                        dados.usa_montador = false;
+                    }
+                    
                     await configRef.set(dados);
                     this.dados = dados;
                     
@@ -1399,8 +1401,8 @@
             getPromocaoPadraoPorTipo(tipo) {
                 const promocoes = {
                     pizzaria: {
-                        titulo: "🍕 PIZZA + REFRI",
-                        descricao: "2 Pizzas Médias + 2 Refris 2L",
+                        titulo: "🍕 PROMOÇÃO DE PIZZAS",
+                        descricao: "2 Pizzas Médias + 2 Refris",
                         preco: 69.90,
                         preco_original: 89.90,
                         imagem_url: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&auto=format&fit=crop&q=80",
@@ -1487,7 +1489,7 @@
                 
                 CarrinhoService.adicionar({
                     id: `promocao-dia-${Date.now()}`,
-                    nome: `🔥 ${this.dados.titulo || "PROMOÇÃO DO DIA"}`,
+                    nome: `🔥 ${this.dados.titulo || "PROMOÇÃO"}`,
                     descricao: descricao,
                     preco: this.dados.preco || 49.90,
                     tipo: 'promocao',
@@ -1802,7 +1804,7 @@
         };
 
         // ============================================================================
-        // 5. MONTADOR - Serviço de montagem de pedidos (adaptado por tipo de loja)
+        // 5. MONTADOR - Serviço de montagem de pedidos
         // ============================================================================
         const MontadorService = {
             pedidoAtual: {
@@ -1820,9 +1822,9 @@
                 }
                 
                 const tipo = ConfigService.dados.tipo_loja || 'restaurante';
-                document.getElementById('modal-montador-pizza').classList.remove('hidden');
+                document.getElementById('modal-montador').classList.remove('hidden');
                 
-                const tituloModal = document.querySelector('#modal-montador-pizza h2');
+                const tituloModal = document.querySelector('#modal-montador h2');
                 if (tituloModal) {
                     const titulos = {
                         pizzaria: '🍕 MONTAR SUA PIZZA',
@@ -1845,13 +1847,14 @@
                 }
                 
                 this.resetar();
+                this.configurarInterfacePorTipo(tipo);
                 this.carregarTamanhosPorTipo(tipo);
                 this.carregarItensPrincipaisPorTipo(tipo);
                 this.carregarAdicionaisPorTipo(tipo);
             },
             
             fecharMontador() {
-                document.getElementById('modal-montador-pizza').classList.add('hidden');
+                document.getElementById('modal-montador').classList.add('hidden');
                 this.resetar();
             },
             
@@ -1872,8 +1875,18 @@
                 this.atualizarResumo();
             },
             
+            configurarInterfacePorTipo(tipo) {
+                const secaoTamanhos = document.getElementById('secao-tamanhos');
+                const secaoItens = document.getElementById('secao-itens');
+                const secaoAdicionais = document.getElementById('secao-adicionais');
+                
+                if (secaoTamanhos) secaoTamanhos.style.display = tipo !== 'restaurante' ? 'block' : 'none';
+                if (secaoAdicionais) secaoAdicionais.style.display = 'block';
+                if (secaoItens) secaoItens.style.display = 'block';
+            },
+            
             carregarTamanhosPorTipo(tipo) {
-                const lista = document.getElementById('lista-tamanhos-pizza');
+                const lista = document.getElementById('lista-tamanhos');
                 if (!lista) return;
                 
                 let html = '';
@@ -1906,14 +1919,14 @@
                             <div class="text-[8px] ${jaSelecionado ? 'text-blue-200' : 'text-gray-400'}">${t.descricao}</div>
                         </button>`;
                     });
-                } else {
-                    const tamanhosGenericos = [
-                        { id: 'pequeno', nome: 'P', preco: 0, descricao: 'Pequeno' },
-                        { id: 'medio', nome: 'M', preco: 5.00, descricao: 'Médio +R$5' },
-                        { id: 'grande', nome: 'G', preco: 10.00, descricao: 'Grande +R$10' }
+                } else if (tipo === 'hamburgueria') {
+                    const tamanhosHamburguer = [
+                        { id: 'tradicional', nome: 'Tradicional', preco: 0, descricao: 'Hambúrguer simples' },
+                        { id: 'artesanal', nome: 'Artesanal', preco: 5.00, descricao: 'Pão artesanal' },
+                        { id: 'duplo', nome: 'Duplo', preco: 10.00, descricao: 'Dois hambúrgueres' }
                     ];
                     
-                    tamanhosGenericos.forEach(t => {
+                    tamanhosHamburguer.forEach(t => {
                         const jaSelecionado = this.pedidoAtual.tamanho === t.id;
                         html += `
                         <button onclick="MontadorService.selecionarTamanho('${t.id}','${t.preco}','${t.nome}',this)" 
@@ -1975,7 +1988,7 @@
                         { id: 'especial', nome: 'Especial', descricao: 'Açaí com todas as frutas', preco: 8.00 }
                     ];
                 } else {
-                    const catPrincipais = CategoriaService.lista.find(c => c.nome === "Principais" || c.nome === "Pratos");
+                    const catPrincipais = CategoriaService.lista.find(c => c.nome === "Pratos" || c.nome === "Principais");
                     if (catPrincipais) {
                         itens = ProdutoService.lista.filter(p => p.categoria_id === catPrincipais.id && p.disponivel !== false);
                     } else {
@@ -2031,39 +2044,33 @@
             },
             
             carregarAdicionaisPorTipo(tipo) {
-                const lista = document.getElementById('lista-adicionais-pizza');
+                const lista = document.getElementById('lista-adicionais');
                 if (!lista) return;
                 
                 let adicionais = [];
                 
                 const adicionaisBase = {
                     pizzaria: [
-                        { id: 'borda-catupiry', nome: "Borda Catupiry", preco: 8.00 },
-                        { id: 'borda-cheddar', nome: "Borda Cheddar", preco: 8.00 },
                         { id: 'queijo-extra', nome: "Queijo Extra", preco: 5.00 },
-                        { id: 'bacon', nome: "Bacon", preco: 4.00 }
+                        { id: 'bacon', nome: "Bacon", preco: 4.00 },
+                        { id: 'catupiry', nome: "Catupiry", preco: 6.00 }
                     ],
                     hamburgueria: [
                         { id: 'queijo', nome: "Queijo Extra", preco: 3.00 },
                         { id: 'bacon', nome: "Bacon", preco: 4.00 },
                         { id: 'ovo', nome: "Ovo", preco: 2.50 },
-                        { id: 'cheddar', nome: "Cheddar", preco: 3.00 },
-                        { id: 'calabresa', nome: "Calabresa", preco: 3.00 },
-                        { id: 'batata', nome: "Batata Palha", preco: 2.00 }
+                        { id: 'cheddar', nome: "Cheddar", preco: 3.00 }
                     ],
                     acai: [
                         { id: 'granola', nome: "Granola", preco: 2.00 },
                         { id: 'leite-condensado', nome: "Leite Condensado", preco: 2.50 },
                         { id: 'banana', nome: "Banana", preco: 1.50 },
-                        { id: 'morango', nome: "Morango", preco: 2.00 },
-                        { id: 'kiwi', nome: "Kiwi", preco: 2.50 },
-                        { id: 'paçoca', nome: "Paçoca", preco: 1.50 }
+                        { id: 'morango', nome: "Morango", preco: 2.00 }
                     ],
                     restaurante: [
                         { id: 'arroz', nome: "Arroz Extra", preco: 4.00 },
                         { id: 'feijao', nome: "Feijão Extra", preco: 4.00 },
                         { id: 'carne', nome: "Carne Extra", preco: 8.00 },
-                        { id: 'salada', nome: "Salada Extra", preco: 3.00 },
                         { id: 'batata', nome: "Batata Frita", preco: 6.00 }
                     ]
                 };
@@ -2108,14 +2115,14 @@
                 
                 this.pedidoAtual.precoTotal = precoTotal;
                 
-                document.getElementById('preco-montador-pizza').innerText = Utils.formatMoney(precoTotal);
+                document.getElementById('preco-montador').innerText = Utils.formatMoney(precoTotal);
                 
                 const tamanhoNome = this.pedidoAtual.tamanho ? this.pedidoAtual.tamanho.nome : '--';
                 const tamanhoPreco = this.pedidoAtual.precoTamanho || 0;
                 document.getElementById('resumo-tamanho').innerHTML = `Tamanho: ${tamanhoNome} (${Utils.formatMoney(tamanhoPreco)})`;
                 
-                document.getElementById('resumo-sabores').innerHTML = `Itens: ${this.pedidoAtual.sabores.length > 0 ? this.pedidoAtual.sabores.map(s => s.nome).join(', ') : '--'}`;
-                document.getElementById('resumo-adicionais-pizza').innerHTML = `Adicionais: ${this.pedidoAtual.adicionais.length > 0 ? this.pedidoAtual.adicionais.map(a => a.nome).join(', ') : '--'}`;
+                document.getElementById('resumo-itens').innerHTML = `Itens: ${this.pedidoAtual.sabores.length > 0 ? this.pedidoAtual.sabores.map(s => s.nome).join(', ') : '--'}`;
+                document.getElementById('resumo-adicionais').innerHTML = `Adicionais: ${this.pedidoAtual.adicionais.length > 0 ? this.pedidoAtual.adicionais.map(a => a.nome).join(', ') : '--'}`;
             },
             
             finalizarPedido() {
@@ -2124,7 +2131,9 @@
                     return;
                 }
                 
-                if (!this.pedidoAtual.tamanho) {
+                const tipo = ConfigService.dados.tipo_loja || 'restaurante';
+                
+                if (tipo !== 'restaurante' && !this.pedidoAtual.tamanho) {
                     Utils.showAlert('Atenção!', 'Selecione um tamanho para o pedido!', 'warning');
                     return;
                 }
@@ -2134,17 +2143,16 @@
                     return;
                 }
                 
-                const tipo = ConfigService.dados.tipo_loja || 'restaurante';
                 const itensText = this.pedidoAtual.sabores.map(s => s.nome).join(' + ');
                 
                 const nomes = {
-                    pizzaria: `🍕 PIZZA ${this.pedidoAtual.tamanho.nome} (${itensText})`,
-                    hamburgueria: `🍔 HAMBÚRGUER ${this.pedidoAtual.tamanho.nome} (${itensText})`,
-                    acai: `🥤 AÇAÍ ${this.pedidoAtual.tamanho.nome} (${itensText})`,
-                    restaurante: `🍽️ PRATO ${this.pedidoAtual.tamanho.nome} (${itensText})`
+                    pizzaria: `🍕 PIZZA ${this.pedidoAtual.tamanho?.nome || ''} (${itensText})`,
+                    hamburgueria: `🍔 HAMBÚRGUER ${this.pedidoAtual.tamanho?.nome || ''} (${itensText})`,
+                    acai: `🥤 AÇAÍ ${this.pedidoAtual.tamanho?.nome || ''} (${itensText})`,
+                    restaurante: `🍽️ PRATO (${itensText})`
                 };
                 
-                const nomePedido = nomes[tipo] || `PEDIDO ${this.pedidoAtual.tamanho.nome} (${itensText})`;
+                const nomePedido = nomes[tipo] || `PEDIDO ${itensText}`;
                 
                 let descricao = "";
                 if (this.pedidoAtual.adicionais.length > 0) {
@@ -2388,7 +2396,7 @@
                 document.getElementById('view-admin')?.classList.add('hidden');
                 document.getElementById('modal-carrinho')?.classList.add('hidden');
                 document.getElementById('modal-checkout')?.classList.add('hidden');
-                document.getElementById('modal-montador-pizza')?.classList.add('hidden');
+                document.getElementById('modal-montador')?.classList.add('hidden');
                 document.getElementById('cart-fixed')?.classList.add('hidden');
                 document.getElementById('view-bloqueado')?.classList.remove('hidden');
             },
@@ -2421,7 +2429,7 @@
                 if (PromocaoService.dados.ativa !== false) {
                     let itensText = '';
                     if (PromocaoService.dados.itens_inclusos && PromocaoService.dados.itens_inclusos.length > 0) {
-                        const catPrincipal = CategoriaService.lista.find(c => c.nome === "Lanches" || c.nome === "Pizzas" || c.nome === "Principais");
+                        const catPrincipal = CategoriaService.lista.find(c => c.nome === "Pizzas" || c.nome === "Hambúrgueres" || c.nome === "Pratos" || c.nome === "Açaís");
                         if (catPrincipal) {
                             const itensNomes = PromocaoService.dados.itens_inclusos.map(itemId => {
                                 const item = ProdutoService.lista.find(p => p.id === itemId);
@@ -2479,7 +2487,7 @@
                 const lista = document.getElementById('lista-sabores-promocao');
                 if (!lista) return;
                 
-                const catPrincipal = CategoriaService.lista.find(c => c.nome === "Lanches" || c.nome === "Pizzas" || c.nome === "Principais");
+                const catPrincipal = CategoriaService.lista.find(c => c.nome === "Pizzas" || c.nome === "Hambúrgueres" || c.nome === "Pratos" || c.nome === "Açaís");
                 if (!catPrincipal) {
                     lista.innerHTML = '<div class="text-center text-gray-500 text-sm p-4">Nenhum item disponível</div>';
                     return;
@@ -3216,10 +3224,11 @@
                                         <div class="text-[9px] text-gray-500">Ativar ou desativar o botão de montar pedido personalizado</div>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" id="cfg-montador" ${ConfigService.dados.usa_montador !== false ? 'checked' : '' }>
+                                        <input type="checkbox" id="cfg-montador" ${ConfigService.dados.usa_montador === true ? 'checked' : '' } ${tipo !== 'pizzaria' ? 'disabled' : ''}>
                                         <span class="slider"></span>
                                     </label>
                                 </div>
+                                ${tipo !== 'pizzaria' ? '<div class="text-[8px] text-red-500 mt-1">Montador disponível apenas para pizzarias</div>' : ''}
                             </div>
                             
                             <button onclick="AdminUI.salvarConfig()" class="w-full bg-green-600 text-white py-4 rounded-[25px] font-black uppercase text-sm hover:bg-green-700 transition">💾 Salvar Configurações</button>
@@ -3241,7 +3250,7 @@
                     lat_loja: parseFloat(document.getElementById('cfg-lat').value) || null,
                     lng_loja: parseFloat(document.getElementById('cfg-lng').value) || null,
                     loja_aberta: document.getElementById('cfg-aberta').checked,
-                    usa_montador: document.getElementById('cfg-montador').checked
+                    usa_montador: document.getElementById('cfg-tipo-loja').value === 'pizzaria' ? document.getElementById('cfg-montador').checked : false
                 };
                 
                 const sucesso = await ConfigService.salvar(config);
@@ -3320,7 +3329,7 @@
                 const container = document.getElementById('promocao-sabores-container');
                 if (!container) return;
                 
-                const catPrincipal = CategoriaService.lista.find(c => c.nome === "Lanches" || c.nome === "Pizzas" || c.nome === "Principais");
+                const catPrincipal = CategoriaService.lista.find(c => c.nome === "Pizzas" || c.nome === "Hambúrgueres" || c.nome === "Pratos" || c.nome === "Açaís");
                 if (!catPrincipal) {
                     container.innerHTML = '<div class="text-gray-500 text-sm">Categoria principal não encontrada</div>';
                     return;
@@ -3512,7 +3521,7 @@
                 
                 const catAdicionais = CategoriaService.lista.find(c => c.nome === "Adicionais");
                 
-                if (!catAdicionais) {
+                if (!catAdicionais && ConfigService.dados.tipo_loja !== 'acai') {
                     await CategoriaService.salvar({
                         nome: "Adicionais",
                         tipo: "montador",
@@ -3525,7 +3534,7 @@
                 
                 let html = `
                     <div class="mb-6">
-                        <h3 class="font-bebas text-xl text-gray-800 mb-4">Adicionais</h3>
+                        <h3 class="font-bebas text-xl text-gray-800 mb-4">Itens Especiais</h3>
                         
                         <div class="grid grid-cols-1 gap-4">
                             <div class="bg-white p-4 rounded-[25px] shadow-lg">
@@ -3667,16 +3676,14 @@
                 const tipo = ConfigService.dados.tipo_loja || 'restaurante';
                 const blocoMontador = document.getElementById('bloco-montador');
                 
-                if (blocoMontador && ConfigService.dados.usa_montador !== false) {
-                    blocoMontador.style.display = 'block';
-                    const botaoTexto = blocoMontador.querySelector('button span');
-                    const textos = {
-                        pizzaria: '🍕 MONTAR PIZZA PERSONALIZADA',
-                        hamburgueria: '🍔 MONTAR HAMBÚRGUER',
-                        acai: '🥤 MONTAR SEU AÇAÍ',
-                        restaurante: '🍽️ MONTAR SEU PRATO'
-                    };
-                    botaoTexto.innerHTML = textos[tipo] || '🎯 MONTAR SEU PEDIDO';
+                if (blocoMontador) {
+                    if (tipo === 'pizzaria' && ConfigService.dados.usa_montador === true) {
+                        blocoMontador.style.display = 'block';
+                        const botaoTexto = blocoMontador.querySelector('button span');
+                        botaoTexto.innerHTML = '🍕 MONTAR PIZZA PERSONALIZADA';
+                    } else {
+                        blocoMontador.style.display = 'none';
+                    }
                 }
                 
                 this.atualizarTextosPorTipo(tipo);
@@ -3722,9 +3729,12 @@
                 let html = '';
                 filtrados.forEach(p => {
                     const categoria = CategoriaService.lista.find(c => c.id === p.categoria_id);
-                    const corCategoria = categoria?.nome === "Lanches" ? "bg-blue-100 text-blue-700" : 
-                                       categoria?.nome === "Bebidas" ? "bg-green-100 text-green-700" :
+                    const corCategoria = categoria?.nome === "Hambúrgueres" ? "bg-amber-100 text-amber-700" : 
+                                       categoria?.nome === "Pizzas" ? "bg-orange-100 text-orange-700" :
+                                       categoria?.nome === "Bebidas" ? "bg-blue-100 text-blue-700" :
                                        categoria?.nome === "Sobremesas" ? "bg-purple-100 text-purple-700" :
+                                       categoria?.nome === "Pratos" ? "bg-green-100 text-green-700" :
+                                       categoria?.nome === "Açaís" ? "bg-indigo-100 text-indigo-700" :
                                        "bg-gray-100 text-gray-700";
                     
                     html += `
