@@ -128,9 +128,21 @@
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
+            transition: all 0.2s;
         }
         .link-loja:hover {
             background: #e0f2fe;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .preview-link {
+            background: #f8fafc;
+            border-left: 4px solid #2563eb;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -355,10 +367,30 @@
                 });
             },
             
-            // Gerar link da loja
-            gerarLinkLoja: (lojaId) => {
-                const url = window.location.origin + window.location.pathname.replace('admin.html', 'index.html') + '?loja=' + lojaId;
-                return url;
+            // Gerar slug amigável a partir do nome da loja
+            gerarSlug: (nome) => {
+                if (!nome) return 'loja';
+                
+                return nome
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '')
+                    .substring(0, 30);
+            },
+            
+            // Gerar link personalizado da loja
+            gerarLinkLoja: (nomeLoja, lojaId) => {
+                const slug = Utils.gerarSlug(nomeLoja);
+                const url = window.location.origin + 
+                           window.location.pathname.replace('admin.html', 'index.html') + 
+                           '?loja=' + slug + '-' + lojaId.substring(0, 8);
+                return {
+                    url: url,
+                    slug: slug,
+                    completo: slug + '-' + lojaId.substring(0, 8)
+                };
             }
         };
 
@@ -519,8 +551,10 @@
                 try {
                     const { firestore, db, authModules, auth } = Utils.getFirebaseRefs();
                     
-                    // Criar ID da loja
-                    const lojaId = 'loja_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+                    // Gerar slug personalizado baseado no nome da loja
+                    const slug = Utils.gerarSlug(solicitacao.nome_loja);
+                    const timestamp = Date.now().toString(36);
+                    const lojaId = slug + '-' + timestamp;
                     
                     // 1. CRIAR USUÁRIO NO FIREBASE AUTHENTICATION
                     const userCredential = await authModules.createUserWithEmailAndPassword(
@@ -531,17 +565,25 @@
                     
                     const uid = userCredential.user.uid;
                     
-                    // 2. Criar documento da loja
+                    // 2. CRIAR DOCUMENTO DA LOJA com todas as informações do cadastro
                     await firestore.setDoc(firestore.doc(db, "lojas", lojaId), {
                         nome_loja: solicitacao.nome_loja,
-                        status: "ativo",
+                        responsavel: solicitacao.responsavel,
+                        whatsapp: solicitacao.whatsapp,
+                        email: solicitacao.email,
                         tipo_loja: solicitacao.tipo_loja || "restaurante",
-                        data_criacao: firestore.Timestamp.now()
+                        slug: slug,
+                        status: "ativo",
+                        data_criacao: firestore.Timestamp.now(),
+                        data_aprovacao: firestore.Timestamp.now()
                     });
                     
-                    // 3. Criar configurações da loja
+                    // 3. CRIAR CONFIGURAÇÕES DA LOJA com dados do cadastro
                     await firestore.setDoc(firestore.doc(db, "lojas", lojaId, "configuracoes", "geral"), {
                         nome_loja: solicitacao.nome_loja,
+                        responsavel: solicitacao.responsavel,
+                        whatsapp: solicitacao.whatsapp,
+                        email: solicitacao.email,
                         tipo_loja: solicitacao.tipo_loja || "restaurante",
                         loja_aberta: true,
                         taxa_entrega: 6,
@@ -550,15 +592,29 @@
                         logo_url: "",
                         usa_montador: solicitacao.tipo_loja === 'pizzaria',
                         status_assinatura: "ativo",
-                        data_vencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                        data_vencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        data_criacao: firestore.Timestamp.now()
                     });
                     
-                    // 4. Criar cliente (usando o UID do Authentication)
+                    // 4. CRIAR CATEGORIAS PADRÃO baseadas no tipo de loja
+                    const categoriasPadrao = this.getCategoriasPadrao(solicitacao.tipo_loja);
+                    for (const cat of categoriasPadrao) {
+                        await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "categorias"), cat);
+                    }
+                    
+                    // 5. CRIAR PRODUTOS PADRÃO baseados no tipo de loja
+                    const produtosPadrao = this.getProdutosPadrao(solicitacao.tipo_loja);
+                    for (const prod of produtosPadrao) {
+                        await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "produtos"), prod);
+                    }
+                    
+                    // 6. CRIAR CLIENTE (usando o UID do Authentication)
                     await firestore.setDoc(firestore.doc(db, "clientes", uid), {
                         nome: solicitacao.responsavel || solicitacao.nome_loja,
                         whatsapp: solicitacao.whatsapp || "",
                         email: solicitacao.email || "",
                         lojaId: lojaId,
+                        slug: slug,
                         tipo_loja: solicitacao.tipo_loja || "restaurante",
                         status_assinatura: "ativo",
                         data_vencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -567,18 +623,19 @@
                         data_criacao: firestore.Timestamp.now()
                     });
                     
-                    // 5. Marcar solicitação como aprovada
+                    // 7. MARCAR SOLICITAÇÃO COMO APROVADA
                     await firestore.updateDoc(firestore.doc(db, "solicitacoes_lojas", solicitacao.id), {
                         status: "aprovado",
                         data_aprovacao: firestore.Timestamp.now(),
                         uid: uid,
-                        lojaId: lojaId
+                        lojaId: lojaId,
+                        slug: slug
                     });
                     
-                    // 6. Gerar link da loja
-                    const linkLoja = Utils.gerarLinkLoja(lojaId);
+                    // 8. Gerar link personalizado da loja
+                    const linkInfo = Utils.gerarLinkLoja(solicitacao.nome_loja, lojaId);
                     
-                    // 7. Mostrar credenciais e link para o admin
+                    // 9. Mostrar credenciais e link para o admin
                     Swal.fire({
                         title: '✅ LOJA APROVADA!',
                         html: `
@@ -587,22 +644,31 @@
                                 <p><strong>Responsável:</strong> ${solicitacao.responsavel}</p>
                                 <p><strong>Email:</strong> ${solicitacao.email}</p>
                                 <p><strong>Senha:</strong> ${solicitacao.senha || '123456'}</p>
+                                <p><strong>Tipo:</strong> ${solicitacao.tipo_loja || 'restaurante'}</p>
                                 <hr class="my-3">
-                                <p><strong>🔗 LINK DA LOJA:</strong></p>
-                                <div class="link-loja" onclick="Utils.copiarTexto('${linkLoja}')">
-                                    <span class="truncate">${linkLoja}</span>
+                                <p><strong>🔗 LINK PERSONALIZADO DA LOJA:</strong></p>
+                                <div class="link-loja" onclick="Utils.copiarTexto('${linkInfo.url}')">
+                                    <span class="truncate">${linkInfo.url}</span>
                                     <i class="fas fa-copy text-blue-600 ml-2"></i>
+                                </div>
+                                <div class="preview-link">
+                                    <p class="text-xs text-gray-600 mb-1">📝 Slug gerado:</p>
+                                    <code class="text-sm bg-white px-2 py-1 rounded">${linkInfo.completo}</code>
                                 </div>
                                 <p class="text-xs text-gray-500 mt-2">Clique no link para copiar</p>
                                 <hr class="my-3">
                                 <p class="text-green-600">✓ Usuário criado no Authentication</p>
                                 <p class="text-green-600">✓ Documento da loja criado</p>
+                                <p class="text-green-600">✓ Configurações da loja criadas</p>
+                                <p class="text-green-600">✓ Categorias padrão criadas</p>
+                                <p class="text-green-600">✓ Produtos padrão criados</p>
                                 <p class="text-green-600">✓ Cliente vinculado</p>
+                                <p class="text-green-600">✓ Link personalizado gerado</p>
                             </div>
                         `,
                         icon: 'success',
                         confirmButtonColor: '#2563eb',
-                        width: '500px'
+                        width: '600px'
                     });
                     
                     await this.carregarTudo();
@@ -619,6 +685,59 @@
                     
                     Utils.showAlert('Erro', mensagem, 'error');
                 }
+            },
+            
+            getCategoriasPadrao(tipo) {
+                const categoriasBase = {
+                    pizzaria: [
+                        { nome: "Pizzas", tipo: "categoria", ordem: 1 },
+                        { nome: "Bebidas", tipo: "categoria", ordem: 2 },
+                        { nome: "Sobremesas", tipo: "categoria", ordem: 3 }
+                    ],
+                    hamburgueria: [
+                        { nome: "Hambúrgueres", tipo: "categoria", ordem: 1 },
+                        { nome: "Porções", tipo: "categoria", ordem: 2 },
+                        { nome: "Bebidas", tipo: "categoria", ordem: 3 },
+                        { nome: "Sobremesas", tipo: "categoria", ordem: 4 }
+                    ],
+                    restaurante: [
+                        { nome: "Pratos Executivos", tipo: "categoria", ordem: 1 },
+                        { nome: "Pratos Especiais", tipo: "categoria", ordem: 2 },
+                        { nome: "Bebidas", tipo: "categoria", ordem: 3 },
+                        { nome: "Sobremesas", tipo: "categoria", ordem: 4 }
+                    ],
+                    acai: [
+                        { nome: "Açaís", tipo: "categoria", ordem: 1 },
+                        { nome: "Bebidas", tipo: "categoria", ordem: 2 }
+                    ]
+                };
+                return categoriasBase[tipo] || categoriasBase.restaurante;
+            },
+            
+            getProdutosPadrao(tipo) {
+                const produtosBase = {
+                    pizzaria: [
+                        { nome: "Pizza Margherita", descricao: "Molho, mussarela, manjericão", preco: 35.90, disponivel: true },
+                        { nome: "Pizza Calabresa", descricao: "Calabresa, cebola, mussarela", preco: 38.90, disponivel: true },
+                        { nome: "Coca-Cola 2L", descricao: "", preco: 12.90, disponivel: true }
+                    ],
+                    hamburgueria: [
+                        { nome: "X-Burguer", descricao: "Hambúrguer, queijo, alface, tomate", preco: 25.90, disponivel: true },
+                        { nome: "X-Bacon", descricao: "Hambúrguer, bacon, queijo, alface", preco: 29.90, disponivel: true },
+                        { nome: "Coca-Cola 2L", descricao: "", preco: 12.90, disponivel: true }
+                    ],
+                    restaurante: [
+                        { nome: "Prato Executivo", descricao: "Arroz, feijão, carne, salada", preco: 32.90, disponivel: true },
+                        { nome: "Filé à Parmegiana", descricao: "Filé, queijo, molho, arroz, fritas", preco: 45.90, disponivel: true },
+                        { nome: "Coca-Cola 2L", descricao: "", preco: 12.90, disponivel: true }
+                    ],
+                    acai: [
+                        { nome: "Açaí 300ml", descricao: "Açaí puro", preco: 15.90, disponivel: true },
+                        { nome: "Açaí 500ml", descricao: "Açaí com banana e granola", preco: 19.90, disponivel: true },
+                        { nome: "Coca-Cola 2L", descricao: "", preco: 12.90, disponivel: true }
+                    ]
+                };
+                return produtosBase[tipo] || produtosBase.restaurante;
             },
             
             async rejeitarSolicitacao(id) {
@@ -656,6 +775,9 @@
                 this.solicitacoes.forEach(sol => {
                     const data = sol.data_cadastro ? new Date(sol.data_cadastro).toLocaleDateString('pt-BR') : '---';
                     
+                    // Prévia do link que será gerado
+                    const slugPreview = Utils.gerarSlug(sol.nome_loja);
+                    
                     html += `
                         <div class="solicitacao-card p-6 bg-orange-50">
                             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -683,6 +805,10 @@
                                     
                                     <div class="mt-2 text-xs text-gray-500">
                                         Solicitado em: ${data} | Tipo: ${sol.tipo_loja || 'Não especificado'}
+                                    </div>
+                                    
+                                    <div class="mt-2 text-xs text-blue-600">
+                                        🔗 Link será: <code class="bg-white px-2 py-0.5 rounded">${slugPreview}-[id]</code>
                                     </div>
                                 </div>
                                 
@@ -947,8 +1073,9 @@
                         acai: '🥤'
                     }[cliente.tipo_loja] || '🏪';
                     
-                    // Gerar link da loja
-                    const linkLoja = cliente.lojaId ? Utils.gerarLinkLoja(cliente.lojaId) : null;
+                    // Gerar link personalizado da loja
+                    const nomeLoja = cliente.nome || 'Loja';
+                    const linkInfo = cliente.lojaId ? Utils.gerarLinkLoja(nomeLoja, cliente.lojaId) : null;
                     
                     html += `
                         <div class="card-cliente p-6 ${statusClass}">
@@ -982,10 +1109,15 @@
                                         ${diasRestantes ? `<span class="text-xs font-black">${diasRestantes}</span>` : ''}
                                     </div>
                                     
-                                    ${linkLoja ? `
-                                    <div class="mt-3 link-loja" onclick="Utils.copiarTexto('${linkLoja}')">
-                                        <span class="truncate text-xs">🔗 ${linkLoja}</span>
-                                        <i class="fas fa-copy text-blue-600 ml-2 text-xs"></i>
+                                    ${linkInfo ? `
+                                    <div class="mt-3">
+                                        <div class="link-loja" onclick="Utils.copiarTexto('${linkInfo.url}')">
+                                            <span class="truncate text-xs">🔗 ${linkInfo.url}</span>
+                                            <i class="fas fa-copy text-blue-600 ml-2 text-xs"></i>
+                                        </div>
+                                        <div class="text-[8px] text-gray-400 mt-1">
+                                            Slug: <code class="bg-gray-100 px-1 rounded">${linkInfo.completo}</code>
+                                        </div>
                                     </div>
                                     ` : ''}
                                 </div>
