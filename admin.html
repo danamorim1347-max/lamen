@@ -225,17 +225,7 @@
             </div>
 
             <!-- Lista de Clientes Ativos -->
-            <div class="bg-white rounded-[25px] shadow-lg overflow-hidden">
-                <div class="bg-gray-50 p-4 border-b border-gray-200">
-                    <h2 class="font-bebas text-xl text-gray-700">CLIENTES ATIVOS</h2>
-                </div>
-                <div id="lista-clientes" class="divide-y divide-gray-100">
-                    <div class="text-center py-20 text-gray-400">
-                        <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
-                        <p>Carregando clientes...</p>
-                    </div>
-                </div>
-            </div>
+            <div id="lista-clientes" class="space-y-3"></div>
         </div>
 
         <!-- Seção Solicitações (Cadastros Pendentes) -->
@@ -245,9 +235,7 @@
                     <h2 class="font-bebas text-xl text-orange-600">SOLICITAÇÕES DE CADASTRO</h2>
                     <p class="text-xs text-orange-500 mt-1">Aprove ou rejeite novas lojas</p>
                 </div>
-                <div id="lista-solicitacoes" class="divide-y divide-gray-100">
-                    <!-- Solicitações serão carregadas aqui -->
-                </div>
+                <div id="lista-solicitacoes" class="divide-y divide-gray-100"></div>
             </div>
         </div>
 
@@ -258,9 +246,7 @@
                     <h2 class="font-bebas text-xl text-yellow-600">CLIENTES PENDENTES</h2>
                     <p class="text-xs text-yellow-500 mt-1">Clientes que ainda não foram aprovados</p>
                 </div>
-                <div id="lista-pendentes" class="divide-y divide-gray-100">
-                    <!-- Pendentes serão carregados aqui -->
-                </div>
+                <div id="lista-pendentes" class="divide-y divide-gray-100"></div>
             </div>
         </div>
 
@@ -271,9 +257,7 @@
                     <h2 class="font-bebas text-xl text-white">LIXEIRA</h2>
                     <p class="text-xs text-gray-300 mt-1">Lojas excluídas (não visíveis para clientes)</p>
                 </div>
-                <div id="lista-lixeira" class="divide-y divide-gray-100">
-                    <!-- Itens da lixeira serão carregados aqui -->
-                </div>
+                <div id="lista-lixeira" class="divide-y divide-gray-100"></div>
             </div>
         </div>
     </div>
@@ -298,6 +282,19 @@
     </div>
 
     <script>
+        // ============================================================================
+        // VALIDAÇÃO INICIAL - Se tiver parâmetro loja, não permite acessar admin master
+        // ============================================================================
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const lojaId = params.get('loja');
+            
+            if (lojaId) {
+                alert("Acesso inválido! Esta é uma URL de loja.");
+                window.location.href = '/index.html?loja=' + lojaId;
+            }
+        })();
+
         // ============================================================================
         // UTILS
         // ============================================================================
@@ -358,7 +355,6 @@
                 });
             },
             
-            // Função para copiar texto para área de transferência
             copiarTexto: (texto) => {
                 navigator.clipboard.writeText(texto).then(() => {
                     Utils.showToast('Link copiado!');
@@ -367,10 +363,8 @@
                 });
             },
             
-            // Gerar slug amigável a partir do nome da loja
             gerarSlug: (nome) => {
                 if (!nome) return 'loja';
-                
                 return nome
                     .toLowerCase()
                     .normalize('NFD')
@@ -380,12 +374,12 @@
                     .substring(0, 30);
             },
             
-            // Gerar link personalizado da loja
+            // Gerar link correto do cardápio (NUNCA admin)
             gerarLinkLoja: (nomeLoja, lojaId) => {
                 const slug = Utils.gerarSlug(nomeLoja);
-                const url = window.location.origin + 
-                           window.location.pathname.replace('admin.html', 'index.html') + 
-                           '?loja=' + slug + '-' + lojaId.substring(0, 8);
+                const baseUrl = window.location.origin;
+                // Sempre aponta para index.html (cardápio)
+                const url = baseUrl + '/index.html?loja=' + slug + '-' + lojaId.substring(0, 8);
                 return {
                     url: url,
                     slug: slug,
@@ -419,7 +413,8 @@
                     document.getElementById('tela-login').classList.add('hidden');
                     document.getElementById('painel-master').classList.remove('hidden');
                     
-                    Dados.carregarTudo();
+                    // Iniciar listeners em tempo real
+                    Dados.iniciarListeners();
                     
                 } catch (error) {
                     console.error("Erro no login:", error);
@@ -436,68 +431,66 @@
         };
 
         // ============================================================================
-        // DADOS - Gerenciamento de dados do Firebase
+        // DADOS - Gerenciamento de dados do Firebase com LISTENERS EM TEMPO REAL
         // ============================================================================
         const Dados = {
             clientes: [],
             solicitacoes: [],
             listeners: [],
             
-            async carregarTudo() {
-                await this.carregarClientes();
-                await this.carregarSolicitacoes();
+            iniciarListeners() {
+                this.escutarClientes();
+                this.escutarSolicitacoes();
             },
             
-            async carregarClientes() {
-                try {
-                    const { firestore, db } = Utils.getFirebaseRefs();
-                    
-                    const clientesRef = firestore.collection(db, "clientes");
-                    const clientesSnap = await firestore.getDocs(clientesRef);
-                    
-                    this.clientes = clientesSnap.docs.map(doc => {
+            escutarClientes() {
+                const { firestore, db } = Utils.getFirebaseRefs();
+                const clientesRef = firestore.collection(db, "clientes");
+                
+                // LISTENER EM TEMPO REAL - ON SNAPSHOT
+                const unsubscribe = firestore.onSnapshot(clientesRef, (snapshot) => {
+                    this.clientes = snapshot.docs.map(doc => {
                         const data = doc.data();
                         return {
                             id: doc.id,
                             ...data,
                             data_vencimento: data.data_vencimento || null,
                             status_cadastro: data.status_cadastro || 'aprovado',
-                            deletado: data.deletado || false,
-                            tipo: 'cliente'
+                            deletado: data.deletado || false
                         };
                     });
                     
-                    console.log("Clientes carregados:", this.clientes.length);
+                    console.log("Clientes atualizados em tempo real:", this.clientes.length);
                     
                     this.processarStatus();
-                    
                     Clientes.atualizarUI();
                     Clientes.atualizarPendentes();
                     Clientes.atualizarLixeira();
                     
-                } catch (error) {
-                    console.error("Erro ao carregar clientes:", error);
-                }
+                }, (error) => {
+                    console.error("Erro no listener de clientes:", error);
+                });
+                
+                this.listeners.push(unsubscribe);
             },
             
-            async carregarSolicitacoes() {
-                try {
-                    const { firestore, db } = Utils.getFirebaseRefs();
-                    
-                    const solicitacoesRef = firestore.collection(db, "solicitacoes_lojas");
-                    const solicitacoesSnap = await firestore.getDocs(solicitacoesRef);
-                    
-                    this.solicitacoes = solicitacoesSnap.docs.map(doc => {
+            escutarSolicitacoes() {
+                const { firestore, db } = Utils.getFirebaseRefs();
+                const solicitacoesRef = firestore.collection(db, "solicitacoes_lojas");
+                const q = firestore.query(solicitacoesRef, firestore.where("status", "==", "pendente"));
+                
+                // LISTENER EM TEMPO REAL - ON SNAPSHOT
+                const unsubscribe = firestore.onSnapshot(q, (snapshot) => {
+                    this.solicitacoes = snapshot.docs.map(doc => {
                         const data = doc.data();
                         return {
                             id: doc.id,
                             ...data,
-                            tipo: 'solicitacao',
                             data_cadastro: data.data_cadastro?.toDate ? data.data_cadastro.toDate().getTime() : data.data_cadastro
                         };
-                    }).filter(s => s.status === 'pendente');
+                    });
                     
-                    console.log("Solicitações carregadas:", this.solicitacoes.length);
+                    console.log("Solicitações atualizadas em tempo real:", this.solicitacoes.length);
                     
                     const badge = document.getElementById('badge-solicitacoes');
                     if (this.solicitacoes.length > 0) {
@@ -509,9 +502,11 @@
                     
                     this.atualizarSolicitacoesUI();
                     
-                } catch (error) {
-                    console.error("Erro ao carregar solicitações:", error);
-                }
+                }, (error) => {
+                    console.error("Erro no listener de solicitações:", error);
+                });
+                
+                this.listeners.push(unsubscribe);
             },
             
             processarStatus() {
@@ -551,12 +546,11 @@
                 try {
                     const { firestore, db, authModules, auth } = Utils.getFirebaseRefs();
                     
-                    // Gerar slug personalizado baseado no nome da loja
                     const slug = Utils.gerarSlug(solicitacao.nome_loja);
                     const timestamp = Date.now().toString(36);
                     const lojaId = slug + '-' + timestamp;
                     
-                    // 1. CRIAR USUÁRIO NO FIREBASE AUTHENTICATION
+                    // 1. CRIAR USUÁRIO
                     const userCredential = await authModules.createUserWithEmailAndPassword(
                         auth, 
                         solicitacao.email, 
@@ -565,7 +559,7 @@
                     
                     const uid = userCredential.user.uid;
                     
-                    // 2. CRIAR DOCUMENTO DA LOJA com todas as informações do cadastro
+                    // 2. CRIAR DOCUMENTO DA LOJA
                     await firestore.setDoc(firestore.doc(db, "lojas", lojaId), {
                         nome_loja: solicitacao.nome_loja,
                         responsavel: solicitacao.responsavel,
@@ -574,11 +568,12 @@
                         tipo_loja: solicitacao.tipo_loja || "restaurante",
                         slug: slug,
                         status: "ativo",
+                        link_cardapio: Utils.gerarLinkLoja(solicitacao.nome_loja, lojaId).url,
                         data_criacao: firestore.Timestamp.now(),
                         data_aprovacao: firestore.Timestamp.now()
                     });
                     
-                    // 3. CRIAR CONFIGURAÇÕES DA LOJA com dados do cadastro
+                    // 3. CONFIGURAÇÕES
                     await firestore.setDoc(firestore.doc(db, "lojas", lojaId, "configuracoes", "geral"), {
                         nome_loja: solicitacao.nome_loja,
                         responsavel: solicitacao.responsavel,
@@ -596,19 +591,19 @@
                         data_criacao: firestore.Timestamp.now()
                     });
                     
-                    // 4. CRIAR CATEGORIAS PADRÃO baseadas no tipo de loja
+                    // 4. CATEGORIAS PADRÃO
                     const categoriasPadrao = this.getCategoriasPadrao(solicitacao.tipo_loja);
                     for (const cat of categoriasPadrao) {
                         await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "categorias"), cat);
                     }
                     
-                    // 5. CRIAR PRODUTOS PADRÃO baseados no tipo de loja
+                    // 5. PRODUTOS PADRÃO
                     const produtosPadrao = this.getProdutosPadrao(solicitacao.tipo_loja);
                     for (const prod of produtosPadrao) {
                         await firestore.addDoc(firestore.collection(db, "lojas", lojaId, "produtos"), prod);
                     }
                     
-                    // 6. CRIAR CLIENTE (usando o UID do Authentication)
+                    // 6. CRIAR CLIENTE
                     await firestore.setDoc(firestore.doc(db, "clientes", uid), {
                         nome: solicitacao.responsavel || solicitacao.nome_loja,
                         whatsapp: solicitacao.whatsapp || "",
@@ -620,6 +615,7 @@
                         data_vencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                         plano: "basic",
                         status_cadastro: "aprovado",
+                        link_cardapio: Utils.gerarLinkLoja(solicitacao.nome_loja, lojaId).url,
                         data_criacao: firestore.Timestamp.now()
                     });
                     
@@ -629,13 +625,12 @@
                         data_aprovacao: firestore.Timestamp.now(),
                         uid: uid,
                         lojaId: lojaId,
-                        slug: slug
+                        slug: slug,
+                        link_cardapio: Utils.gerarLinkLoja(solicitacao.nome_loja, lojaId).url
                     });
                     
-                    // 8. Gerar link personalizado da loja
                     const linkInfo = Utils.gerarLinkLoja(solicitacao.nome_loja, lojaId);
                     
-                    // 9. Mostrar credenciais e link para o admin
                     Swal.fire({
                         title: '✅ LOJA APROVADA!',
                         html: `
@@ -646,14 +641,10 @@
                                 <p><strong>Senha:</strong> ${solicitacao.senha || '123456'}</p>
                                 <p><strong>Tipo:</strong> ${solicitacao.tipo_loja || 'restaurante'}</p>
                                 <hr class="my-3">
-                                <p><strong>🔗 LINK PERSONALIZADO DA LOJA:</strong></p>
+                                <p><strong>🔗 LINK DO CARDÁPIO:</strong></p>
                                 <div class="link-loja" onclick="Utils.copiarTexto('${linkInfo.url}')">
                                     <span class="truncate">${linkInfo.url}</span>
                                     <i class="fas fa-copy text-blue-600 ml-2"></i>
-                                </div>
-                                <div class="preview-link">
-                                    <p class="text-xs text-gray-600 mb-1">📝 Slug gerado:</p>
-                                    <code class="text-sm bg-white px-2 py-1 rounded">${linkInfo.completo}</code>
                                 </div>
                                 <p class="text-xs text-gray-500 mt-2">Clique no link para copiar</p>
                                 <hr class="my-3">
@@ -663,15 +654,13 @@
                                 <p class="text-green-600">✓ Categorias padrão criadas</p>
                                 <p class="text-green-600">✓ Produtos padrão criados</p>
                                 <p class="text-green-600">✓ Cliente vinculado</p>
-                                <p class="text-green-600">✓ Link personalizado gerado</p>
+                                <p class="text-green-600">✓ Link do cardápio gerado</p>
                             </div>
                         `,
                         icon: 'success',
                         confirmButtonColor: '#2563eb',
                         width: '600px'
                     });
-                    
-                    await this.carregarTudo();
                     
                 } catch (error) {
                     console.error("Erro detalhado:", error);
@@ -684,6 +673,23 @@
                     }
                     
                     Utils.showAlert('Erro', mensagem, 'error');
+                }
+            },
+            
+            async rejeitarSolicitacao(id) {
+                try {
+                    const { firestore, db } = Utils.getFirebaseRefs();
+                    
+                    await firestore.updateDoc(firestore.doc(db, "solicitacoes_lojas", id), {
+                        status: "rejeitado",
+                        data_rejeicao: firestore.Timestamp.now()
+                    });
+                    
+                    Utils.showToast('Solicitação rejeitada!');
+                    
+                } catch (error) {
+                    console.error("Erro ao rejeitar solicitação:", error);
+                    Utils.showAlert('Erro', 'Não foi possível rejeitar a solicitação.', 'error');
                 }
             },
             
@@ -740,25 +746,6 @@
                 return produtosBase[tipo] || produtosBase.restaurante;
             },
             
-            async rejeitarSolicitacao(id) {
-                try {
-                    const { firestore, db } = Utils.getFirebaseRefs();
-                    
-                    await firestore.updateDoc(firestore.doc(db, "solicitacoes_lojas", id), {
-                        status: "rejeitado",
-                        data_rejeicao: firestore.Timestamp.now()
-                    });
-                    
-                    Utils.showToast('Solicitação rejeitada!');
-                    
-                    await this.carregarTudo();
-                    
-                } catch (error) {
-                    console.error("Erro ao rejeitar solicitação:", error);
-                    Utils.showAlert('Erro', 'Não foi possível rejeitar a solicitação.', 'error');
-                }
-            },
-            
             atualizarSolicitacoesUI() {
                 const container = document.getElementById('lista-solicitacoes');
                 
@@ -774,8 +761,6 @@
                 let html = '';
                 this.solicitacoes.forEach(sol => {
                     const data = sol.data_cadastro ? new Date(sol.data_cadastro).toLocaleDateString('pt-BR') : '---';
-                    
-                    // Prévia do link que será gerado
                     const slugPreview = Utils.gerarSlug(sol.nome_loja);
                     
                     html += `
@@ -808,7 +793,7 @@
                                     </div>
                                     
                                     <div class="mt-2 text-xs text-blue-600">
-                                        🔗 Link será: <code class="bg-white px-2 py-0.5 rounded">${slugPreview}-[id]</code>
+                                        🔗 Link do cardápio: <code class="bg-white px-2 py-0.5 rounded">${slugPreview}-[id]</code>
                                     </div>
                                 </div>
                                 
@@ -875,25 +860,6 @@
                     
                     await firestore.updateDoc(clienteRef, dados);
                     
-                    const cliente = Dados.clientes.find(c => c.id === id);
-                    if (cliente && cliente.lojaId) {
-                        const configRef = firestore.doc(db, "lojas", cliente.lojaId, "configuracoes", "geral");
-                        await firestore.setDoc(configRef, {
-                            status_assinatura: dados.status_assinatura || cliente.status_assinatura,
-                            data_vencimento: dados.data_vencimento || cliente.data_vencimento,
-                            updated_at: new Date().getTime()
-                        }, { merge: true });
-                        
-                        const lojaRef = firestore.doc(db, "lojas", cliente.lojaId);
-                        
-                        if (dados.deletado === true || dados.status_assinatura === 'bloqueado') {
-                            await firestore.updateDoc(lojaRef, { status: 'bloqueado' });
-                        } else if (dados.status_assinatura === 'ativo' && dados.deletado !== true) {
-                            await firestore.updateDoc(lojaRef, { status: 'ativo' });
-                        }
-                    }
-                    
-                    await Dados.carregarClientes();
                     Utils.showToast('Cliente atualizado!');
                     
                 } catch (error) {
@@ -978,7 +944,6 @@
                     const clienteRef = firestore.doc(db, "clientes", id);
                     await firestore.deleteDoc(clienteRef);
                     
-                    await Dados.carregarClientes();
                     Utils.showToast('Cliente excluído permanentemente!');
                     
                 } catch (error) {
@@ -1073,9 +1038,8 @@
                         acai: '🥤'
                     }[cliente.tipo_loja] || '🏪';
                     
-                    // Gerar link personalizado da loja
-                    const nomeLoja = cliente.nome || 'Loja';
-                    const linkInfo = cliente.lojaId ? Utils.gerarLinkLoja(nomeLoja, cliente.lojaId) : null;
+                    // Link do cardápio (NUNCA admin)
+                    const linkCardapio = cliente.link_cardapio || (cliente.lojaId ? Utils.gerarLinkLoja(cliente.nome || 'Loja', cliente.lojaId).url : null);
                     
                     html += `
                         <div class="card-cliente p-6 ${statusClass}">
@@ -1109,14 +1073,11 @@
                                         ${diasRestantes ? `<span class="text-xs font-black">${diasRestantes}</span>` : ''}
                                     </div>
                                     
-                                    ${linkInfo ? `
+                                    ${linkCardapio ? `
                                     <div class="mt-3">
-                                        <div class="link-loja" onclick="Utils.copiarTexto('${linkInfo.url}')">
-                                            <span class="truncate text-xs">🔗 ${linkInfo.url}</span>
+                                        <div class="link-loja" onclick="Utils.copiarTexto('${linkCardapio}')">
+                                            <span class="truncate text-xs">🔗 ${linkCardapio}</span>
                                             <i class="fas fa-copy text-blue-600 ml-2 text-xs"></i>
-                                        </div>
-                                        <div class="text-[8px] text-gray-400 mt-1">
-                                            Slug: <code class="bg-gray-100 px-1 rounded">${linkInfo.completo}</code>
                                         </div>
                                     </div>
                                     ` : ''}
