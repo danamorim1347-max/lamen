@@ -229,8 +229,8 @@
         // ============================================================================
         // CONFIGURAÇÃO DO ADMINISTRADOR MASTER
         // ============================================================================
-        const MASTER_ADMIN_EMAIL = 'danamorim1347@gmail.com'; // Email do administrador
-        const MASTER_ADMIN_PASSWORD = 'vidaloka13'; // Senha do administrador
+        const MASTER_ADMIN_EMAIL = 'danamorim1347@gmail.com';
+        const MASTER_ADMIN_PASSWORD = 'vidaloka13';
         
         // ============================================================================
         // VALIDAÇÃO INICIAL
@@ -289,10 +289,17 @@
                 return nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 30);
             },
             
+            // FUNÇÃO CORRIGIDA PARA GERAR LINK DA LOJA
             gerarLinkLoja: (nomeLoja, lojaId) => {
                 const baseUrl = window.location.origin;
-                const url = baseUrl + '/index.html?loja=' + lojaId;
-                return { url: url, slug: Utils.gerarSlug(nomeLoja), completo: lojaId };
+                // Usar o ID completo da loja sem truncar
+                const url = baseUrl + '/index.html?loja=' + encodeURIComponent(lojaId);
+                console.log("🔗 Link gerado para loja:", nomeLoja, "ID:", lojaId, "URL:", url);
+                return { 
+                    url: url, 
+                    slug: Utils.gerarSlug(nomeLoja), 
+                    completo: lojaId 
+                };
             },
             
             // Função para verificar se é admin master
@@ -516,6 +523,8 @@
                     const timestamp = Date.now().toString(36);
                     const lojaId = slug + '-' + timestamp;
                     
+                    console.log("📝 Criando nova loja com ID:", lojaId);
+                    
                     const userCredential = await authModules.createUserWithEmailAndPassword(
                         auth, solicitacao.email, solicitacao.senha || '123456'
                     );
@@ -586,6 +595,7 @@
                     });
                     
                     const linkInfo = Utils.gerarLinkLoja(solicitacao.nome_loja, lojaId);
+                    console.log("✅ Link gerado para o cliente:", linkInfo.url);
                     
                     Swal.fire({
                         title: '✅ LOJA APROVADA!',
