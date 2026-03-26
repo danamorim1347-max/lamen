@@ -227,6 +227,12 @@
 
     <script>
         // ============================================================================
+        // CONFIGURAÇÃO DO ADMINISTRADOR MASTER
+        // ============================================================================
+        const MASTER_ADMIN_EMAIL = 'danamorim1347@gmail.com'; // Email do administrador
+        const MASTER_ADMIN_PASSWORD = 'vidaloka13'; // Senha do administrador
+        
+        // ============================================================================
         // VALIDAÇÃO INICIAL
         // ============================================================================
         (function() {
@@ -289,10 +295,70 @@
                 return { url: url, slug: Utils.gerarSlug(nomeLoja), completo: lojaId };
             },
             
+            // Função para verificar se é admin master
             isMasterAdmin: (user) => {
-                return user && user.email === 'admin@deliverymanager.com';
+                return user && user.email === MASTER_ADMIN_EMAIL;
             }
         };
+
+        // ============================================================================
+        // FUNÇÃO PARA VERIFICAR/CRIAR ADMIN MASTER
+        // ============================================================================
+        async function verificarCriarAdminMaster() {
+            try {
+                const { auth, authModules, firestore, db } = Utils.getFirebaseRefs();
+                
+                // Tentar fazer login com o admin configurado
+                try {
+                    const userCredential = await authModules.signInWithEmailAndPassword(auth, MASTER_ADMIN_EMAIL, MASTER_ADMIN_PASSWORD);
+                    console.log("✅ Admin master encontrado e autenticado:", userCredential.user.email);
+                    await authModules.signOut(auth);
+                    return true;
+                } catch (error) {
+                    if (error.code === 'auth/user-not-found') {
+                        console.log("📝 Criando administrador master automaticamente...");
+                        
+                        // Criar o usuário admin
+                        const userCredential = await authModules.createUserWithEmailAndPassword(
+                            auth, 
+                            MASTER_ADMIN_EMAIL, 
+                            MASTER_ADMIN_PASSWORD
+                        );
+                        
+                        // Criar registro na coleção clientes
+                        await firestore.setDoc(firestore.doc(db, "clientes", userCredential.user.uid), {
+                            nome: "Administrador Master",
+                            email: MASTER_ADMIN_EMAIL,
+                            whatsapp: "",
+                            lojaId: "master",
+                            status_cadastro: "aprovado",
+                            status_assinatura: "ativo",
+                            plano: "master",
+                            is_master_admin: true,
+                            data_criacao: firestore.Timestamp.now()
+                        });
+                        
+                        console.log("✅ Administrador master criado com sucesso!");
+                        Utils.showAlert(
+                            'Admin Master Criado', 
+                            `Administrador criado com email: ${MASTER_ADMIN_EMAIL}\nSenha: ${MASTER_ADMIN_PASSWORD}\n\nAcesse o painel com estas credenciais.`, 
+                            'success'
+                        );
+                        await authModules.signOut(auth);
+                        return true;
+                    } else if (error.code === 'auth/wrong-password') {
+                        console.log("⚠️ Admin master já existe, mas senha diferente. Use a senha correta.");
+                        return true;
+                    } else {
+                        console.error("Erro ao verificar admin:", error);
+                        return false;
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao criar admin master:", error);
+                return false;
+            }
+        }
 
         // ============================================================================
         // AUTH - Autenticação Master com validação
@@ -317,10 +383,13 @@
                     const userCredential = await authModules.signInWithEmailAndPassword(auth, email, senha);
                     const user = userCredential.user;
                     
-                    // VALIDAÇÃO CRÍTICA: Verificar se é administrador master
+                    // VALIDAÇÃO: Verificar se é administrador master
                     if (!Utils.isMasterAdmin(user)) {
                         await authModules.signOut(auth);
-                        erroDiv.textContent = "Acesso negado! Este painel é exclusivo para administradores master.";
+                        erroDiv.innerHTML = `Acesso negado! Este painel é exclusivo para administradores master.<br><br>
+                                             <strong>Email do administrador configurado:</strong> ${MASTER_ADMIN_EMAIL}<br>
+                                             <strong>Email usado:</strong> ${email}<br><br>
+                                             Use o email: ${MASTER_ADMIN_EMAIL}`;
                         erroDiv.classList.remove('hidden');
                         return;
                     }
@@ -956,6 +1025,12 @@
         // ============================================================================
         (function() {
             const { auth, authModules } = Utils.getFirebaseRefs();
+            
+            // Tentar criar/verificar admin master automaticamente
+            setTimeout(() => {
+                verificarCriarAdminMaster();
+            }, 1000);
+            
             authModules.onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     // Verificar se é admin master
@@ -963,13 +1038,17 @@
                         document.getElementById('tela-login').classList.add('hidden');
                         document.getElementById('painel-master').classList.remove('hidden');
                         Dados.iniciarListeners();
-                        console.log("Administrador master autenticado.");
+                        console.log("Administrador master autenticado:", user.email);
                     } else {
                         // Não é admin master, fazer logout
                         await authModules.signOut(auth);
                         document.getElementById('tela-login').classList.remove('hidden');
                         document.getElementById('painel-master').classList.add('hidden');
-                        Utils.showAlert('Acesso Negado', 'Apenas administradores master podem acessar este painel.', 'error');
+                        Utils.showAlert(
+                            'Acesso Negado', 
+                            `Apenas o administrador master pode acessar este painel.\n\nEmail configurado: ${MASTER_ADMIN_EMAIL}`, 
+                            'error'
+                        );
                     }
                 } else {
                     document.getElementById('tela-login').classList.remove('hidden');
@@ -978,6 +1057,7 @@
             });
         })();
 
+        // Exposição global
         window.Auth = Auth;
         window.Dados = Dados;
         window.Clientes = Clientes;
