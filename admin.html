@@ -1,3 +1,4 @@
+<!-- admin.html (corrigido) -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -376,14 +377,13 @@
             
             // Gerar link correto do cardápio (NUNCA admin)
             gerarLinkLoja: (nomeLoja, lojaId) => {
-                const slug = Utils.gerarSlug(nomeLoja);
                 const baseUrl = window.location.origin;
-                // Sempre aponta para index.html (cardápio)
-                const url = baseUrl + '/index.html?loja=' + slug + '-' + lojaId.substring(0, 8);
+                // Link completo com o ID da loja (sem truncar)
+                const url = baseUrl + '/index.html?loja=' + lojaId;
                 return {
                     url: url,
-                    slug: slug,
-                    completo: slug + '-' + lojaId.substring(0, 8)
+                    slug: Utils.gerarSlug(nomeLoja),
+                    completo: lojaId
                 };
             }
         };
@@ -793,7 +793,7 @@
                                     </div>
                                     
                                     <div class="mt-2 text-xs text-blue-600">
-                                        🔗 Link do cardápio: <code class="bg-white px-2 py-0.5 rounded">${slugPreview}-[id]</code>
+                                        🔗 Link do cardápio: <code class="bg-white px-2 py-0.5 rounded">${slugPreview}-[ID]</code>
                                     </div>
                                 </div>
                                 
@@ -1361,6 +1361,25 @@
                 document.getElementById('modal-editar-vencimento').classList.add('hidden');
             }
         };
+
+        // ============================================================================
+        // Verificação de autenticação persistente
+        // ============================================================================
+        (function() {
+            const { auth, authModules } = Utils.getFirebaseRefs();
+            authModules.onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    document.getElementById('tela-login').classList.add('hidden');
+                    document.getElementById('painel-master').classList.remove('hidden');
+                    Dados.iniciarListeners();
+                    console.log("Usuário já autenticado, painel carregado.");
+                } else {
+                    // Mostrar tela de login normalmente
+                    document.getElementById('tela-login').classList.remove('hidden');
+                    document.getElementById('painel-master').classList.add('hidden');
+                }
+            });
+        })();
 
         // ============================================================================
         // Exposição global
