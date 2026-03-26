@@ -1,3 +1,4 @@
+<!-- index.html (corrigido) -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -1189,7 +1190,7 @@
                     this.usuario = userCredential.user;
                     
                     await ConfigService.carregarConfiguracoes();
-                    await loadData();
+                    await App.loadData(); // corrigido para usar App.loadData
                     listenPedidos();
                     
                     UI.fecharLogin();
@@ -2847,6 +2848,10 @@
                 UI.renderizarFiltros();
                 UI.renderizarPromocao();
                 this.atualizarInterfacePorTipo();
+            },
+            
+            async loadData() {
+                await this.carregarDados();
             },
             
             async reload() {
