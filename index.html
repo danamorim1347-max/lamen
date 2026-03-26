@@ -1,4 +1,3 @@
-<!-- index.html (corrigido) -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -730,6 +729,16 @@
                 if (!timestamp) return '---';
                 const d = new Date(timestamp);
                 return d.toLocaleString('pt-BR');
+            },
+            
+            verificarVencimentoAssinatura(dataVencimento) {
+                if (!dataVencimento) return { valido: true, diasRestantes: null };
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                const vencimento = new Date(dataVencimento);
+                vencimento.setHours(0, 0, 0, 0);
+                const diffDays = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
+                return { valido: diffDays >= 0, diasRestantes: diffDays };
             }
         };
 
@@ -825,7 +834,26 @@
                 if (user) {
                     const clienteDoc = await firestore.getDoc(firestore.doc(db, "clientes", user.uid));
                     if (clienteDoc.exists()) {
-                        this.lojaIdAtual = clienteDoc.data().lojaId;
+                        const clienteData = clienteDoc.data();
+                        
+                        // VALIDAÇÕES DE SEGURANÇA PARA ACESSO ADMIN
+                        if (clienteData.status_cadastro !== 'aprovado') {
+                            await FirebaseService.authModules.signOut(auth);
+                            throw new Error("Cadastro pendente de aprovação.");
+                        }
+                        
+                        if (clienteData.status_assinatura === 'bloqueado') {
+                            await FirebaseService.authModules.signOut(auth);
+                            throw new Error("Assinatura bloqueada.");
+                        }
+                        
+                        const vencimentoStatus = Utils.verificarVencimentoAssinatura(clienteData.data_vencimento);
+                        if (!vencimentoStatus.valido) {
+                            await FirebaseService.authModules.signOut(auth);
+                            throw new Error(`Assinatura vencida desde ${Utils.formatDate(clienteData.data_vencimento)}.`);
+                        }
+                        
+                        this.lojaIdAtual = clienteData.lojaId;
                         this.tipoAcesso = 'admin';
                         currentUser = user;
                         return true;
@@ -1152,7 +1180,7 @@
         };
 
         // ============================================================================
-        // AUTH SERVICE
+        // AUTH SERVICE - COM VALIDAÇÕES DE SEGURANÇA
         // ============================================================================
         const AuthService = {
             usuario: null,
@@ -1182,15 +1210,48 @@
                     
                     const clienteDoc = await firestore.getDoc(firestore.doc(db, "clientes", uid));
                     if (!clienteDoc.exists()) {
-                        throw new Error("Cliente não encontrado");
+                        await authModules.signOut(auth);
+                        throw new Error("Cliente não encontrado. Aguarde a aprovação do cadastro.");
                     }
                     
-                    lojaIdAtual = clienteDoc.data().lojaId;
+                    const clienteData = clienteDoc.data();
+                    
+                    // VALIDAÇÕES DE SEGURANÇA
+                    if (clienteData.status_cadastro !== 'aprovado') {
+                        await authModules.signOut(auth);
+                        if (clienteData.status_cadastro === 'pendente') {
+                            throw new Error("Seu cadastro está pendente de aprovação. Aguarde o contato do administrador.");
+                        } else if (clienteData.status_cadastro === 'rejeitado') {
+                            throw new Error("Seu cadastro foi rejeitado. Entre em contato com o suporte para mais informações.");
+                        } else {
+                            throw new Error("Cadastro não aprovado. Entre em contato com o suporte.");
+                        }
+                    }
+                    
+                    if (clienteData.status_assinatura === 'bloqueado') {
+                        await authModules.signOut(auth);
+                        throw new Error("Sua assinatura está bloqueada. Entre em contato com o suporte para regularizar.");
+                    }
+                    
+                    // Verificar vencimento da assinatura
+                    if (clienteData.data_vencimento) {
+                        const hoje = new Date();
+                        hoje.setHours(0, 0, 0, 0);
+                        const vencimento = new Date(clienteData.data_vencimento);
+                        vencimento.setHours(0, 0, 0, 0);
+                        
+                        if (vencimento < hoje) {
+                            await authModules.signOut(auth);
+                            throw new Error(`Sua assinatura está vencida desde ${Utils.formatDate(clienteData.data_vencimento)}. Entre em contato para renovar.`);
+                        }
+                    }
+                    
+                    lojaIdAtual = clienteData.lojaId;
                     tipoAcesso = 'admin';
                     this.usuario = userCredential.user;
                     
                     await ConfigService.carregarConfiguracoes();
-                    await App.loadData(); // corrigido para usar App.loadData
+                    await App.loadData();
                     listenPedidos();
                     
                     UI.fecharLogin();
@@ -1203,11 +1264,7 @@
                     return true;
                 } catch (error) {
                     console.error("Erro no login:", error);
-                    let mensagem = "Erro ao fazer login!";
-                    if (error.code === 'auth/invalid-credential') mensagem = "Credenciais inválidas!";
-                    else if (error.code === 'auth/user-not-found') mensagem = "Usuário não encontrado!";
-                    else if (error.code === 'auth/wrong-password') mensagem = "Senha incorreta!";
-                    else mensagem = error.message;
+                    let mensagem = error.message || "Erro ao fazer login!";
                     
                     errorDiv.textContent = mensagem;
                     errorDiv.classList.remove('hidden');
