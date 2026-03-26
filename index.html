@@ -739,6 +739,11 @@
                 vencimento.setHours(0, 0, 0, 0);
                 const diffDays = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
                 return { valido: diffDays >= 0, diasRestantes: diffDays };
+            },
+            
+            gerarSlug: (nome) => {
+                if (!nome) return 'loja';
+                return nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 30);
             }
         };
 
@@ -817,7 +822,7 @@
         };
 
         // ============================================================================
-        // LOJA SERVICE
+        // LOJA SERVICE - COM CORREÇÃO DO LINK 404
         // ============================================================================
         const LojaService = {
             lojaIdAtual: null,
@@ -829,6 +834,8 @@
                 const params = new URLSearchParams(window.location.search);
                 let lojaParam = params.get('loja');
                 const { auth, firestore, db } = Utils.getFirebaseRefs();
+
+                console.log("🔍 Parâmetro loja recebido:", lojaParam);
 
                 const user = auth.currentUser;
                 if (user) {
@@ -856,29 +863,62 @@
                         this.lojaIdAtual = clienteData.lojaId;
                         this.tipoAcesso = 'admin';
                         currentUser = user;
+                        console.log("✅ Admin logado, loja ID:", this.lojaIdAtual);
                         return true;
                     }
                 }
 
+                // Se não tem lojaParam, usar demo
                 if (!lojaParam) {
                     lojaParam = LOJA_DEMO_ID;
+                    console.log("📝 Nenhuma loja especificada, usando demo:", lojaParam);
                 }
 
+                // Buscar a loja pelo ID completo
                 const lojaRef = firestore.doc(db, "lojas", lojaParam);
+                console.log("🔍 Buscando loja pelo ID:", lojaParam);
+                
                 let lojaDoc = await firestore.getDoc(lojaRef);
 
+                // Se não encontrou e é demo, criar
                 if (!lojaDoc.exists() && lojaParam === LOJA_DEMO_ID) {
+                    console.log("🛠️ Loja demo não existe, criando...");
                     const criou = await this.criarLojaDemo();
                     if (!criou) return false;
                     lojaDoc = await firestore.getDoc(lojaRef);
-                } else if (!lojaDoc.exists()) {
-                    return false;
+                } 
+                // Se não encontrou, tentar buscar por slug (fallback para links antigos)
+                else if (!lojaDoc.exists()) {
+                    console.log("⚠️ Loja não encontrada pelo ID, tentando buscar por slug...");
+                    
+                    const lojasSnapshot = await firestore.getDocs(firestore.collection(db, "lojas"));
+                    let lojaEncontrada = null;
+                    
+                    lojasSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const docId = doc.id;
+                        // Verificar se o ID ou slug corresponde
+                        if (docId === lojaParam || data.slug === lojaParam || docId.includes(lojaParam)) {
+                            lojaEncontrada = { id: doc.id, data: data };
+                            console.log("✅ Loja encontrada por fallback:", lojaEncontrada.id);
+                        }
+                    });
+                    
+                    if (lojaEncontrada) {
+                        lojaParam = lojaEncontrada.id;
+                        lojaDoc = await firestore.getDoc(firestore.doc(db, "lojas", lojaParam));
+                    } else {
+                        console.error("❌ Loja não encontrada após fallback:", lojaParam);
+                        return false;
+                    }
                 }
 
                 this.lojaIdAtual = lojaParam;
                 dadosLoja = lojaDoc.data();
                 this.tipoAcesso = 'publico';
                 this.bloqueada = (dadosLoja.status === 'bloqueado');
+                
+                console.log("✅ Loja carregada com sucesso:", this.lojaIdAtual, dadosLoja.nome_loja);
                 
                 return true;
             },
